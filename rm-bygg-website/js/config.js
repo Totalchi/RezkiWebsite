@@ -7,7 +7,7 @@ const CONFIG = {
   company: {
     name:    'RM Bygg & Montage AB',
     orgNr:   '556XXX-XXXX',
-    founded: 2013,
+    founded: null,
   },
 
   contact: {
@@ -18,12 +18,7 @@ const CONFIG = {
     formspreeId: 'YOUR_FORMSPREE_FORM_ID', // vervang dit met jouw Formspree form-ID
   },
 
-  stats: {
-    customers:    350,
-    yearsInBiz:   12,
-    satisfaction: 98,
-    solarKw:      500,
-  },
+  stats: {},
 
   social: {
     // facebook: 'https://facebook.com/rmbygg',

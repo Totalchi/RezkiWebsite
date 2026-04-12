@@ -21,7 +21,7 @@ const NAV_HTML = `
     <li><a href="services.html"     data-page="services"     data-i18n="nav.0">Services</a></li>
     <li><a href="about.html"        data-page="about"        data-i18n="nav.1">About</a></li>
     <li><a href="projects.html"     data-page="projects"     data-i18n="nav.2">Projects</a></li>
-    <li><a href="testimonials.html" data-page="testimonials" data-i18n="nav.3">Reviews</a></li>
+    <li><a href="testimonials.html" data-page="testimonials" data-i18n="nav.3">Quality</a></li>
     <li><a href="contact.html"      data-page="contact"      class="nav-cta" data-i18n="nav.4">Book Now</a></li>
   </ul>
 
@@ -69,7 +69,7 @@ const FOOTER_HTML = `
       <ul>
         <li><a href="about.html"        data-i18n="fc.c2.0">About Us</a></li>
         <li><a href="about.html"        data-i18n="fc.c2.1">Our Process</a></li>
-        <li><a href="testimonials.html" data-i18n="fc.c2.2">Customer Reviews</a></li>
+        <li><a href="testimonials.html" data-i18n="fc.c2.2">Quality &amp; Guarantees</a></li>
         <li><a href="projects.html"     data-i18n="fc.c2.3">Projects</a></li>
       </ul>
     </div>

@@ -1,0 +1,139 @@
+# ============================================================
+# RM Bygg & Montage AB — Apache Security Configuration
+# ============================================================
+
+# Disable directory listing en server-info
+Options -Indexes -MultiViews
+ServerSignature Off
+
+# ============================================================
+# HTTPS redirect + HSTS
+# ============================================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Forceer HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # www → non-www (optioneel, pas aan naar wens)
+  # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  # RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ============================================================
+# Security headers
+# ============================================================
+<IfModule mod_headers.c>
+
+  # HSTS — vertel browsers: nooit HTTP, altijd HTTPS (1 jaar)
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+  # Verhinder dat de site in een iframe geladen wordt (clickjacking)
+  Header always set X-Frame-Options "DENY"
+
+  # Verhinder MIME-type sniffing
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Referrer-beleid: stuur alleen origin mee, niet het volledige pad
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Schakel onnodige browser-API's uit
+  Header always set Permissions-Policy \
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=()"
+
+  # Cross-origin isolation
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-site"
+
+  # Content Security Policy (strict — geen unsafe-inline, geen eval)
+  Header always set Content-Security-Policy "\
+default-src 'self'; \
+script-src 'self'; \
+style-src 'self' https://fonts.googleapis.com; \
+font-src 'self' https://fonts.gstatic.com; \
+img-src 'self' https://images.unsplash.com; \
+connect-src https://formspree.io; \
+object-src 'none'; \
+frame-src 'none'; \
+frame-ancestors 'none'; \
+base-uri 'self'; \
+form-action 'self'; \
+upgrade-insecure-requests"
+
+  # Verwijder server-identificerende headers
+  Header unset Server
+  Header unset X-Powered-By
+  Header always unset X-AspNet-Version
+  Header always unset X-AspNetMvc-Version
+
+</IfModule>
+
+# ============================================================
+# Bescherm gevoelige bestanden
+# ============================================================
+
+# Blokkeer toegang tot alle verborgen bestanden/mappen (.git, .env, etc.)
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# Blokkeer directe toegang tot configuratiebestanden
+<FilesMatch "\.(json|lock|log|sql|bak|env|sh|py|rb|php)$">
+  Require all denied
+</FilesMatch>
+
+# ============================================================
+# Cache-headers
+# ============================================================
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # Afbeeldingen: 1 jaar (immutable)
+  ExpiresByType image/png        "access plus 1 year"
+  ExpiresByType image/jpeg       "access plus 1 year"
+  ExpiresByType image/webp       "access plus 1 year"
+  ExpiresByType image/svg+xml    "access plus 1 year"
+  ExpiresByType image/x-icon     "access plus 1 year"
+
+  # Fonts: 1 jaar
+  ExpiresByType font/woff        "access plus 1 year"
+  ExpiresByType font/woff2       "access plus 1 year"
+
+  # CSS / JS: 1 week (bump naar 1 jaar + cache-busting in productie)
+  ExpiresByType text/css                  "access plus 1 week"
+  ExpiresByType application/javascript    "access plus 1 week"
+
+  # HTML: nooit cachen (altijd vers)
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(png|jpg|jpeg|webp|svg|ico|woff|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+  </FilesMatch>
+</IfModule>
+
+# ============================================================
+# GZIP compressie
+# ============================================================
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml font/woff font/woff2
+</IfModule>
+
+# ============================================================
+# Aangepaste foutpagina's (lekt geen serverinfo)
+# ============================================================
+ErrorDocument 400 /400.html
+ErrorDocument 403 /index.html
+ErrorDocument 404 /404.html
+ErrorDocument 500 /index.html

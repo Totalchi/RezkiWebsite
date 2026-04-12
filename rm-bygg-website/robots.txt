@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Blokkeer niet-bestaande admin/backup paden die scanners proberen
+Disallow: /admin/
+Disallow: /wp-admin/
+Disallow: /.env
+Disallow: /.git/
+Disallow: /backup/
+
+Sitemap: https://www.rmbygg.se/sitemap.xml

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(du -sh C:/Users/Thomas/Desktop/RezkiWebsite/rm-bygg-website/*.html C:/Users/Thomas/Desktop/RezkiWebsite/rm-bygg-website/css/* C:/Users/Thomas/Desktop/RezkiWebsite/rm-bygg-website/js/* C:/Users/Thomas/Desktop/RezkiWebsite/rm-bygg-website/images/*)"
+    ]
+  }
+}

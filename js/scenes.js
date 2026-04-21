@@ -65,46 +65,52 @@
   /* ---------------- HERO: contemporary Nordic villa, blue hour ---------------- */
   function buildHero(o, THREE) {
     const { scene, camera } = o;
-    camera.position.set(5.5, 4.5, 9.5);
-    camera.lookAt(0, 1.4, 0);
+    // 3/4 architectural view — camera orbits at radius 16, ~30° from front
+    camera.fov = 40;
+    camera.updateProjectionMatrix();
+    camera.position.set(8, 6, 14);
+    camera.lookAt(0, 1.5, 0);
 
-    scene.fog = new THREE.Fog(0x0a1628, 16, 34);
+    scene.fog = new THREE.Fog(0x0a1628, 22, 40);
 
     // ── LIGHTING ────────────────────────────────────────────────────
-    const amb = new THREE.AmbientLight(0x5a6e8c, 0.65);
+    // Warm evening: key from upper-right, soft cool fill from left-back
+    const amb = new THREE.AmbientLight(0x4a5e80, 0.55);
     scene.add(amb);
 
-    const sunLight = new THREE.DirectionalLight(0xffd98a, 2.2);
-    sunLight.position.set(6, 10, 5);
+    const sunLight = new THREE.DirectionalLight(0xffcc70, 2.6);
+    sunLight.position.set(12, 18, 8);   // upper-right-front — paints the front & right faces
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.set(1024, 1024);
-    sunLight.shadow.camera.near = 0.5;
-    sunLight.shadow.camera.far = 32;
-    sunLight.shadow.camera.left = -12; sunLight.shadow.camera.right = 12;
-    sunLight.shadow.camera.top = 12;  sunLight.shadow.camera.bottom = -12;
+    sunLight.shadow.camera.near = 1;
+    sunLight.shadow.camera.far = 40;
+    sunLight.shadow.camera.left = -14; sunLight.shadow.camera.right = 14;
+    sunLight.shadow.camera.top  =  14; sunLight.shadow.camera.bottom = -14;
+    sunLight.shadow.bias = -0.001;
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x6a8ec8, 0.7);
-    rimLight.position.set(-6, 4, -4);
+    const rimLight = new THREE.DirectionalLight(0x4870c8, 0.55);
+    rimLight.position.set(-8, 5, -6);   // cool blue from back-left
     scene.add(rimLight);
 
-    const fillLight = new THREE.PointLight(0xf4a438, 1.4, 16);
-    fillLight.position.set(-2, 4, 4);
-    scene.add(fillLight);
+    const warmFill = new THREE.PointLight(0xf4902a, 1.1, 18);
+    warmFill.position.set(-3, 5, 6);
+    scene.add(warmFill);
 
     // ── MATERIALS ───────────────────────────────────────────────────
-    const mWall   = new THREE.MeshStandardMaterial({ color: 0xe8e2d6, roughness: 0.82, metalness: 0.04 });
-    const mWall2  = new THREE.MeshStandardMaterial({ color: 0xdbd3c4, roughness: 0.86 });
-    const mDark   = new THREE.MeshStandardMaterial({ color: 0x1d2d48, roughness: 0.55, metalness: 0.40 });
-    const mRoof   = new THREE.MeshStandardMaterial({ color: 0x181e26, roughness: 0.60, metalness: 0.35 });
-    const mWinLit = new THREE.MeshStandardMaterial({ color: 0xfee8a0, emissive: 0xf49820, emissiveIntensity: 1.6, roughness: 0.12 });
-    const mWinCool= new THREE.MeshStandardMaterial({ color: 0x4a70b8, roughness: 0.08, metalness: 0.65, emissive: 0x091838, emissiveIntensity: 0.45 });
-    const mSolar  = new THREE.MeshStandardMaterial({ color: 0x060e1c, roughness: 0.18, metalness: 0.80, emissive: 0x082040, emissiveIntensity: 0.8 });
-    const mFrame  = new THREE.MeshStandardMaterial({ color: 0xb8c4d0, roughness: 0.22, metalness: 0.94 });
-    const mGround = new THREE.MeshStandardMaterial({ color: 0x101b30, roughness: 0.94 });
-    const mGrass  = new THREE.MeshStandardMaterial({ color: 0x182e1e, roughness: 0.96 });
-    const mDoor   = new THREE.MeshStandardMaterial({ color: 0x6a2010, roughness: 0.56 });
-    const mMetal  = new THREE.MeshStandardMaterial({ color: 0xb4bec8, roughness: 0.30, metalness: 0.90 });
+    // Walls: off-white stucco; reveals: subtle charcoal (not pure black)
+    const mWall  = new THREE.MeshStandardMaterial({ color: 0xeae5d8, roughness: 0.80, metalness: 0.02 });
+    const mWall2 = new THREE.MeshStandardMaterial({ color: 0xe0d8c8, roughness: 0.84 });
+    const mDark  = new THREE.MeshStandardMaterial({ color: 0x2a3848, roughness: 0.62, metalness: 0.22 }); // charcoal, not black
+    const mRoof  = new THREE.MeshStandardMaterial({ color: 0x1c2230, roughness: 0.58, metalness: 0.30 });
+    const mWinLit  = new THREE.MeshStandardMaterial({ color: 0xfce898, emissive: 0xf49010, emissiveIntensity: 1.4, roughness: 0.14 });
+    const mWinCool = new THREE.MeshStandardMaterial({ color: 0x3a60a8, roughness: 0.06, metalness: 0.60, emissive: 0x07152e, emissiveIntensity: 0.5 });
+    const mSolar = new THREE.MeshStandardMaterial({ color: 0x05101e, roughness: 0.16, metalness: 0.78, emissive: 0x071e3c, emissiveIntensity: 0.75 });
+    const mFrame = new THREE.MeshStandardMaterial({ color: 0xbcc8d4, roughness: 0.24, metalness: 0.92 });
+    const mGround= new THREE.MeshStandardMaterial({ color: 0x0e1a2e, roughness: 0.95 });
+    const mGrass = new THREE.MeshStandardMaterial({ color: 0x14281a, roughness: 0.97 });
+    const mDoor  = new THREE.MeshStandardMaterial({ color: 0x5a1e0c, roughness: 0.54 });
+    const mMetal = new THREE.MeshStandardMaterial({ color: 0xb0bcc6, roughness: 0.28, metalness: 0.92 });
 
     // ── GROUND ──────────────────────────────────────────────────────
     const ground = new THREE.Mesh(new THREE.CircleGeometry(18, 64), mGround);
@@ -175,16 +181,16 @@
     function addWin(x, y, z, w, h, rotY, lit) {
       if (rotY === undefined) rotY = 0;
       if (lit === undefined) lit = false;
-      const reveal = new THREE.Mesh(new THREE.BoxGeometry(w + 0.16, h + 0.16, 0.10), mDark);
+      const reveal = new THREE.Mesh(new THREE.BoxGeometry(w + 0.07, h + 0.07, 0.09), mDark);
       reveal.position.set(x, y, z);
       reveal.rotation.y = rotY;
       house.add(reveal);
       const mat = lit ? mWinLit : mWinCool;
-      const glass = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.08), mat);
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.07), mat);
       if (rotY) {
         glass.position.set(x, y, z);
       } else {
-        glass.position.set(x, y, z + 0.02);
+        glass.position.set(x, y, z + 0.015);
       }
       glass.rotation.y = rotY;
       house.add(glass);
@@ -358,15 +364,17 @@
       scene.add(col);
     });
 
-    // ── SUN ORB ──────────────────────────────────────────────────────
-    const SUN_X = 7, SUN_Y = 8.5, SUN_Z = -5;
-    const sunOrb = new THREE.Mesh(new THREE.SphereGeometry(0.65, 28, 28),
+    // ── SUN ORB — positioned in the background sky, above right ────────
+    // At radius 16 with baseAng=0.52: camera.x≈8, camera.z≈13
+    // Sun behind & above the house: x=10, y=11, z=-10 (far back-right)
+    const SUN_X = 10, SUN_Y = 11, SUN_Z = -10;
+    const sunOrb = new THREE.Mesh(new THREE.SphereGeometry(0.55, 28, 28),
       new THREE.MeshBasicMaterial({ color: 0xffe060 }));
     sunOrb.position.set(SUN_X, SUN_Y, SUN_Z);
     scene.add(sunOrb);
 
     const coronaLayers = [];
-    [[0.95, 0xffce50, 0.48], [1.4, 0xf4a020, 0.26], [2.2, 0xee6c10, 0.11]].forEach(function(d) {
+    [[0.82, 0xffce50, 0.45], [1.25, 0xf4a020, 0.24], [2.0, 0xee6810, 0.10]].forEach(function(d) {
       const cr = new THREE.Mesh(new THREE.SphereGeometry(d[0], 20, 20),
         new THREE.MeshBasicMaterial({ color: d[1], transparent: true, opacity: d[2] }));
       cr.position.set(SUN_X, SUN_Y, SUN_Z);
@@ -409,12 +417,14 @@
       cY += (tY - cY) * 0.05;
       cX += (tX - cX) * 0.05;
 
-      const ang = Math.sin(t * 0.10) * 0.15 + cY;
-      const rad = 11.5;
-      camera.position.x = 5.5 + Math.sin(ang) * rad * 0.45;
-      camera.position.z = 9.5 + Math.cos(ang) * rad * 0.30;
-      camera.position.y = 4.5 + cX * 1.2 + Math.sin(t * 0.20) * 0.10;
-      camera.lookAt(0, 1.4, 0);
+      // Proper orbit: base angle ~0.52 rad (≈30°) puts camera front-right of house
+      const baseAng = 0.52;
+      const ang = baseAng + Math.sin(t * 0.09) * 0.14 + cY;
+      const radius = 16;
+      camera.position.x = Math.sin(ang) * radius;
+      camera.position.z = Math.cos(ang) * radius;
+      camera.position.y = 5.8 + cX * 1.4 + Math.sin(t * 0.18) * 0.12;
+      camera.lookAt(0, 1.5, 0);
 
       // Sun pulse
       const sc = 1 + Math.sin(t * 1.5) * 0.05;

@@ -68,18 +68,17 @@
     // 3/4 architectural view — camera orbits at radius 16, ~30° from front
     camera.fov = 40;
     camera.updateProjectionMatrix();
-    camera.position.set(8, 6, 14);
-    camera.lookAt(0, 1.5, 0);
+    camera.position.set(8, 8, 14);
+    camera.lookAt(0, 1.0, 0);
 
     scene.fog = new THREE.Fog(0x0a1628, 22, 40);
 
     // ── LIGHTING ────────────────────────────────────────────────────
-    // Warm evening: key from upper-right, soft cool fill from left-back
-    const amb = new THREE.AmbientLight(0x4a5e80, 0.55);
+    const amb = new THREE.AmbientLight(0x6070a0, 1.1);
     scene.add(amb);
 
-    const sunLight = new THREE.DirectionalLight(0xffcc70, 2.6);
-    sunLight.position.set(12, 18, 8);   // upper-right-front — paints the front & right faces
+    const sunLight = new THREE.DirectionalLight(0xffd878, 3.8);
+    sunLight.position.set(12, 20, 8);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.set(1024, 1024);
     sunLight.shadow.camera.near = 1;
@@ -89,12 +88,17 @@
     sunLight.shadow.bias = -0.001;
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x4870c8, 0.55);
-    rimLight.position.set(-8, 5, -6);   // cool blue from back-left
+    // Sky fill — cool top-down light to illuminate the roof
+    const skyFill = new THREE.DirectionalLight(0x8aaacf, 1.4);
+    skyFill.position.set(0, 20, 0);
+    scene.add(skyFill);
+
+    const rimLight = new THREE.DirectionalLight(0x4878d8, 0.7);
+    rimLight.position.set(-8, 5, -6);
     scene.add(rimLight);
 
-    const warmFill = new THREE.PointLight(0xf4902a, 1.1, 18);
-    warmFill.position.set(-3, 5, 6);
+    const warmFill = new THREE.PointLight(0xf4902a, 1.4, 20);
+    warmFill.position.set(-2, 5, 7);
     scene.add(warmFill);
 
     // ── MATERIALS ───────────────────────────────────────────────────
@@ -105,7 +109,7 @@
     const mRoof  = new THREE.MeshStandardMaterial({ color: 0x1c2230, roughness: 0.58, metalness: 0.30 });
     const mWinLit  = new THREE.MeshStandardMaterial({ color: 0xfce898, emissive: 0xf49010, emissiveIntensity: 1.4, roughness: 0.14 });
     const mWinCool = new THREE.MeshStandardMaterial({ color: 0x3a60a8, roughness: 0.06, metalness: 0.60, emissive: 0x07152e, emissiveIntensity: 0.5 });
-    const mSolar = new THREE.MeshStandardMaterial({ color: 0x05101e, roughness: 0.16, metalness: 0.78, emissive: 0x071e3c, emissiveIntensity: 0.75 });
+    const mSolar = new THREE.MeshStandardMaterial({ color: 0x0a1830, roughness: 0.12, metalness: 0.85, emissive: 0x0a2a50, emissiveIntensity: 1.1 });
     const mFrame = new THREE.MeshStandardMaterial({ color: 0xbcc8d4, roughness: 0.24, metalness: 0.92 });
     const mGround= new THREE.MeshStandardMaterial({ color: 0x0e1a2e, roughness: 0.95 });
     const mGrass = new THREE.MeshStandardMaterial({ color: 0x14281a, roughness: 0.97 });
@@ -249,7 +253,8 @@
 
     // ── SOLAR PANELS (flat on roof) ─────────────────────────────────
     const solarGrp = new THREE.Group();
-    solarGrp.position.set(-0.6, 2.62, 0);
+    solarGrp.position.set(-0.6, 2.63, 0.2);
+    solarGrp.rotation.x = -0.18; // tilt front edge up so panels face camera
     house.add(solarGrp);
     const pw = 0.68, ph = 0.42, pgap = 0.045;
     const cols = 5, rows = 2;
@@ -423,8 +428,8 @@
       const radius = 16;
       camera.position.x = Math.sin(ang) * radius;
       camera.position.z = Math.cos(ang) * radius;
-      camera.position.y = 5.8 + cX * 1.4 + Math.sin(t * 0.18) * 0.12;
-      camera.lookAt(0, 1.5, 0);
+      camera.position.y = 8.0 + cX * 1.4 + Math.sin(t * 0.18) * 0.12;
+      camera.lookAt(0, 1.0, 0);
 
       // Sun pulse
       const sc = 1 + Math.sin(t * 1.5) * 0.05;

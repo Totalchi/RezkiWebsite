@@ -89,7 +89,7 @@
     scene.add(sunLight);
 
     // Sky fill — cool top-down light to illuminate the roof
-    const skyFill = new THREE.DirectionalLight(0x8aaacf, 1.4);
+    const skyFill = new THREE.DirectionalLight(0x8aaacf, 3.5);
     skyFill.position.set(0, 20, 0);
     scene.add(skyFill);
 
@@ -106,10 +106,10 @@
     const mWall  = new THREE.MeshStandardMaterial({ color: 0xeae5d8, roughness: 0.80, metalness: 0.02 });
     const mWall2 = new THREE.MeshStandardMaterial({ color: 0xe0d8c8, roughness: 0.84 });
     const mDark  = new THREE.MeshStandardMaterial({ color: 0x2a3848, roughness: 0.62, metalness: 0.22 }); // charcoal, not black
-    const mRoof  = new THREE.MeshStandardMaterial({ color: 0x1c2230, roughness: 0.58, metalness: 0.30 });
+    const mRoof  = new THREE.MeshStandardMaterial({ color: 0x3a4858, roughness: 0.55, metalness: 0.30 });
     const mWinLit  = new THREE.MeshStandardMaterial({ color: 0xfce898, emissive: 0xf49010, emissiveIntensity: 1.4, roughness: 0.14 });
     const mWinCool = new THREE.MeshStandardMaterial({ color: 0x3a60a8, roughness: 0.06, metalness: 0.60, emissive: 0x07152e, emissiveIntensity: 0.5 });
-    const mSolar = new THREE.MeshStandardMaterial({ color: 0x0a1830, roughness: 0.12, metalness: 0.85, emissive: 0x0a2a50, emissiveIntensity: 1.1 });
+    const mSolar = new THREE.MeshStandardMaterial({ color: 0x0d2245, roughness: 0.12, metalness: 0.85, emissive: 0x0838c0, emissiveIntensity: 2.5 });
     const mFrame = new THREE.MeshStandardMaterial({ color: 0xbcc8d4, roughness: 0.24, metalness: 0.92 });
     const mGround= new THREE.MeshStandardMaterial({ color: 0x0e1a2e, roughness: 0.95 });
     const mGrass = new THREE.MeshStandardMaterial({ color: 0x14281a, roughness: 0.97 });
@@ -137,16 +137,22 @@
     body.castShadow = true; body.receiveShadow = true;
     house.add(body);
 
-    // Dark parapet / fascia band (flat-roof signature)
-    const fascia = new THREE.Mesh(new THREE.BoxGeometry(4.9, 0.28, 3.3), mDark);
-    fascia.position.y = 2.64;
-    fascia.castShadow = true;
-    house.add(fascia);
-
-    // Flat roof slab
-    const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.10, 3.42), mRoof);
-    roofSlab.position.y = 2.55;
+    // Flat roof deck — lighter so it reads as a surface, not a void
+    const mRoofDeck = new THREE.MeshStandardMaterial({ color: 0x5a6878, roughness: 0.55, metalness: 0.10 });
+    const roofSlab = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.10, 3.42), mRoofDeck);
+    roofSlab.position.y = 2.56;
+    roofSlab.receiveShadow = true;
     house.add(roofSlab);
+
+    // Parapet: thin perimeter walls only — NOT a solid lid
+    const pF = new THREE.Mesh(new THREE.BoxGeometry(5.02, 0.30, 0.14), mDark);
+    pF.position.set(0, 2.77, 1.64); house.add(pF);       // front
+    const pB = new THREE.Mesh(new THREE.BoxGeometry(5.02, 0.30, 0.14), mDark);
+    pB.position.set(0, 2.77, -1.64); house.add(pB);      // back
+    const pL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.30, 3.14), mDark);
+    pL.position.set(-2.43, 2.77, 0); house.add(pL);      // left
+    const pR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.30, 3.14), mDark);
+    pR.position.set(2.43, 2.77, 0); house.add(pR);       // right
 
     // Base plinth strip
     const plinth = new THREE.Mesh(new THREE.BoxGeometry(4.85, 0.12, 3.22), mDark);
@@ -253,8 +259,8 @@
 
     // ── SOLAR PANELS (flat on roof) ─────────────────────────────────
     const solarGrp = new THREE.Group();
-    solarGrp.position.set(-0.6, 2.63, 0.2);
-    solarGrp.rotation.x = -0.18; // tilt front edge up so panels face camera
+    solarGrp.position.set(-0.6, 2.67, 0.1);
+    solarGrp.rotation.x = -0.20; // tilt front edge up so panels face camera
     house.add(solarGrp);
     const pw = 0.68, ph = 0.42, pgap = 0.045;
     const cols = 5, rows = 2;
@@ -388,7 +394,7 @@
     });
 
     // ── ENERGY PARTICLES (sun → solar panels) ───────────────────────
-    const ptclTarget = new THREE.Vector3(-0.6, 2.68, 0.2);
+    const ptclTarget = new THREE.Vector3(-0.6, 2.72, 0.1);
     const particles = [];
     for (let i = 0; i < 38; i++) {
       const pm = new THREE.MeshBasicMaterial({ color: 0xffd050, transparent: true, opacity: 0 });

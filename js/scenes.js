@@ -58,265 +58,235 @@
     return obj;
   }
 
-  /* ---------------- HERO: Swedish villa at golden hour ---------------- */
+  /* ---------------- HERO: contemporary Nordic villa, blue hour ---------------- */
   function buildHero(o, THREE) {
     const { scene, camera } = o;
-    camera.fov = 48;
+    camera.fov = 44;
     camera.near = 0.1;
     camera.far = 300;
-    camera.position.set(3, 5, 16);
-    camera.lookAt(0, 1.6, 0);
+    camera.position.set(0, 3.5, 17);
+    camera.lookAt(0, 1.4, 0);
     camera.updateProjectionMatrix();
 
-    scene.background = new THREE.Color(0x04091c);
-    scene.fog = new THREE.Fog(0x07112a, 24, 44);
+    scene.background = new THREE.Color(0x020810);
+    scene.fog = new THREE.Fog(0x06101e, 22, 42);
 
-    // ── SKY GRADIENT SPHERE ──────────────────────────────────────────
-    const skyGeo = new THREE.SphereGeometry(90, 32, 32);
+    // ── SKY ─────────────────────────────────────────────────────────
+    const skyGeo = new THREE.SphereGeometry(90, 32, 16);
     const skyCol = new Float32Array(skyGeo.attributes.position.count * 3);
     for (let i = 0; i < skyGeo.attributes.position.count; i++) {
       const y = skyGeo.attributes.position.getY(i);
-      const frac = Math.max(0, Math.min(1, (y + 90) / 180));
-      // deep midnight at top, subtle gold horizon at equator
-      const r = 0.03 + frac * 0.08 + (1 - Math.abs(frac * 2 - 1)) * 0.12;
-      const g = 0.06 + frac * 0.08 + (1 - Math.abs(frac * 2 - 1)) * 0.07;
-      const b = 0.18 + frac * 0.18;
-      skyCol[i*3] = r; skyCol[i*3+1] = g; skyCol[i*3+2] = b;
+      const f = Math.max(0, Math.min(1, (y + 90) / 180)); // 0 = bottom, 1 = top
+      const horizon = Math.pow(1 - Math.abs(f * 2 - 1), 3); // peaks at equator
+      skyCol[i*3]   = 0.02 + f * 0.05 + horizon * 0.18;
+      skyCol[i*3+1] = 0.04 + f * 0.06 + horizon * 0.08;
+      skyCol[i*3+2] = 0.12 + f * 0.22;
     }
     skyGeo.setAttribute('color', new THREE.BufferAttribute(skyCol, 3));
     scene.add(new THREE.Mesh(skyGeo,
       new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, depthWrite: false })));
 
-    // Horizon warm glow band
+    // Horizon amber glow
     const horizMat = new THREE.MeshBasicMaterial({
-      color: 0xf4901e, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide
+      color: 0xf06820, transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide
     });
-    const horiz = new THREE.Mesh(new THREE.PlaneGeometry(120, 10), horizMat);
-    horiz.position.set(6, 0.5, -22);
+    const horiz = new THREE.Mesh(new THREE.PlaneGeometry(120, 8), horizMat);
+    horiz.position.set(7, 0.8, -24);
     scene.add(horiz);
 
     // ── LIGHTING ────────────────────────────────────────────────────
-    scene.add(new THREE.AmbientLight(0x1f3560, 1.4));
+    // Hemisphere: cool blue sky above, warm amber bounce below
+    scene.add(new THREE.HemisphereLight(0x1e3a70, 0x8a4010, 1.1));
 
-    const keyLight = new THREE.DirectionalLight(0xffd590, 2.8);
-    keyLight.position.set(10, 16, 10);
+    const keyLight = new THREE.DirectionalLight(0xffd080, 3.0);
+    keyLight.position.set(10, 18, 10);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(2048, 2048);
     keyLight.shadow.camera.near = 0.5;
     keyLight.shadow.camera.far = 55;
-    keyLight.shadow.camera.left = -15; keyLight.shadow.camera.right = 15;
-    keyLight.shadow.camera.top = 15; keyLight.shadow.camera.bottom = -15;
-    keyLight.shadow.bias = -0.0006;
+    keyLight.shadow.camera.left = -14; keyLight.shadow.camera.right = 14;
+    keyLight.shadow.camera.top = 14; keyLight.shadow.camera.bottom = -14;
+    keyLight.shadow.bias = -0.0005;
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0x3a60b8, 1.2);
-    rimLight.position.set(-10, 7, -8);
+    const rimLight = new THREE.DirectionalLight(0x3060c0, 1.1);
+    rimLight.position.set(-10, 6, -8);
     scene.add(rimLight);
 
-    const warmFill = new THREE.PointLight(0xf4a030, 2.2, 18);
-    warmFill.position.set(-1, 5, 7);
+    const warmFill = new THREE.PointLight(0xf49030, 1.8, 20);
+    warmFill.position.set(-1, 6, 8);
     scene.add(warmFill);
 
-    // Window-spill lights (added when windows are created)
-    const windowLights = [];
-
     // ── MATERIALS ───────────────────────────────────────────────────
-    const mWall   = new THREE.MeshStandardMaterial({ color: 0xe0d9cc, roughness: 0.87, metalness: 0.02 });
-    const mWall2  = new THREE.MeshStandardMaterial({ color: 0xd2c9b8, roughness: 0.9 });
-    const mAccent = new THREE.MeshStandardMaterial({ color: 0x18283e, roughness: 0.6 });
-    const mRoof   = new THREE.MeshStandardMaterial({ color: 0x221c18, roughness: 0.72, metalness: 0.22 });
-    const mWinLit = new THREE.MeshStandardMaterial({ color: 0xfde9a0, emissive: 0xf8a820, emissiveIntensity: 1.6, roughness: 0.12 });
-    const mWinCool= new THREE.MeshStandardMaterial({ color: 0x4878b8, roughness: 0.07, metalness: 0.75, emissive: 0x0a1e40, emissiveIntensity: 0.4 });
-    const mSolar  = new THREE.MeshStandardMaterial({ color: 0x06101e, roughness: 0.18, metalness: 0.78, emissive: 0x0a2848, emissiveIntensity: 0.7 });
-    const mFrame  = new THREE.MeshStandardMaterial({ color: 0xbbc8d4, roughness: 0.22, metalness: 0.94 });
-    const mGround = new THREE.MeshStandardMaterial({ color: 0x0b1624, roughness: 0.97 });
-    const mGrass  = new THREE.MeshStandardMaterial({ color: 0x14301e, roughness: 0.95 });
-    const mDoor   = new THREE.MeshStandardMaterial({ color: 0x6a2c12, roughness: 0.62 });
-    const mMetal  = new THREE.MeshStandardMaterial({ color: 0xb0bcc8, roughness: 0.32, metalness: 0.9 });
+    const mWall   = new THREE.MeshStandardMaterial({ color: 0xe4ddd0, roughness: 0.84, metalness: 0.03 });
+    const mWall2  = new THREE.MeshStandardMaterial({ color: 0xd8d0c2, roughness: 0.88 });
+    const mDark   = new THREE.MeshStandardMaterial({ color: 0x141c28, roughness: 0.52, metalness: 0.45 });
+    const mRoof   = new THREE.MeshStandardMaterial({ color: 0x101418, roughness: 0.62, metalness: 0.38 });
+    const mWinLit = new THREE.MeshStandardMaterial({ color: 0xfde8a0, emissive: 0xf89820, emissiveIntensity: 2.0, roughness: 0.1 });
+    const mWinCool= new THREE.MeshStandardMaterial({ color: 0x4a78c0, roughness: 0.06, metalness: 0.7, emissive: 0x0a1a3a, emissiveIntensity: 0.5 });
+    const mSolar  = new THREE.MeshStandardMaterial({ color: 0x05101c, roughness: 0.16, metalness: 0.82, emissive: 0x08224a, emissiveIntensity: 0.9 });
+    const mFrame  = new THREE.MeshStandardMaterial({ color: 0xb8c8d6, roughness: 0.2, metalness: 0.96 });
+    const mGround = new THREE.MeshStandardMaterial({ color: 0x090e18, roughness: 0.95 });
+    const mPave   = new THREE.MeshStandardMaterial({ color: 0x0c1422, roughness: 0.88, metalness: 0.06 });
+    const mDoor   = new THREE.MeshStandardMaterial({ color: 0x601c08, roughness: 0.58 });
+    const mMetal  = new THREE.MeshStandardMaterial({ color: 0xb2bec8, roughness: 0.28, metalness: 0.92 });
 
     // ── GROUND ──────────────────────────────────────────────────────
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(36, 36), mGround);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(38, 38), mGround);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const grass = new THREE.Mesh(new THREE.CircleGeometry(7, 64), mGrass);
-    grass.rotation.x = -Math.PI / 2;
-    grass.position.y = 0.006;
-    grass.receiveShadow = true;
-    scene.add(grass);
+    // Pavement area around house
+    const pave = new THREE.Mesh(new THREE.PlaneGeometry(14, 10), mPave);
+    pave.rotation.x = -Math.PI / 2;
+    pave.position.set(1, 0.006, 1.5);
+    pave.receiveShadow = true;
+    scene.add(pave);
 
-    // Driveway stripe
-    const drive = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 6),
-      new THREE.MeshStandardMaterial({ color: 0x0e1c2c, roughness: 0.96 }));
-    drive.rotation.x = -Math.PI / 2;
-    drive.position.set(4, 0.007, 4);
-    drive.rotation.z = 0.2;
-    scene.add(drive);
+    // Lawn strip
+    const lawn = new THREE.Mesh(new THREE.PlaneGeometry(6, 5),
+      new THREE.MeshStandardMaterial({ color: 0x0e2016, roughness: 0.97 }));
+    lawn.rotation.x = -Math.PI / 2;
+    lawn.position.set(-4, 0.007, 0);
+    scene.add(lawn);
 
-    // ── HOUSE ───────────────────────────────────────────────────────
+    // ── CONTEMPORARY NORDIC VILLA ────────────────────────────────────
     const house = new THREE.Group();
     scene.add(house);
 
-    const body = new THREE.Mesh(new THREE.BoxGeometry(4.4, 2.4, 3.2), mWall);
-    body.position.y = 1.2;
+    // Main body — wide and low
+    const body = new THREE.Mesh(new THREE.BoxGeometry(5.6, 2.6, 3.4), mWall);
+    body.position.y = 1.3;
     body.castShadow = true; body.receiveShadow = true;
     house.add(body);
 
-    // Horizontal accent bands
-    for (const bandY of [0.22, 2.38]) {
-      const band = new THREE.Mesh(new THREE.BoxGeometry(4.44, 0.09, 3.24), mAccent);
-      band.position.y = bandY;
-      house.add(band);
-    }
+    // Dark fascia / parapet at roofline (gives the flat-roof feel)
+    const fascia = new THREE.Mesh(new THREE.BoxGeometry(5.7, 0.32, 3.5), mDark);
+    fascia.position.y = 2.76;
+    fascia.castShadow = true;
+    house.add(fascia);
 
-    // Side wing / garage
-    const wing = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.05, 2.8), mWall2);
-    wing.position.set(2.85, 1.025, 0.1);
+    // Roof slab (almost flat, very slight overhang)
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.12, 3.62), mRoof);
+    roof.position.y = 2.62;
+    house.add(roof);
+
+    // Plinth / base band
+    const plinth = new THREE.Mesh(new THREE.BoxGeometry(5.64, 0.14, 3.44), mDark);
+    plinth.position.y = 0.08;
+    house.add(plinth);
+
+    // Side garage wing
+    const wing = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.2, 3.2), mWall2);
+    wing.position.set(3.1, 1.1, 0);
     wing.castShadow = true; wing.receiveShadow = true;
     house.add(wing);
 
-    // Garage door on wing
-    const garageDoor = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.7, 0.08), mAccent);
-    garageDoor.position.set(2.85, 0.9, 1.51);
-    house.add(garageDoor);
-    // Garage door panels
-    for (let r = 0; r < 4; r++) {
-      const panel = new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.35, 0.04),
-        new THREE.MeshStandardMaterial({ color: 0x2a3c50, roughness: 0.55 }));
-      panel.position.set(2.85, 0.25 + r * 0.4, 1.54);
+    const wingFascia = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.28, 3.3), mDark);
+    wingFascia.position.set(3.1, 2.34, 0);
+    house.add(wingFascia);
+
+    const wingRoof = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.1, 3.42), mRoof);
+    wingRoof.position.set(3.1, 2.25, 0);
+    house.add(wingRoof);
+
+    // Garage door — aluminium sectional style
+    const gDoorMat = new THREE.MeshStandardMaterial({ color: 0x1c2a38, roughness: 0.5, metalness: 0.5 });
+    for (let r = 0; r < 5; r++) {
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.38, 0.07), gDoorMat);
+      panel.position.set(3.1, 0.22 + r * 0.39, 1.62);
       house.add(panel);
+      // Groove between panels
+      const groove = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.02, 0.075), mDark);
+      groove.position.set(3.1, 0.41 + r * 0.39, 1.62);
+      house.add(groove);
     }
 
-    // ── ROOF: pitched ───────────────────────────────────────────────
-    function makePitchedRoof(w, h, d, ox, oy, oz) {
-      const hw = w / 2, hd = d / 2;
-      const verts = new Float32Array([
-        -hw, 0,  hd,  hw, 0,  hd,  0, h,  hd, // front
-        -hw, 0, -hd,  0, h, -hd,  hw, 0, -hd, // back
-        -hw, 0,  hd,  0, h,  hd,  0, h, -hd,  // left slope tri 1
-        -hw, 0,  hd,  0, h, -hd, -hw, 0, -hd, // left slope tri 2
-         hw, 0,  hd,  0, h, -hd,  0, h,  hd,  // right slope tri 1
-         hw, 0,  hd,  hw, 0, -hd, 0, h, -hd,  // right slope tri 2
-      ]);
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
-      geo.computeVertexNormals();
-      const m = new THREE.Mesh(geo, mRoof);
-      m.position.set(ox, oy, oz);
-      m.castShadow = true;
-      return m;
-    }
-    house.add(makePitchedRoof(4.6, 1.7, 3.4, 0, 2.4, 0));
-    house.add(makePitchedRoof(2.4, 1.15, 3.0, 2.85, 2.05, 0.1));
+    // ── FLOOR-TO-CEILING WINDOWS ─────────────────────────────────────
+    const windowLights = [];
+    const litWins = [];
 
-    // Eave trim
-    for (const [z, oy] of [[1.72, 2.41], [-1.72, 2.41]]) {
-      const eave = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.06, 0.1), mAccent);
-      eave.position.set(0, oy, z);
-      house.add(eave);
-    }
-
-    // ── WINDOWS ─────────────────────────────────────────────────────
     function addWin(x, y, z, w, h, rotY = 0, lit = false) {
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(w+0.14, h+0.14, 0.1), mAccent);
-      frame.position.set(x, y, z); frame.rotation.y = rotY;
-      house.add(frame);
+      // Recessed reveal (dark border)
+      const reveal = new THREE.Mesh(new THREE.BoxGeometry(w+0.18, h+0.18, 0.12), mDark);
+      reveal.position.set(x, y, z); reveal.rotation.y = rotY;
+      house.add(reveal);
       const mat = lit ? mWinLit : mWinCool;
-      const glass = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.08), mat);
-      glass.position.set(x, y, z + (rotY ? 0 : 0.02)); glass.rotation.y = rotY;
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.09), mat);
+      glass.position.set(x, y, z + (rotY ? 0 : 0.025)); glass.rotation.y = rotY;
       house.add(glass);
-      const cv = new THREE.Mesh(new THREE.BoxGeometry(0.045, h, 0.12), mAccent);
-      cv.position.set(x, y, z + 0.04); cv.rotation.y = rotY; house.add(cv);
-      const ch = new THREE.Mesh(new THREE.BoxGeometry(w, 0.045, 0.12), mAccent);
-      ch.position.set(x, y, z + 0.04); ch.rotation.y = rotY; house.add(ch);
       if (lit) {
-        const spill = new THREE.PointLight(0xf8a820, 0.9, 3.5);
-        spill.position.set(x, y, z + 0.5);
-        spill.rotation && void 0; // scope
+        const spill = new THREE.PointLight(0xf89820, 1.1, 4.5);
+        spill.position.set(x + (rotY ? 0.4 : 0), y, z + (rotY ? 0 : 0.6));
         house.add(spill);
         windowLights.push(spill);
       }
       return glass;
     }
 
-    const litWins = [];
-    litWins.push(addWin(-1.2, 1.4, 1.62, 0.92, 1.05, 0, true));
-    litWins.push(addWin( 1.2, 1.4, 1.62, 0.92, 1.05, 0, false));
-    litWins.push(addWin( 2.85, 1.15, 1.56, 0.8, 0.88, 0, true));
-    addWin(-2.22, 1.35, 0, 0.8, 1.0, Math.PI/2, false);
-    // Attic window
-    addWin(0, 2.95, 1.72, 0.6, 0.5, 0, true);
+    // Three large picture windows on front — nearly floor to ceiling
+    litWins.push(addWin(-1.8, 1.35, 1.72, 1.2, 1.8, 0, true));
+    litWins.push(addWin( 0.2, 1.35, 1.72, 1.2, 1.8, 0, false));
+    // Small right window
+    litWins.push(addWin( 2.0, 1.2, 1.72, 0.7, 0.95, 0, true));
+    // Side window
+    addWin(-2.82, 1.3, 0, 0.9, 1.1, Math.PI/2, false);
+    // High clerestory window (adds interest)
+    litWins.push(addWin(-0.8, 2.35, 1.725, 2.4, 0.28, 0, true));
 
-    // ── DOOR ────────────────────────────────────────────────────────
-    const doorFrame2 = new THREE.Mesh(new THREE.BoxGeometry(1.05, 2.05, 0.1), mAccent);
-    doorFrame2.position.set(0, 1.0, 1.63);
-    house.add(doorFrame2);
-    const door = new THREE.Mesh(new THREE.BoxGeometry(0.88, 1.9, 0.09), mDoor);
-    door.position.set(0, 1.0, 1.635); door.castShadow = true;
-    house.add(door);
-    // Sidelight panels
-    for (const sx of [-0.58, 0.58]) {
-      const sl = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.4, 0.08), mWinLit);
-      sl.position.set(sx, 1.05, 1.638);
-      house.add(sl);
-      litWins.push(sl);
-    }
-    const handle2 = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.18, 8), mMetal);
-    handle2.rotation.z = Math.PI / 2;
-    handle2.position.set(0.5, 1.0, 1.685);
-    house.add(handle2);
-    const step = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 0.55), mWall2);
-    step.position.set(0, 0.08, 1.92);
-    house.add(step);
-    const step2 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 0.5), mWall2);
-    step2.position.set(0, -0.02, 2.16);
-    house.add(step2);
+    // ── ENTRANCE ─────────────────────────────────────────────────────
+    // Recessed canopy
+    const canopy = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 0.8), mDark);
+    canopy.position.set(-3.4, 2.45, 2.1);
+    house.add(canopy);
+    const canopyPost = new THREE.Mesh(new THREE.BoxGeometry(0.07, 2.4, 0.07), mMetal);
+    canopyPost.position.set(-3.4, 1.2, 2.46);
+    house.add(canopyPost);
 
-    // ── CHIMNEY ─────────────────────────────────────────────────────
-    const chim = new THREE.Mesh(new THREE.BoxGeometry(0.46, 1.15, 0.46), mWall2);
-    chim.position.set(1.35, 3.28, -0.35); chim.castShadow = true;
-    house.add(chim);
-    const chimCap = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.07, 0.56), mAccent);
-    chimCap.position.set(1.35, 3.87, -0.35);
-    house.add(chimCap);
-    // smoke particle (MeshBasicMaterial, animated)
-    const smokeMat = new THREE.MeshBasicMaterial({ color: 0x7080a0, transparent: true, opacity: 0.18, depthWrite: false });
-    const smokes = [];
-    for (let i = 0; i < 6; i++) {
-      const s = new THREE.Mesh(new THREE.SphereGeometry(0.08 + Math.random() * 0.08, 8, 8), smokeMat.clone());
-      s.userData.t = Math.random();
-      scene.add(s);
-      smokes.push(s);
-    }
+    // Door
+    const doorReveal = new THREE.Mesh(new THREE.BoxGeometry(1.05, 2.2, 0.1), mDark);
+    doorReveal.position.set(-3.4, 1.1, 1.72);
+    house.add(doorReveal);
+    const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.9, 2.05, 0.08), mDoor);
+    doorMesh.position.set(-3.4, 1.1, 1.725); doorMesh.castShadow = true;
+    house.add(doorMesh);
+    // Handle — horizontal bar
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.35, 8), mMetal);
+    handle.rotation.z = Math.PI/2;
+    handle.position.set(-3.08, 1.1, 1.77);
+    house.add(handle);
+    // Door sidelight
+    const sideLight = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.6, 0.08), mWinLit);
+    sideLight.position.set(-2.87, 1.1, 1.726);
+    house.add(sideLight);
+    litWins.push(sideLight);
 
-    // ── SOLAR PANELS ────────────────────────────────────────────────
-    // Roof: eave y=2.4, apex y=4.1, half-width=2.3
-    const slopeAng = Math.atan2(1.7, 2.3); // ~36°
+    // Steps
+    [[1.9, 0.08], [2.2, -0.04]].forEach(([z, y]) => {
+      house.add(Object.assign(
+        new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 0.5), mWall2),
+        { position: new THREE.Vector3(-3.4, y, z) }
+      ));
+    });
 
-    function makePanelArray(cols, rows) {
+    // ── SOLAR PANELS (flush on roof) ─────────────────────────────────
+    function makeSolarArray(cols, rows) {
       const g = new THREE.Group();
-      const pw = 0.68, ph = 0.42, gap = 0.045;
-      const totW = cols*pw + (cols-1)*gap, totH = rows*ph + (rows-1)*gap;
-      // backing frame
-      const bg = new THREE.Mesh(new THREE.BoxGeometry(totW+0.07, 0.042, totH+0.07), mFrame);
+      const pw = 0.72, ph = 0.44, gap = 0.04;
+      const tW = cols*pw + (cols-1)*gap, tH = rows*ph + (rows-1)*gap;
+      // mount frame
+      const bg = new THREE.Mesh(new THREE.BoxGeometry(tW+0.08, 0.04, tH+0.08), mFrame);
       g.add(bg);
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
-          const cell = new THREE.Mesh(new THREE.BoxGeometry(pw, 0.048, ph), mSolar);
-          cell.position.set(-totW/2 + pw/2 + c*(pw+gap), 0.004, -totH/2 + ph/2 + r*(ph+gap));
-          cell.castShadow = true; g.add(cell);
-          // internal grid lines
+          const cell = new THREE.Mesh(new THREE.BoxGeometry(pw, 0.05, ph), mSolar);
+          cell.position.set(-tW/2+pw/2+c*(pw+gap), 0.004, -tH/2+ph/2+r*(ph+gap));
+          g.add(cell);
+          // cell grid
           for (let k = 1; k < 6; k++) {
-            const ln = new THREE.Mesh(new THREE.BoxGeometry(pw*0.96, 0.052, 0.007), mFrame);
-            ln.position.set(-totW/2 + pw/2 + c*(pw+gap), 0.005,
-              -totH/2 + ph/2 + r*(ph+gap) - ph/2 + k*ph/6);
-            g.add(ln);
-          }
-          for (let k = 1; k < 3; k++) {
-            const ln = new THREE.Mesh(new THREE.BoxGeometry(0.007, 0.052, ph*0.96), mFrame);
-            ln.position.set(-totW/2 + pw/2 + c*(pw+gap) - pw/2 + k*pw/3, 0.005,
-              -totH/2 + ph/2 + r*(ph+gap));
+            const ln = new THREE.Mesh(new THREE.BoxGeometry(pw*0.95, 0.055, 0.006), mFrame);
+            ln.position.set(-tW/2+pw/2+c*(pw+gap), 0.006, -tH/2+ph/2+r*(ph+gap)-ph/2+k*ph/6);
             g.add(ln);
           }
         }
@@ -324,103 +294,114 @@
       return g;
     }
 
-    // Place panels on left slope: center at x=-(2.3/2)=-1.15 from apex, y midpoint
-    const leftP = makePanelArray(3, 2);
-    leftP.rotation.z = slopeAng;
-    // slope midpoint: x=-1.15, y = 2.4 + 0.5*1.7*...
-    // at x=-1.15, y on slope = 2.4 + (1 - 1.15/2.3)*1.7 = 2.4+0.85 = 3.25
-    leftP.position.set(-1.15, 3.27, 0);
-    house.add(leftP);
-
-    const rightP = makePanelArray(3, 2);
-    rightP.rotation.z = -slopeAng;
-    rightP.position.set(1.15, 3.27, 0);
-    house.add(rightP);
+    // Flat-mounted on roof (no slope — contemporary villa has flat roof)
+    const solarArray = makeSolarArray(5, 2);
+    solarArray.position.set(-0.8, 2.7, 0);
+    solarArray.rotation.x = 0.12; // slight tilt for solar optimisation
+    house.add(solarArray);
 
     // ── EV CHARGER ──────────────────────────────────────────────────
     const evG = new THREE.Group();
-    evG.position.set(4.1, 1.1, 1.5);
+    evG.position.set(4.55, 1.15, 1.62);
     house.add(evG);
-    evG.add(new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.62, 0.18), mAccent));
-    const evScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.21, 0.14),
-      new THREE.MeshBasicMaterial({ color: 0x3affa8 }));
-    evScreen.position.set(0, 0.14, 0.092); evG.add(evScreen);
-    const evLED = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8),
-      new THREE.MeshBasicMaterial({ color: 0x3affa8 }));
-    evLED.position.set(0, -0.12, 0.092); evG.add(evLED);
-    const evRing = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.007, 8, 24),
-      new THREE.MeshBasicMaterial({ color: 0x3affa8 }));
-    evRing.position.set(0, -0.12, 0.093); evG.add(evRing);
-    const evGlow = new THREE.PointLight(0x3affa8, 0.8, 2.5);
-    evGlow.position.set(4.1, 1.0, 1.7);
+    const evBox = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.65, 0.16), mDark);
+    evG.add(evBox);
+    // Screen
+    const evScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.19, 0.13),
+      new THREE.MeshBasicMaterial({ color: 0x28ffb0 }));
+    evScreen.position.set(0, 0.16, 0.082); evG.add(evScreen);
+    // LED dot
+    const evLED = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 8),
+      new THREE.MeshBasicMaterial({ color: 0x28ffb0 }));
+    evLED.position.set(0, -0.1, 0.082); evG.add(evLED);
+    const evRing = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.006, 8, 24),
+      new THREE.MeshBasicMaterial({ color: 0x28ffb0 }));
+    evRing.position.set(0, -0.1, 0.083); evG.add(evRing);
+    const evGlow = new THREE.PointLight(0x28ffb0, 0.9, 2.8);
+    evGlow.position.set(4.55, 1.0, 1.85);
     scene.add(evGlow);
 
     // ── EV CAR ──────────────────────────────────────────────────────
     const car = new THREE.Group();
     scene.add(car);
-    car.position.set(5.5, 0, 3.0);
+    car.position.set(5.8, 0, 3.2);
     car.rotation.y = Math.PI / 5;
-    const carMat = new THREE.MeshStandardMaterial({ color: 0x182f58, roughness: 0.28, metalness: 0.78 });
-    const cBody = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.52, 0.94), carMat);
+    // Long, low sedan proportions
+    const cBody = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.5, 1.0),
+      new THREE.MeshStandardMaterial({ color: 0x162a50, roughness: 0.25, metalness: 0.82 }));
     cBody.castShadow = true; car.add(cBody);
-    const cTop = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.44, 0.9),
-      new THREE.MeshStandardMaterial({ color: 0x0e1c32, roughness: 0.18, metalness: 0.68 }));
-    cTop.position.set(-0.1, 0.47, 0); car.add(cTop);
-    const cGlass = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.36, 0.91),
-      new THREE.MeshStandardMaterial({ color: 0x4878b8, roughness: 0.04, metalness: 0.8, transparent: true, opacity: 0.5 }));
+    const cTop = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.4, 0.96),
+      new THREE.MeshStandardMaterial({ color: 0x0c1828, roughness: 0.16, metalness: 0.7 }));
+    cTop.position.set(-0.15, 0.44, 0); car.add(cTop);
+    const cGlass = new THREE.Mesh(new THREE.BoxGeometry(1.28, 0.33, 0.97),
+      new THREE.MeshStandardMaterial({ color: 0x4070b8, roughness: 0.03, metalness: 0.85, transparent: true, opacity: 0.45 }));
     cGlass.position.copy(cTop.position); car.add(cGlass);
-    const wMat = new THREE.MeshStandardMaterial({ color: 0x0c0c0c, roughness: 0.72 });
-    const rMat = new THREE.MeshStandardMaterial({ color: 0xb0bcc8, roughness: 0.18, metalness: 0.92 });
-    [[-0.65,-0.26,0.49],[0.65,-0.26,0.49],[-0.65,-0.26,-0.49],[0.65,-0.26,-0.49]].forEach(p => {
-      const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.19, 20), wMat);
-      tyre.rotation.x = Math.PI/2; tyre.position.set(...p); car.add(tyre);
-      const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.145, 0.145, 0.2, 10), rMat);
-      rim.rotation.x = Math.PI/2; rim.position.set(...p); car.add(rim);
+    // Rocker panel / sill
+    car.add(Object.assign(
+      new THREE.Mesh(new THREE.BoxGeometry(2.32, 0.06, 1.02),
+        new THREE.MeshStandardMaterial({ color: 0x0a1020, roughness: 0.4 })),
+      { position: new THREE.Vector3(0, -0.27, 0) }
+    ));
+    // Wheels — proper tyre + alloy
+    const wMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.8 });
+    const aMat = new THREE.MeshStandardMaterial({ color: 0xc0ccd8, roughness: 0.15, metalness: 0.95 });
+    [[-0.72,-0.25,0.52],[0.72,-0.25,0.52],[-0.72,-0.25,-0.52],[0.72,-0.25,-0.52]].forEach(p => {
+      const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.2, 24), wMat);
+      tyre.rotation.x = Math.PI/2; tyre.position.set(...p); tyre.castShadow = true; car.add(tyre);
+      const alloy = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.21, 10), aMat);
+      alloy.rotation.x = Math.PI/2; alloy.position.set(...p); car.add(alloy);
     });
-    const hlMat = new THREE.MeshBasicMaterial({ color: 0xfff4d0 });
-    [0.37,-0.37].forEach(z => {
-      const hl = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.08, 0.065), hlMat);
-      hl.position.set(1.07, 0.04, z); car.add(hl);
+    // DRL headlights (thin strip)
+    const drl = new THREE.MeshBasicMaterial({ color: 0xfff6e0 });
+    [0.38,-0.38].forEach(z => {
+      const h = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.06), drl);
+      h.position.set(1.16, 0.1, z); car.add(h);
     });
 
     // ── BATTERY CABINET ─────────────────────────────────────────────
     const batt = new THREE.Group();
-    batt.position.set(-3.4, 0.8, 1.9);
-    scene.add(batt);
-    const battBody2 = new THREE.Mesh(new THREE.BoxGeometry(0.68, 1.55, 0.36),
-      new THREE.MeshStandardMaterial({ color: 0x182840, roughness: 0.38, metalness: 0.58 }));
+    batt.position.set(-3.5, 0.85, 1.72);
+    house.add(batt);
+    const battBody2 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.6, 0.32),
+      new THREE.MeshStandardMaterial({ color: 0x10203a, roughness: 0.35, metalness: 0.62 }));
     battBody2.castShadow = true;
     batt.add(battBody2);
+    // Brand stripe
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.06, 0.015),
+      new THREE.MeshBasicMaterial({ color: 0x6090c0 }));
+    stripe.position.set(0, 0.65, 0.165); batt.add(stripe);
     const battBars = [];
     for (let i = 0; i < 5; i++) {
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.065, 0.012),
-        new THREE.MeshBasicMaterial({ color: 0xf4a030 }));
-      bar.position.set(0, -0.42 + i*0.21, 0.185);
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.07, 0.015),
+        new THREE.MeshBasicMaterial({ color: 0xf4a030, transparent: true, opacity: 1 }));
+      bar.position.set(0, -0.45 + i*0.22, 0.165);
       batt.add(bar); battBars.push(bar);
     }
-    const battLabel = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.13, 0.012),
-      new THREE.MeshBasicMaterial({ color: 0xb0c8dc }));
-    battLabel.position.set(0, 0.56, 0.185);
-    batt.add(battLabel);
 
-    // ── TREES ────────────────────────────────────────────────────────
-    function addTree(x, z, sc = 1) {
-      const g = new THREE.Group();
-      const trunkM = new THREE.MeshStandardMaterial({ color: 0x28190e, roughness: 0.97 });
-      const leafA = new THREE.MeshStandardMaterial({ color: 0x183222, roughness: 0.93 });
-      const leafB = new THREE.MeshStandardMaterial({ color: 0x1f3a28, roughness: 0.93 });
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.08*sc, 0.13*sc, 0.75*sc, 8), trunkM);
-      trunk.position.y = 0.375*sc; trunk.castShadow = true; g.add(trunk);
-      [[1.5,1.3],[1.1,0.9],[0.7,0.7]].forEach(([r,h], i) => {
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(r*sc*0.48, h*sc, 10), i%2?leafA:leafB);
-        cone.position.y = (0.82 + i*0.6)*sc; cone.castShadow = true; g.add(cone);
-      });
-      g.position.set(x, 0, z);
-      scene.add(g);
+    // ── ARCHITECTURAL HEDGES (replace childish cone trees) ────────────
+    const hedgeMat = new THREE.MeshStandardMaterial({ color: 0x0e2218, roughness: 0.96 });
+    const hedgeMat2 = new THREE.MeshStandardMaterial({ color: 0x122a1e, roughness: 0.97 });
+    // Formal box hedges along left side of house
+    [[-4.5, 0.5, -0.5], [-4.5, 0.5, 0.8], [-4.5, 0.5, 2.1]].forEach(([x,h,z]) => {
+      const hedge = new THREE.Mesh(new THREE.BoxGeometry(0.55, h, 0.55), hedgeMat);
+      hedge.position.set(x, h/2, z);
+      hedge.castShadow = true;
+      scene.add(hedge);
+    });
+    // Tall columnar forms (like yew columns — very Nordic/formal)
+    [[-5.5, 2.8, -0.5], [-5.5, 2.4, 1.5], [6.0, 2.2, -1.5]].forEach(([x, h, z]) => {
+      const col = new THREE.Mesh(new THREE.BoxGeometry(0.35, h, 0.35), hedgeMat2);
+      col.position.set(x, h/2, z);
+      col.castShadow = true;
+      scene.add(col);
+    });
+    // Low hedge row along driveway edge
+    for (let i = 0; i < 5; i++) {
+      const h = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.4, 0.45), hedgeMat);
+      h.position.set(1.5 + i*0.9, 0.2, -2.0);
+      h.castShadow = true;
+      scene.add(h);
     }
-    addTree(-5.0, 3.0, 1.3); addTree(-4.2, -3.4, 1.0);
-    addTree( 5.2, -3.0, 1.15); addTree(-5.8, -1.0, 1.0);
-    addTree( 3.6, -4.5, 0.88);
 
     // ── SUN ORB ──────────────────────────────────────────────────────
     const SUN_POS = new THREE.Vector3(8, 9, -6);
@@ -481,14 +462,26 @@
       scene.add(p); particles.push(p);
     }
 
-    // ── POINTER ORBIT ────────────────────────────────────────────────
+    // ── POINTER / TOUCH / GYRO ORBIT ─────────────────────────────────
     let tY = 0, tX = 0, cY = 0, cX = 0;
-    const heroEl = document.querySelector('.hero') || o.canvas.parentElement;
-    heroEl.addEventListener('pointermove', e => {
-      const r = heroEl.getBoundingClientRect();
-      tY = ((e.clientX - r.left) / r.width * 2 - 1) * 0.2;
-      tX = -((e.clientY - r.top) / r.height * 2 - 1) * 0.07;
-    });
+
+    const onPointer = (e) => {
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      tY = (cx / window.innerWidth  * 2 - 1) * 0.18;
+      tX = -(cy / window.innerHeight * 2 - 1) * 0.06;
+    };
+    window.addEventListener('pointermove', onPointer, { passive: true });
+    window.addEventListener('touchmove',   onPointer, { passive: true });
+
+    // Device orientation (gyroscope on phones)
+    if (typeof DeviceOrientationEvent !== 'undefined') {
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.gamma == null) return;
+        tY =  (e.gamma / 25) * 0.18;
+        tX = -((e.beta  - 45) / 25) * 0.06;
+      }, { passive: true });
+    }
 
     // ── TICK ─────────────────────────────────────────────────────────
     o.tick = (dt, t) => {
@@ -516,9 +509,9 @@
         r.material.opacity = 0.05 + Math.sin(t * 1.6 + i * 0.35) * 0.09;
       });
 
-      // Energy particles: bezier from sun to left or right panel
-      const leftTarget  = new THREE.Vector3(-1.15, 3.3, 0.3);
-      const rightTarget = new THREE.Vector3( 1.15, 3.3, 0.3);
+      // Energy particles: bezier from sun to solar array on flat roof
+      const leftTarget  = new THREE.Vector3(-1.8, 2.76, 0.4);
+      const rightTarget = new THREE.Vector3( 0.8, 2.76, -0.2);
       particles.forEach(p => {
         p.userData.t += dt * p.userData.speed;
         if (p.userData.t > 1) {
@@ -558,15 +551,6 @@
         const filled = i <= 2 + Math.sin(t * 0.6) * 1.5;
         b.material.color.setHSL(0.10 + i*0.015, 0.92, filled ? 0.55 + Math.sin(t*2+i)*0.1 : 0.15);
         b.material.opacity = filled ? 1 : 0.18;
-      });
-
-      // Smoke
-      smokes.forEach(s => {
-        s.userData.t = (s.userData.t + dt * 0.18) % 1;
-        const k = s.userData.t;
-        s.position.set(1.35 + Math.sin(k * 8) * 0.06, 3.9 + k * 1.2, -0.35 + Math.cos(k * 6) * 0.06);
-        s.scale.setScalar(1 + k * 2.5);
-        s.material.opacity = 0.18 * Math.sin(k * Math.PI) * 0.8;
       });
 
       // Stars twinkle

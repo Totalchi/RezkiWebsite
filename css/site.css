@@ -1065,8 +1065,6 @@ footer {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
-  .hero-grid { grid-template-columns: 1fr; }
-  .hero-right { height: min(45vh, 400px); min-height: 320px; }
   .svc-grid { grid-template-columns: repeat(2, 1fr); }
   .promise-grid { grid-template-columns: 1fr; }
   .promise-card { position: relative; top: 0; }
@@ -1081,9 +1079,37 @@ footer {
 @media (max-width: 720px) {
   .nav-links { display: none; }
   .svc-grid, .tg, .foot-grid, .process-track { grid-template-columns: 1fr; }
-  .hero-meta { grid-template-columns: repeat(2, 1fr); }
-  .hero-grid { padding-bottom: 20rem; }
-  .hero-right { top: auto; bottom: 0; height: 21rem; min-height: 21rem; }
+
+  /* Hero: text block up top, 3D fills lower half as background */
+  .hero {
+    height: auto;
+    min-height: 100svh;
+    padding-bottom: 0;
+  }
+  .hero-grid {
+    padding: 0.5rem 1.25rem 48vw;  /* bottom padding leaves space for 3D to show */
+    min-height: 0;
+  }
+  .hero-left h1 { font-size: clamp(2rem, 8.5vw, 3.2rem); }
+  .hero-sub { font-size: 0.88rem; max-width: 100%; }
+  .hero-cta { gap: 0.6rem; }
+  .btn { padding: 0.85rem 1.25rem; font-size: 0.84rem; }
+  .hero-meta { grid-template-columns: repeat(2, 1fr); gap: 1rem; padding-top: 1.4rem; }
+  .hero-meta .m-num { font-size: 1.55rem; }
+
+  /* 3D canvas: sits in bottom 50% of hero */
+  #hero-canvas {
+    top: auto;
+    bottom: 0;
+    height: 52vw;
+    min-height: 240px;
+    max-height: 360px;
+  }
+
+  /* Hide floating badges on mobile — too cluttered */
+  .hero-floating { display: none; }
+
+  .scroll-cue { bottom: calc(52vw + 0.5rem); }
   .marquee-item { font-size: 1.25rem; }
   section.section { padding: 4.5rem 1.25rem; }
   .field-row { grid-template-columns: 1fr; }

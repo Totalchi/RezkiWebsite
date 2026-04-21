@@ -50,7 +50,11 @@
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
     const renderer = mkRenderer(canvas);
     const obj = { canvas, scene, camera, renderer };
-    build(obj, THREE);
+    try {
+      build(obj, THREE);
+    } catch (err) {
+      console.error('[RMScenes] build error:', err);
+    }
     sizeTo(renderer, camera, canvas);
     scenes.push(obj);
     const ro = new ResizeObserver(() => sizeTo(renderer, camera, canvas));
@@ -68,8 +72,8 @@
     camera.lookAt(0, 1.4, 0);
     camera.updateProjectionMatrix();
 
-    scene.background = new THREE.Color(0x020810);
-    scene.fog = new THREE.Fog(0x06101e, 22, 42);
+    scene.background = new THREE.Color(0x060f20);
+    scene.fog = new THREE.Fog(0x060f20, 22, 42);
 
     // ── SKY ─────────────────────────────────────────────────────────
     const skyGeo = new THREE.SphereGeometry(90, 32, 16);
@@ -78,9 +82,9 @@
       const y = skyGeo.attributes.position.getY(i);
       const f = Math.max(0, Math.min(1, (y + 90) / 180)); // 0 = bottom, 1 = top
       const horizon = Math.pow(1 - Math.abs(f * 2 - 1), 3); // peaks at equator
-      skyCol[i*3]   = 0.02 + f * 0.05 + horizon * 0.18;
-      skyCol[i*3+1] = 0.04 + f * 0.06 + horizon * 0.08;
-      skyCol[i*3+2] = 0.12 + f * 0.22;
+      skyCol[i*3]   = 0.04 + f * 0.10 + horizon * 0.32;
+      skyCol[i*3+1] = 0.05 + f * 0.10 + horizon * 0.12;
+      skyCol[i*3+2] = 0.18 + f * 0.30;
     }
     skyGeo.setAttribute('color', new THREE.BufferAttribute(skyCol, 3));
     scene.add(new THREE.Mesh(skyGeo,
@@ -235,39 +239,50 @@
     // High clerestory window (adds interest)
     litWins.push(addWin(-0.8, 2.35, 1.725, 2.4, 0.28, 0, true));
 
-    // ── ENTRANCE ─────────────────────────────────────────────────────
-    // Recessed canopy
-    const canopy = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 0.8), mDark);
-    canopy.position.set(-3.4, 2.45, 2.1);
+    // ── ENTRANCE PORCH (flush left of main body, x=-2.8 to -3.6) ────────
+    // Small porch volume that actually connects to the house
+    const porch = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.4, 1.8), mWall);
+    porch.position.set(-3.6, 1.2, 0.9);
+    porch.castShadow = true; porch.receiveShadow = true;
+    house.add(porch);
+    const porchFascia = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.26, 1.85), mDark);
+    porchFascia.position.set(-3.6, 2.53, 0.9);
+    house.add(porchFascia);
+    const porchRoof = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.1, 2.1), mRoof);
+    porchRoof.position.set(-3.6, 2.42, 0.9);
+    house.add(porchRoof);
+
+    // Canopy overhang beyond porch front face
+    const canopy = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.09, 0.7), mDark);
+    canopy.position.set(-3.6, 2.42, 2.05);
     house.add(canopy);
     const canopyPost = new THREE.Mesh(new THREE.BoxGeometry(0.07, 2.4, 0.07), mMetal);
-    canopyPost.position.set(-3.4, 1.2, 2.46);
+    canopyPost.position.set(-3.6, 1.2, 2.36);
     house.add(canopyPost);
 
-    // Door
+    // Door (front face of porch at z=1.8)
     const doorReveal = new THREE.Mesh(new THREE.BoxGeometry(1.05, 2.2, 0.1), mDark);
-    doorReveal.position.set(-3.4, 1.1, 1.72);
+    doorReveal.position.set(-3.6, 1.1, 1.81);
     house.add(doorReveal);
     const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.9, 2.05, 0.08), mDoor);
-    doorMesh.position.set(-3.4, 1.1, 1.725); doorMesh.castShadow = true;
+    doorMesh.position.set(-3.6, 1.1, 1.815); doorMesh.castShadow = true;
     house.add(doorMesh);
     // Handle — horizontal bar
     const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.35, 8), mMetal);
     handle.rotation.z = Math.PI/2;
-    handle.position.set(-3.08, 1.1, 1.77);
+    handle.position.set(-3.28, 1.1, 1.86);
     house.add(handle);
     // Door sidelight
     const sideLight = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.6, 0.08), mWinLit);
-    sideLight.position.set(-2.87, 1.1, 1.726);
+    sideLight.position.set(-3.07, 1.1, 1.816);
     house.add(sideLight);
     litWins.push(sideLight);
 
-    // Steps
-    [[1.9, 0.08], [2.2, -0.04]].forEach(([z, y]) => {
-      house.add(Object.assign(
-        new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 0.5), mWall2),
-        { position: new THREE.Vector3(-3.4, y, z) }
-      ));
+    // Steps up to porch door
+    [[1.98, 0.08], [2.3, -0.04]].forEach(([z, y]) => {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 0.5), mWall2);
+      step.position.set(-3.6, y, z);
+      house.add(step);
     });
 
     // ── SOLAR PANELS (flush on roof) ─────────────────────────────────
@@ -337,11 +352,10 @@
       new THREE.MeshStandardMaterial({ color: 0x4070b8, roughness: 0.03, metalness: 0.85, transparent: true, opacity: 0.45 }));
     cGlass.position.copy(cTop.position); car.add(cGlass);
     // Rocker panel / sill
-    car.add(Object.assign(
-      new THREE.Mesh(new THREE.BoxGeometry(2.32, 0.06, 1.02),
-        new THREE.MeshStandardMaterial({ color: 0x0a1020, roughness: 0.4 })),
-      { position: new THREE.Vector3(0, -0.27, 0) }
-    ));
+    const sill = new THREE.Mesh(new THREE.BoxGeometry(2.32, 0.06, 1.02),
+      new THREE.MeshStandardMaterial({ color: 0x0a1020, roughness: 0.4 }));
+    sill.position.set(0, -0.27, 0);
+    car.add(sill);
     // Wheels — proper tyre + alloy
     const wMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.8 });
     const aMat = new THREE.MeshStandardMaterial({ color: 0xc0ccd8, roughness: 0.15, metalness: 0.95 });
@@ -360,7 +374,7 @@
 
     // ── BATTERY CABINET ─────────────────────────────────────────────
     const batt = new THREE.Group();
-    batt.position.set(-3.5, 0.85, 1.72);
+    batt.position.set(-4.45, 0.85, 0.3);
     house.add(batt);
     const battBody2 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.6, 0.32),
       new THREE.MeshStandardMaterial({ color: 0x10203a, roughness: 0.35, metalness: 0.62 }));

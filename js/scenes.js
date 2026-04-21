@@ -24,11 +24,15 @@
 
   function mkRenderer(canvas) {
     const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
-    r.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
     r.setClearColor(0x000000, 0);
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFSoftShadowMap;
     r.outputColorSpace = THREE.SRGBColorSpace;
+    if (THREE.ACESFilmicToneMapping) {
+      r.toneMapping = THREE.ACESFilmicToneMapping;
+      r.toneMappingExposure = 1.08;
+    }
     return r;
   }
 
@@ -57,27 +61,29 @@
   /* ---------------- HERO: villa with sun rays, solar, EV, battery ---------------- */
   function buildHero(o, THREE) {
     const { scene, camera } = o;
-    camera.position.set(5.5, 4.2, 8);
-    camera.lookAt(0, 1.2, 0);
+    camera.fov = 46;
+    camera.position.set(4.8, 4.8, 15.5);
+    camera.lookAt(0.2, 1.25, 0);
+    camera.updateProjectionMatrix();
 
-    scene.fog = new THREE.Fog(0x0a1628, 14, 30);
+    scene.fog = new THREE.Fog(0x0a1628, 16, 34);
 
     // lighting
-    const amb = new THREE.AmbientLight(0x5a6e8c, 0.55);
+    const amb = new THREE.AmbientLight(0x6f82a2, 0.62);
     scene.add(amb);
     const sun = new THREE.DirectionalLight(0xffd98a, 1.8);
     sun.position.set(6, 8, 4);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.camera.near = 0.1;
     sun.shadow.camera.far = 30;
     sun.shadow.camera.left = -10; sun.shadow.camera.right = 10;
     sun.shadow.camera.top = 10; sun.shadow.camera.bottom = -10;
     scene.add(sun);
-    const rim = new THREE.DirectionalLight(0x6a8ec8, 0.6);
+    const rim = new THREE.DirectionalLight(0x6a8ec8, 0.75);
     rim.position.set(-6, 4, -4);
     scene.add(rim);
-    const fill = new THREE.PointLight(0xf4a438, 1.2, 14);
+    const fill = new THREE.PointLight(0xf4a438, 1.45, 14);
     fill.position.set(-2, 3.5, 3);
     scene.add(fill);
 
@@ -362,8 +368,10 @@
     sunGroup.position.set(5.2, 6.5, -2);
     scene.add(sunGroup);
     const sunOrb = new THREE.Mesh(new THREE.SphereGeometry(0.6, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffd98a }));
+    sunOrb.visible = false;
     sunGroup.add(sunOrb);
     const sunHalo = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), new THREE.MeshBasicMaterial({ color: 0xf4a438, transparent: true, opacity: 0.35 }));
+    sunHalo.visible = false;
     sunGroup.add(sunHalo);
     // rays (thin cones)
     const rayMat = new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0.4 });
@@ -405,8 +413,9 @@
     // interaction: pointer orbit
     let targetRotY = 0, targetRotX = 0;
     let currentRotY = 0, currentRotX = 0;
-    o.canvas.parentElement.addEventListener('pointermove', (e) => {
-      const r = o.canvas.parentElement.getBoundingClientRect();
+    const pointerTarget = document.querySelector('.hero') || o.canvas.parentElement;
+    pointerTarget.addEventListener('pointermove', (e) => {
+      const r = pointerTarget.getBoundingClientRect();
       const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
       const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
       targetRotY = nx * 0.25;
@@ -425,12 +434,12 @@
       currentRotY += (targetRotY - currentRotY) * 0.04;
       currentRotX += (targetRotX - currentRotX) * 0.04;
       const baseA = Math.sin(t * 0.15) * 0.15;
-      const rad = 9.5;
+      const rad = 17.2;
       const ang = baseA + currentRotY;
-      camera.position.x = Math.sin(ang) * rad * 0.8 + Math.cos(ang) * 2;
+      camera.position.x = Math.sin(ang) * rad * 0.58 + Math.cos(ang) * 0.9;
       camera.position.z = Math.cos(ang) * rad;
-      camera.position.y = 4.2 + currentRotX * 2 + Math.sin(t * 0.3) * 0.1;
-      camera.lookAt(0.3, 1.6, 0);
+      camera.position.y = 4.8 + currentRotX * 1.35 + Math.sin(t * 0.3) * 0.08;
+      camera.lookAt(0.35, 1.35, 0);
 
       // sun pulse
       sunHalo.scale.setScalar(1 + Math.sin(t * 1.2) * 0.08);

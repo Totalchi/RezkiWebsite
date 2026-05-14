@@ -1303,7 +1303,6 @@ footer {
   .hero-cta .btn { width: 100%; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero > video { display: none !important; }
   .hero-vc { display: none !important; }
   .hero::after { opacity: 1; }
 }

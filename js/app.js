@@ -326,25 +326,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroEl    = document.querySelector('.hero');
   const heroVideo = document.getElementById('hero-video');
 
-  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   function disableHeroVideo() {
     if (heroEl) heroEl.classList.add('no-video');
   }
 
-  if (heroVideo && !isReducedMotion) {
+  if (heroVideo) {
     heroVideo.loop = false;
     heroVideo.muted = true;
     heroVideo.removeAttribute('controls');
 
-    heroVideo.addEventListener('canplay', () => {
+    const showHeroVideo = () => {
       heroVideo.classList.add('is-ready');
       if (heroEl) heroEl.classList.add('video-ready');
-    }, { once: true });
+    };
+
+    heroVideo.addEventListener('loadeddata', showHeroVideo, { once: true });
+    heroVideo.addEventListener('canplay', showHeroVideo, { once: true });
+    if (heroVideo.readyState >= 2) showHeroVideo();
 
     heroVideo.addEventListener('ended', () => {
       heroVideo.pause();
-      if (heroVideo.duration) heroVideo.currentTime = Math.max(heroVideo.duration - 0.05, 0);
       heroVideo.style.opacity = '1';
     }, { once: true });
 

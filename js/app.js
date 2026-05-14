@@ -224,6 +224,101 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ---------- Login / auth modal ----------
+  const authModal = document.getElementById('auth-modal');
+  const authForm = document.getElementById('auth-form');
+  const authMessage = document.getElementById('auth-message');
+  const authSubmitText = document.getElementById('auth-submit-text');
+  const authNameField = document.querySelector('.auth-name-field');
+  const authPassword = document.getElementById('auth-password');
+  const authOpenBtns = document.querySelectorAll('[data-auth-open]');
+  const authCloseBtns = document.querySelectorAll('[data-auth-close]');
+  const authModeBtns = document.querySelectorAll('[data-auth-mode]');
+  const authConfig = window.RM_AUTH_CONFIG || {};
+  const authReady = Boolean(authConfig.supabaseUrl && authConfig.supabaseAnonKey && window.supabase);
+  const authClient = authReady
+    ? window.supabase.createClient(authConfig.supabaseUrl, authConfig.supabaseAnonKey)
+    : null;
+  let authMode = 'signin';
+
+  function setAuthMessage(text) {
+    if (authMessage) authMessage.textContent = text || '';
+  }
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    authModeBtns.forEach(btn => btn.classList.toggle('is-active', btn.dataset.authMode === mode));
+    if (authNameField) authNameField.hidden = mode !== 'signup';
+    if (authPassword) authPassword.setAttribute('autocomplete', mode === 'signin' ? 'current-password' : 'new-password');
+    if (authSubmitText) authSubmitText.textContent = mode === 'signin' ? 'Login' : 'Create account';
+    setAuthMessage('');
+  }
+
+  function openAuth() {
+    if (!authModal) return;
+    authModal.classList.add('is-open');
+    authModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (!authReady) {
+      setAuthMessage('Login is added. Add your Supabase URL and anon key in RM_AUTH_CONFIG to activate it.');
+    }
+  }
+
+  function closeAuth() {
+    if (!authModal) return;
+    authModal.classList.remove('is-open');
+    authModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  authOpenBtns.forEach(btn => btn.addEventListener('click', openAuth));
+  authCloseBtns.forEach(btn => btn.addEventListener('click', closeAuth));
+  authModeBtns.forEach(btn => btn.addEventListener('click', () => setAuthMode(btn.dataset.authMode)));
+
+  if (authForm) {
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setAuthMessage('');
+      if (!authClient) {
+        setAuthMessage('Login is not connected yet. Configure Supabase in RM_AUTH_CONFIG.');
+        return;
+      }
+
+      const formData = new FormData(authForm);
+      const email = String(formData.get('email') || '');
+      const password = String(formData.get('password') || '');
+      const name = String(formData.get('name') || '');
+
+      const result = authMode === 'signup'
+        ? await authClient.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name } }
+          })
+        : await authClient.auth.signInWithPassword({ email, password });
+
+      if (result.error) {
+        setAuthMessage(result.error.message);
+        return;
+      }
+
+      setAuthMessage(authMode === 'signup'
+        ? 'Account created. Check your email if confirmation is required.'
+        : 'Logged in successfully.');
+      setTimeout(closeAuth, 900);
+    });
+  }
+
+  if (authClient) {
+    authClient.auth.getSession().then(({ data }) => {
+      const loggedIn = Boolean(data.session);
+      authOpenBtns.forEach(btn => {
+        const label = btn.querySelector('span') || btn;
+        label.textContent = loggedIn ? 'Account' : 'Login';
+      });
+    });
+  }
+
   // ---------- Init 3D scenes ----------
   if (window.RMScenes) window.RMScenes.init();
 

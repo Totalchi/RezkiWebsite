@@ -327,13 +327,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroVideo = document.getElementById('hero-video');
 
   const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isMobile        = window.matchMedia('(max-width: 720px)').matches;
 
   function disableHeroVideo() {
     if (heroEl) heroEl.classList.add('no-video');
   }
 
-  if (heroVideo && !isReducedMotion && !isMobile) {
+  if (heroVideo && !isReducedMotion) {
     heroVideo.loop = false;
     heroVideo.muted = true;
     heroVideo.removeAttribute('controls');
@@ -345,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     heroVideo.addEventListener('ended', () => {
       heroVideo.pause();
-      if (heroVideo.duration) heroVideo.currentTime = heroVideo.duration;
+      if (heroVideo.duration) heroVideo.currentTime = Math.max(heroVideo.duration - 0.05, 0);
       heroVideo.style.opacity = '1';
     }, { once: true });
 

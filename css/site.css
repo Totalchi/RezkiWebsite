@@ -1281,9 +1281,12 @@ footer {
 .hvc-btn:active { transform: scale(0.96); }
 .hvc-btn svg { width: 14px; height: 14px; display: block; }
 
-/* Mobile: hide video, ::after always visible */
+/* Mobile: keep the hero video visible and use a stronger readability overlay */
 @media (max-width: 768px) {
-  .hero > video, .hero-vc { display: none !important; }
+  .hero > video {
+    display: block !important;
+    object-position: center center;
+  }
   .hero::after {
     background: linear-gradient(
       180deg,

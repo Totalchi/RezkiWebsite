@@ -881,6 +881,12 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   text-transform: uppercase;
   color: rgba(230,237,247,0.62);
 }
+.promise-visual-header span {
+  width: 96px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(230,237,247,0.42), rgba(230,237,247,0.08));
+}
 .promise-visual-header i {
   width: 54px;
   height: 7px;
@@ -904,6 +910,7 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   box-shadow: 0 18px 45px rgba(2,8,20,0.26);
 }
 .owner-avatar {
+  position: relative;
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -914,16 +921,44 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   font-family: var(--f-display);
   font-size: 1.25rem;
 }
+.owner-avatar::before,
+.owner-avatar::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(6,14,28,0.7);
+}
+.owner-avatar::before {
+  top: 10px;
+  left: 15px;
+  width: 12px;
+  height: 12px;
+}
+.owner-avatar::after {
+  left: 10px;
+  bottom: 9px;
+  width: 22px;
+  height: 12px;
+  border-radius: 14px 14px 8px 8px;
+}
 .promise-owner-card strong,
 .promise-owner-card small {
   display: block;
 }
 .promise-owner-card strong {
+  width: 118px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(230,237,247,0.72);
   color: var(--ice);
   font-size: 0.95rem;
   line-height: 1.1;
 }
 .promise-owner-card small {
+  width: 152px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(230,237,247,0.2);
   margin-top: 0.25rem;
   color: var(--steel-2);
   font-family: var(--f-mono);
@@ -943,7 +978,8 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
 .promise-flow span {
   position: relative;
   min-width: 0;
-  padding: 0.62rem 0.35rem;
+  height: 42px;
+  padding: 0;
   border: 1px solid rgba(230,237,247,0.1);
   border-radius: 10px;
   background: rgba(230,237,247,0.045);
@@ -954,10 +990,35 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   text-align: center;
   text-transform: uppercase;
 }
+.promise-flow span::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(230,237,247,0.48);
+  transform: translate(-50%, -50%);
+}
+.promise-flow span::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 9px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(230,237,247,0.12);
+}
 .promise-flow span.is-active {
   border-color: rgba(244,164,56,0.46);
   color: var(--ice);
   background: rgba(244,164,56,0.12);
+}
+.promise-flow span.is-active::before {
+  background: var(--gold);
+  box-shadow: 0 0 22px rgba(244,164,56,0.48);
 }
 .promise-document {
   position: absolute;
@@ -995,6 +1056,11 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
 }
 .promise-guarantee strong {
   display: block;
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(67,255,171,0.95), rgba(244,164,56,0.8));
   color: rgba(67,255,171,0.92);
   font-family: var(--f-display);
   font-size: 1.45rem;
@@ -1002,6 +1068,10 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
 }
 .promise-guarantee span {
   display: block;
+  width: 98px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(230,237,247,0.24);
   margin-top: 0.28rem;
   color: rgba(230,237,247,0.7);
   font-family: var(--f-mono);

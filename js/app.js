@@ -325,9 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------- Hero video ----------
   const heroEl    = document.querySelector('.hero');
   const heroVideo = document.getElementById('hero-video');
-  const heroVc    = document.getElementById('hero-vc');
-  const hvcMute   = document.getElementById('hvc-mute');
-  const hvcPause  = document.getElementById('hvc-pause');
 
   const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile        = window.matchMedia('(max-width: 720px)').matches;
@@ -337,55 +334,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (heroVideo && !isReducedMotion && !isMobile) {
-    // Fade video + overlay in once it can play
+    heroVideo.loop = false;
+    heroVideo.muted = true;
+    heroVideo.removeAttribute('controls');
+
     heroVideo.addEventListener('canplay', () => {
       heroVideo.classList.add('is-ready');
       if (heroEl) heroEl.classList.add('video-ready');
-      if (hvcMute)  hvcMute.classList.add('is-visible');
-      if (hvcPause) hvcPause.classList.add('is-visible');
     }, { once: true });
 
-    // Seamless loop: crossfade 0.7s before/after loop boundary
-    heroVideo.addEventListener('timeupdate', () => {
-      if (!heroVideo.duration) return;
-      const t = heroVideo.currentTime;
-      const d = heroVideo.duration;
-      const fade = 0.7;
-      if (d - t < fade) {
-        heroVideo.style.opacity = Math.max(0, (d - t) / fade).toFixed(3);
-      } else if (t < fade) {
-        heroVideo.style.opacity = Math.min(1, t / fade).toFixed(3);
-      } else {
-        heroVideo.style.opacity = '';
-      }
-    });
+    heroVideo.addEventListener('ended', () => {
+      heroVideo.pause();
+      if (heroVideo.duration) heroVideo.currentTime = heroVideo.duration;
+      heroVideo.style.opacity = '1';
+    }, { once: true });
 
-    // Autoplay failure → fall back to Three.js
     heroVideo.play().catch(disableHeroVideo);
     heroVideo.addEventListener('error', disableHeroVideo);
-
-    // Mute / unmute
-    if (hvcMute) {
-      hvcMute.addEventListener('click', () => {
-        heroVideo.muted = !heroVideo.muted;
-        hvcMute.querySelector('.icon-muted').style.display    = heroVideo.muted ? '' : 'none';
-        hvcMute.querySelector('.icon-unmuted').style.display  = heroVideo.muted ? 'none' : '';
-        hvcMute.setAttribute('aria-label', heroVideo.muted ? 'Unmute video' : 'Mute video');
-      });
-    }
-
-    // Pause / play
-    if (hvcPause) {
-      const syncPauseIcon = () => {
-        hvcPause.querySelector('.icon-pause').style.display = heroVideo.paused ? 'none' : '';
-        hvcPause.querySelector('.icon-play').style.display  = heroVideo.paused ? '' : 'none';
-        hvcPause.setAttribute('aria-label', heroVideo.paused ? 'Play video' : 'Pause video');
-      };
-      hvcPause.addEventListener('click', () => {
-        heroVideo.paused ? heroVideo.play() : heroVideo.pause();
-        syncPauseIcon();
-      });
-    }
   } else {
     disableHeroVideo();
   }

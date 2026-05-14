@@ -30,8 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ---------- Floating tags ----------
-  setTimeout(() => document.querySelectorAll('.hero-floating').forEach(el => el.classList.add('is-in')), 900);
+  // (hero-floating elements removed — no action needed)
 
   // ---------- Language toggle (light: swaps a few labels) ----------
   const LANGS = {
@@ -68,8 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
     byId('h1-em').textContent = L.h1_em;
     byId('h1-line2-b').textContent = L.h1_line2_b;
     byId('hero-sub').textContent = L.hero_sub;
-    byId('btn-quote').textContent = L.btn_quote;
+    // Bug fix: use text-only span to preserve the SVG arrow inside btn-quote
+    const qText = byId('btn-quote-text') || byId('btn-quote');
+    qText.textContent = L.btn_quote;
     byId('btn-book').textContent = L.btn_book;
+    // Bug fix: eyebrow badge was never updated on lang switch
+    const badge = byId('eyebrow-badge');
+    if (badge && L.eyebrow_badge) badge.textContent = L.eyebrow_badge;
     const navLis = document.querySelectorAll('.nav-links a');
     L.nav.forEach((t, i) => { if (navLis[i]) navLis[i].textContent = t; });
     langBtns.forEach(b => b.classList.toggle('is-active', b.dataset.lang === l));
@@ -222,4 +226,194 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Init 3D scenes ----------
   if (window.RMScenes) window.RMScenes.init();
+
+  // ---------- Hero video ----------
+  const heroEl    = document.querySelector('.hero');
+  const heroVideo = document.getElementById('hero-video');
+  const heroVc    = document.getElementById('hero-vc');
+  const hvcMute   = document.getElementById('hvc-mute');
+  const hvcPause  = document.getElementById('hvc-pause');
+
+  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile        = window.matchMedia('(max-width: 720px)').matches;
+
+  function disableHeroVideo() {
+    if (heroEl) heroEl.classList.add('no-video');
+  }
+
+  if (heroVideo && !isReducedMotion && !isMobile) {
+    // Fade video + overlay in once it can play
+    heroVideo.addEventListener('canplay', () => {
+      heroVideo.classList.add('is-ready');
+      if (heroEl) heroEl.classList.add('video-ready');
+      if (hvcMute)  hvcMute.classList.add('is-visible');
+      if (hvcPause) hvcPause.classList.add('is-visible');
+    }, { once: true });
+
+    // Seamless loop: crossfade 0.7s before/after loop boundary
+    heroVideo.addEventListener('timeupdate', () => {
+      if (!heroVideo.duration) return;
+      const t = heroVideo.currentTime;
+      const d = heroVideo.duration;
+      const fade = 0.7;
+      if (d - t < fade) {
+        heroVideo.style.opacity = Math.max(0, (d - t) / fade).toFixed(3);
+      } else if (t < fade) {
+        heroVideo.style.opacity = Math.min(1, t / fade).toFixed(3);
+      } else {
+        heroVideo.style.opacity = '';
+      }
+    });
+
+    // Autoplay failure → fall back to Three.js
+    heroVideo.play().catch(disableHeroVideo);
+    heroVideo.addEventListener('error', disableHeroVideo);
+
+    // Mute / unmute
+    if (hvcMute) {
+      hvcMute.addEventListener('click', () => {
+        heroVideo.muted = !heroVideo.muted;
+        hvcMute.querySelector('.icon-muted').style.display    = heroVideo.muted ? '' : 'none';
+        hvcMute.querySelector('.icon-unmuted').style.display  = heroVideo.muted ? 'none' : '';
+        hvcMute.setAttribute('aria-label', heroVideo.muted ? 'Unmute video' : 'Mute video');
+      });
+    }
+
+    // Pause / play
+    if (hvcPause) {
+      const syncPauseIcon = () => {
+        hvcPause.querySelector('.icon-pause').style.display = heroVideo.paused ? 'none' : '';
+        hvcPause.querySelector('.icon-play').style.display  = heroVideo.paused ? '' : 'none';
+        hvcPause.setAttribute('aria-label', heroVideo.paused ? 'Play video' : 'Pause video');
+      };
+      hvcPause.addEventListener('click', () => {
+        heroVideo.paused ? heroVideo.play() : heroVideo.pause();
+        syncPauseIcon();
+      });
+    }
+  } else {
+    disableHeroVideo();
+  }
+
+  // ---------- Scroll progress bar ----------
+  const progressBar = document.getElementById('scroll-progress');
+  function updateProgress() {
+    const h = document.documentElement;
+    const scrollable = h.scrollHeight - h.clientHeight;
+    const pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+    progressBar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // ---------- Back-to-top ----------
+  const backTop = document.getElementById('back-top');
+  function updateBackTop() {
+    backTop.classList.toggle('is-visible', window.scrollY > 600);
+  }
+  window.addEventListener('scroll', updateBackTop, { passive: true });
+  backTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ---------- Mobile hamburger nav ----------
+  const burger     = document.getElementById('nav-burger');
+  const overlay    = document.getElementById('mobile-nav-overlay');
+  const drawer     = document.getElementById('mobile-nav-drawer');
+  const navClose   = document.getElementById('mobile-nav-close');
+
+  function openMobileNav() {
+    burger.classList.add('is-open');
+    burger.setAttribute('aria-expanded', 'true');
+    overlay.classList.add('is-open');
+    drawer.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobileNav() {
+    burger.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+    overlay.classList.remove('is-open');
+    drawer.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  burger.addEventListener('click', () => {
+    burger.classList.contains('is-open') ? closeMobileNav() : openMobileNav();
+  });
+  navClose.addEventListener('click', closeMobileNav);
+  overlay.addEventListener('click', closeMobileNav);
+  document.querySelectorAll('.mobile-nav-link').forEach(a => {
+    a.addEventListener('click', closeMobileNav);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeMobileNav();
+  });
+
+  // Mobile lang buttons are already captured by langBtns above — no extra listener needed
+
+  // ---------- Active section highlighting in nav (viewport-centre approach, no flicker) ----------
+  const sections = document.querySelectorAll('section[id]');
+  const navAs    = document.querySelectorAll('.nav-links a');
+  function updateActiveSection() {
+    const mid = window.innerHeight / 2;
+    let closest = null, minDist = Infinity;
+    sections.forEach(s => {
+      const r = s.getBoundingClientRect();
+      const dist = Math.abs(r.top + r.height / 2 - mid);
+      if (dist < minDist) { minDist = dist; closest = s; }
+    });
+    if (closest) {
+      navAs.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + closest.id));
+    }
+  }
+  window.addEventListener('scroll', updateActiveSection, { passive: true });
+  updateActiveSection();
+
+  // ---------- Animated stat counters ----------
+  function animateCounter(el) {
+    const target = parseFloat(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    const decimals = parseInt(el.dataset.decimal || '0');
+    const duration = 1800;
+    const start = performance.now();
+    function step(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const value = (target * ease).toFixed(decimals);
+      el.textContent = value + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  const counterObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(e.target);
+        counterObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+
+  // ---------- Spotlight card — cursor-tracking radial glow on service cards ----------
+  document.querySelectorAll('.svc-card, .tc, .promise-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  // ---------- GDPR / compliance bar ----------
+  const complianceBar = document.getElementById('compliance-bar');
+  const complianceOk  = document.getElementById('compliance-ok');
+  if (localStorage.getItem('rm-cookies') === 'ok') {
+    complianceBar.classList.add('is-hidden');
+  }
+  complianceOk.addEventListener('click', () => {
+    localStorage.setItem('rm-cookies', 'ok');
+    complianceBar.classList.add('is-hidden');
+  });
 });

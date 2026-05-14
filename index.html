@@ -13,6 +13,8 @@
 </head>
 <body>
 
+<div class="scroll-progress" id="scroll-progress"></div>
+
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-inner">
@@ -45,14 +47,43 @@
         <span class="dot"></span>
         <span>Book a visit</span>
       </a>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </nav>
 
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-drawer" id="mobile-nav-drawer" aria-hidden="true">
+  <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">×</button>
+  <ul class="mobile-nav-links">
+    <li><a href="#services" class="mobile-nav-link">Services</a></li>
+    <li><a href="#promise" class="mobile-nav-link">Promise</a></li>
+    <li><a href="#process" class="mobile-nav-link">Process</a></li>
+    <li><a href="#projects" class="mobile-nav-link">Projects</a></li>
+    <li><a href="#reviews" class="mobile-nav-link">Reviews</a></li>
+    <li><a href="#contact" class="mobile-nav-link">Contact</a></li>
+  </ul>
+  <div class="mobile-nav-footer">
+    <div class="mobile-nav-lang">
+      <button data-lang="en" class="is-active">EN</button>
+      <button data-lang="sv">SV</button>
+    </div>
+    <a href="#contact" class="btn btn-primary" style="justify-content:center">
+      Book a visit
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</div>
+
 <!-- HERO -->
 <section class="hero" id="home">
+  <video id="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3DiijaanlK1qLMzhqiWPvunGSeL/hf_20260514_152813_750330f8-a0d0-44fa-bbe8-bf3a4ae37c16.mp4" type="video/mp4"/>
+  </video>
   <div class="hero-grid">
-    <div class="hero-left reveal">
+    <div class="hero-left reveal hero-stagger">
       <span class="eyebrow" id="eyebrow-badge">Local · Trusted · Gothenburg</span>
       <h1 class="display">
         <span class="line" id="h1-line1">Your neighbourhood</span>
@@ -61,7 +92,7 @@
       <p class="hero-sub" id="hero-sub">From solar panels on the roof to a freshly painted façade — built with precision, honesty, and a personal promise you'll feel from the first handshake.</p>
       <div class="hero-cta">
         <a href="#contact" class="btn btn-primary" id="btn-quote">
-          Request a Quote
+          <span id="btn-quote-text">Request a Quote</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
         <a href="#contact" class="btn btn-ghost" id="btn-book">Book Site Visit</a>
@@ -85,21 +116,26 @@
         </div>
       </div>
     </div>
-
-    <div class="hero-right">
-      <canvas id="hero-canvas"></canvas>
-      <div class="hero-floating" style="top: 12%; left: 8%;">
-        <span class="pulse"></span>
-        <span>Live energy flow</span>
-      </div>
-      <div class="hero-floating" style="bottom: 22%; right: 6%;">
-        <span class="pulse" style="background:#4cff8a"></span>
-        <span>EV · charging</span>
-      </div>
-      <div class="hero-floating" style="top: 46%; left: 2%;">
-        <span>8.4 kWp · rooftop</span>
-      </div>
-    </div>
+  </div>
+  <div class="hero-vc" id="hero-vc">
+    <button class="hvc-btn" id="hvc-mute" aria-label="Unmute video" title="Toggle sound">
+      <svg class="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+      <svg class="icon-unmuted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/>
+      </svg>
+    </button>
+    <button class="hvc-btn" id="hvc-pause" aria-label="Pause video" title="Pause / play">
+      <svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+      </svg>
+      <svg class="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+    </button>
   </div>
   <div class="scroll-cue">Scroll to explore</div>
 </section>
@@ -255,9 +291,9 @@
       <h3>One team, <em>one point of contact</em>, one invoice.</h3>
       <p style="color:var(--steel-2);font-size:0.93rem;line-height:1.65;margin-top:0.5rem">That's the whole pitch. It's why housing associations, villa owners and property companies keep coming back.</p>
       <div class="stats">
-        <div class="stat"><div class="n">24h</div><div class="l">Weekday reply</div></div>
-        <div class="stat"><div class="n">7 yr</div><div class="l">Trading</div></div>
-        <div class="stat"><div class="n">4.9★</div><div class="l">Avg review</div></div>
+        <div class="stat"><div class="n" data-count="24" data-suffix="h">24h</div><div class="l">Weekday reply</div></div>
+        <div class="stat"><div class="n" data-count="7" data-suffix=" yr">7 yr</div><div class="l">Trading</div></div>
+        <div class="stat"><div class="n" data-count="4.9" data-suffix="★" data-decimal="1">4.9★</div><div class="l">Avg review</div></div>
       </div>
     </div>
   </div>
@@ -645,6 +681,20 @@
   <button class="lightbox-close" aria-label="Close">×</button>
   <img id="lightbox-img" alt=""/>
 </div>
+
+<div class="compliance-bar" id="compliance-bar">
+  <p>This site uses cookies to improve your experience. By continuing you agree to our use of cookies per GDPR &amp; Swedish consumer law.</p>
+  <button id="compliance-ok">Accept &amp; Continue</button>
+</div>
+
+<a class="whatsapp-btn" href="https://wa.me/46700000000" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="whatsapp-tooltip">Chat on WhatsApp</span>
+</a>
+
+<button class="back-top" id="back-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 15l7-7 7 7"/></svg>
+</button>
 
 <!-- Three.js -->
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>

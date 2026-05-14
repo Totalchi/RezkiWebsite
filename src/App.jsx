@@ -15,6 +15,7 @@ const serviceCards = [
 const initialLead = { name: '', email: '', phone: '', service: services[0], message: '' };
 const initialAppointment = { service: services[0], preferred_date: '', preferred_time: '09:00', address: '', notes: '' };
 const initialWarranty = { purchase_id: '', invoice_id: '', subject: '', description: '' };
+const logoUrl = `${import.meta.env.BASE_URL}assets/logo.png`;
 
 function Icon({ name, className = 'h-5 w-5' }) {
   const common = {
@@ -489,7 +490,7 @@ function App() {
       <header className="fixed left-0 right-0 top-0 z-50 px-4 pt-4">
         <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-lg border border-white/70 bg-white/90 px-4 py-3 shadow-soft backdrop-blur-xl">
           <a href="#top" className="focus-ring flex items-center gap-3 rounded-md">
-            <img src="/assets/logo.png" alt="RM Bygg & Montage AB" className="h-10 w-10 rounded-md object-contain" />
+            <img src={logoUrl} alt="RM Bygg & Montage AB" className="h-10 w-10 rounded-md object-contain" />
             <span className="font-display text-sm font-bold leading-tight text-brand-700 sm:text-base">
               RM Bygg
               <span className="block text-[10px] uppercase tracking-[0.22em] text-slate-500">& Montage AB</span>

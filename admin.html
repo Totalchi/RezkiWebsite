@@ -407,6 +407,84 @@ tbody td {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Admin tabs ── */
+.admin-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.admin-tab {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted-2);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.admin-tab:hover { color: var(--text); }
+.admin-tab.is-active { color: var(--text); border-bottom-color: var(--accent-2); }
+
+/* ── Review list row ── */
+.review-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.review-row:last-child { border-bottom: 0; }
+.review-row:hover { background: rgba(220,216,210,0.04); }
+.review-row-body { flex: 1; min-width: 0; }
+.review-row-quote {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px;
+}
+.review-row-meta { font-size: 0.76rem; color: var(--muted-2); margin-top: 0.25rem; }
+.review-row-actions { display: flex; gap: 0.5rem; flex-shrink: 0; align-items: center; }
+.rv-btn {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  font-size: 0.74rem;
+  color: var(--muted-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rv-btn:hover { color: var(--text); border-color: rgba(220,216,210,0.3); }
+.rv-btn-del:hover { color: #e08888; border-color: rgba(220,80,80,0.3); }
+.rv-toggle {
+  width: 36px; height: 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.rv-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.2s, background 0.2s;
+}
+.rv-toggle.is-on { background: rgba(74,159,111,0.25); border-color: rgba(74,159,111,0.5); }
+.rv-toggle.is-on::after { transform: translateX(16px); background: #7dcba0; }
+
 /* ── Mobile ── */
 @media (max-width: 640px) {
   .admin-body { padding: 1rem; }
@@ -476,6 +554,15 @@ tbody td {
   </header>
 
   <main class="admin-body">
+
+    <!-- Main tab nav -->
+    <div class="admin-tabs">
+      <button class="admin-tab is-active" data-panel="leads">Leads</button>
+      <button class="admin-tab" data-panel="reviews">Reviews</button>
+    </div>
+
+    <!-- ── LEADS PANEL ── -->
+    <div id="panel-leads">
 
     <!-- Config notice (hidden once Supabase is wired) -->
     <div class="config-notice" id="config-notice" style="display:none">
@@ -583,6 +670,47 @@ CREATE POLICY "Admins only" ON leads
         </table>
       </div>
     </div>
+
+    </div><!-- /panel-leads -->
+
+    <!-- ── REVIEWS PANEL ── -->
+    <div id="panel-reviews" style="display:none">
+      <div class="leads-panel">
+        <div class="leads-toolbar">
+          <h3>Reviews</h3>
+          <button class="filter-btn" id="btn-add-review" style="color:#7dcba0;border-color:rgba(74,159,111,0.4)">+ Add review</button>
+        </div>
+
+        <!-- Add / Edit form (hidden by default) -->
+        <div id="review-form-wrap" style="display:none;padding:1.5rem;border-bottom:1px solid var(--border)">
+          <h4 style="font-size:0.9rem;font-weight:600;margin-bottom:1rem" id="review-form-title">New review</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div>
+              <label style="display:block;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;font-family:var(--f-mono)">Name</label>
+              <input id="rf-name" style="width:100%;padding:0.65rem 0.85rem;background:var(--surface-2);border:1px solid var(--border-2);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none" placeholder="Anna K."/>
+            </div>
+            <div>
+              <label style="display:block;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;font-family:var(--f-mono)">Role / location</label>
+              <input id="rf-role" style="width:100%;padding:0.65rem 0.85rem;background:var(--surface-2);border:1px solid var(--border-2);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none" placeholder="Villa owner · Kungsbacka"/>
+            </div>
+          </div>
+          <div style="margin-bottom:1rem">
+            <label style="display:block;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;font-family:var(--f-mono)">Quote</label>
+            <textarea id="rf-quote" rows="3" style="width:100%;padding:0.65rem 0.85rem;background:var(--surface-2);border:1px solid var(--border-2);border-radius:6px;color:var(--text);font-size:0.9rem;outline:none;resize:vertical;font-family:inherit" placeholder='"The work was done on time and on budget…"'></textarea>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:center">
+            <button id="rf-save" style="padding:0.6rem 1.2rem;background:var(--accent);color:#fff;border:0;border-radius:6px;font-size:0.88rem;font-weight:600;cursor:pointer">Save</button>
+            <button id="rf-cancel" style="padding:0.6rem 1rem;border:1px solid var(--border-2);border-radius:6px;font-size:0.88rem;color:var(--muted-2);cursor:pointer">Cancel</button>
+            <input type="hidden" id="rf-id"/>
+          </div>
+        </div>
+
+        <!-- Reviews list -->
+        <div id="reviews-list" style="padding:0.5rem 0">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div><!-- /panel-reviews -->
 
   </main>
 </div>
@@ -901,6 +1029,132 @@ function getDemoLeads() {
     { id:'5', created_at: new Date(now - 12*86400000).toISOString(), type:'invoice', lang:'en', name:'Björn AB', email:'ekonomi@bjorn.se', phone:'+46 31 000 00 00', company:'Björn Fastigheter AB', services:'', address:'', property_type:'', timing:'', notes:'Copy of invoice RM-2025-0042. Send to accounting dept.', booking_slot:'', status:'contacted' },
   ];
 }
+
+/* ─────────────────────────────────────────
+   ADMIN TABS
+────────────────────────────────────────── */
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('is-active'));
+    tab.classList.add('is-active');
+    const panel = tab.dataset.panel;
+    document.getElementById('panel-leads').style.display   = panel === 'leads'   ? '' : 'none';
+    document.getElementById('panel-reviews').style.display = panel === 'reviews' ? '' : 'none';
+    if (panel === 'reviews') renderReviewsList();
+  });
+});
+
+/* ─────────────────────────────────────────
+   REVIEWS CRUD
+────────────────────────────────────────── */
+const REVIEWS_KEY   = 'rm_reviews';
+const reviewsListEl = document.getElementById('reviews-list');
+const reviewFormWrap = document.getElementById('review-form-wrap');
+const rfName  = document.getElementById('rf-name');
+const rfRole  = document.getElementById('rf-role');
+const rfQuote = document.getElementById('rf-quote');
+const rfId    = document.getElementById('rf-id');
+
+const DEFAULT_REVIEWS_ADMIN = [
+  { id:'r1', quote:'"Rezki walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price."',                                                               name:'Anna K.',   role:'Villa owner · Kungsbacka',     rating:5, visible:true },
+  { id:'r2', quote:'"We had three quotes. His was the clearest and the only one that actually explained why. Solar + battery running two months now, numbers match the forecast."',                                  name:'Martin P.', role:'Homeowner · Mölndal',          rating:5, visible:true },
+  { id:'r3', quote:'"Eighteen EV stations for our BRF, load-balanced to the main fuse. Start to grid-ready in three weeks. I\'d call him first on the next project."',                                             name:'Lars S.',   role:'Board chair · BRF Göteborg',  rating:5, visible:true },
+  { id:'r4', quote:'"Taket besiktigades ordentligt innan vi fick offerten. Fuktskador hittades och åtgärdades. Inga överraskningar på fakturan."',                                                                  name:'Karin L.',  role:'Villaägare · Partille',        rating:5, visible:true },
+  { id:'r5', quote:'"Twelve windows replaced in one week. The quote listed every fitting and the crew tidied up every single day. That\'s the standard I expect."',                                                 name:'Johan A.',  role:'Property manager · Göteborg', rating:5, visible:true },
+  { id:'r6', quote:'"Fasaden ser ut som ny. Ställning, grundfärg, två lager, städning — allt ingick i priset. Inga dolda kostnader."',                                                                              name:'Sara M.',   role:'Villaägare · Kungsbacka',      rating:5, visible:true },
+  { id:'r7', quote:'"Solar panels for 40 apartments plus a shared battery. Rezki handled the grid connection and all the BRF paperwork. We barely had to lift a finger."',                                          name:'Erik B.',   role:'BRF chairman · Mölndal',       rating:5, visible:true },
+];
+
+function loadReviewsData() {
+  try {
+    const stored = localStorage.getItem(REVIEWS_KEY);
+    if (stored) {
+      const p = JSON.parse(stored);
+      if (Array.isArray(p) && p.length) return p;
+    }
+  } catch (_) {}
+  return JSON.parse(JSON.stringify(DEFAULT_REVIEWS_ADMIN));
+}
+
+function saveReviewsData(data) {
+  localStorage.setItem(REVIEWS_KEY, JSON.stringify(data));
+}
+
+function renderReviewsList() {
+  const reviews = loadReviewsData();
+  if (!reviews.length) {
+    reviewsListEl.innerHTML = '<div class="empty-state"><p>No reviews yet. Click "+ Add review" to create one.</p></div>';
+    return;
+  }
+  reviewsListEl.innerHTML = reviews.map((r, i) => `
+    <div class="review-row" data-idx="${i}">
+      <button class="rv-toggle ${r.visible !== false ? 'is-on' : ''}" data-action="toggle" data-idx="${i}" title="${r.visible !== false ? 'Visible on site' : 'Hidden'}"></button>
+      <div class="review-row-body">
+        <div class="review-row-quote">${esc(r.quote)}</div>
+        <div class="review-row-meta">★★★★★ &nbsp;·&nbsp; ${esc(r.name)} &nbsp;·&nbsp; ${esc(r.role || '')}</div>
+      </div>
+      <div class="review-row-actions">
+        <button class="rv-btn" data-action="edit" data-idx="${i}">Edit</button>
+        <button class="rv-btn rv-btn-del" data-action="delete" data-idx="${i}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  reviewsListEl.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      const data = loadReviewsData();
+      if (btn.dataset.action === 'toggle') {
+        data[idx].visible = !data[idx].visible;
+        saveReviewsData(data);
+        renderReviewsList();
+      } else if (btn.dataset.action === 'edit') {
+        openReviewForm(data[idx], idx);
+      } else if (btn.dataset.action === 'delete') {
+        if (confirm('Delete this review?')) {
+          data.splice(idx, 1);
+          saveReviewsData(data);
+          renderReviewsList();
+        }
+      }
+    });
+  });
+}
+
+function openReviewForm(review, idx) {
+  document.getElementById('review-form-title').textContent = review ? 'Edit review' : 'New review';
+  rfName.value  = review ? review.name  : '';
+  rfRole.value  = review ? review.role  : '';
+  rfQuote.value = review ? review.quote : '';
+  rfId.value    = idx !== undefined ? idx : '';
+  reviewFormWrap.style.display = 'block';
+  rfName.focus();
+}
+
+document.getElementById('btn-add-review').addEventListener('click', () => openReviewForm(null));
+
+document.getElementById('rf-cancel').addEventListener('click', () => {
+  reviewFormWrap.style.display = 'none';
+});
+
+document.getElementById('rf-save').addEventListener('click', () => {
+  const name  = rfName.value.trim();
+  const role  = rfRole.value.trim();
+  const quote = rfQuote.value.trim();
+  if (!name || !quote) { alert('Name and quote are required.'); return; }
+  const data = loadReviewsData();
+  const entry = { id: 'r' + Date.now(), name, role, quote, rating: 5, visible: true };
+  const idx = rfId.value !== '' ? parseInt(rfId.value) : -1;
+  if (idx >= 0) {
+    data[idx] = { ...data[idx], name, role, quote };
+  } else {
+    data.push(entry);
+  }
+  saveReviewsData(data);
+  reviewFormWrap.style.display = 'none';
+  renderReviewsList();
+});
 
 /* ─────────────────────────────────────────
    BOOT

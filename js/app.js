@@ -675,6 +675,51 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('is-open'); });
 
+  // ---------- Reviews marquee ----------
+  const DEFAULT_REVIEWS = [
+    { id:'r1', quote:'"Rezki walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price."',                                                               name:'Anna K.',   role:'Villa owner · Kungsbacka',         rating:5, visible:true },
+    { id:'r2', quote:'"We had three quotes. His was the clearest and the only one that actually explained why. Solar + battery running two months now, numbers match the forecast."',                                  name:'Martin P.', role:'Homeowner · Mölndal',              rating:5, visible:true },
+    { id:'r3', quote:'"Eighteen EV stations for our BRF, load-balanced to the main fuse. Start to grid-ready in three weeks. I\'d call him first on the next project."',                                             name:'Lars S.',   role:'Board chair · BRF Göteborg',      rating:5, visible:true },
+    { id:'r4', quote:'"Taket besiktigades ordentligt innan vi fick offerten. Fuktskador hittades och åtgärdades. Inga överraskningar på fakturan."',                                                                  name:'Karin L.',  role:'Villaägare · Partille',            rating:5, visible:true },
+    { id:'r5', quote:'"Twelve windows replaced in one week. The quote listed every fitting and the crew tidied up every single day. That\'s the standard I expect."',                                                 name:'Johan A.',  role:'Property manager · Göteborg',     rating:5, visible:true },
+    { id:'r6', quote:'"Fasaden ser ut som ny. Ställning, grundfärg, två lager, städning — allt ingick i priset. Inga dolda kostnader."',                                                                              name:'Sara M.',   role:'Villaägare · Kungsbacka',          rating:5, visible:true },
+    { id:'r7', quote:'"Solar panels for 40 apartments plus a shared battery. Rezki handled the grid connection and all the BRF paperwork. We barely had to lift a finger."',                                          name:'Erik B.',   role:'BRF chairman · Mölndal',           rating:5, visible:true },
+  ];
+
+  function getReviews() {
+    try {
+      const stored = localStorage.getItem('rm_reviews');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch (_) {}
+    return DEFAULT_REVIEWS;
+  }
+
+  function renderReviews(reviews) {
+    const track = document.getElementById('review-track');
+    if (!track) return;
+    const visible = reviews.filter(r => r.visible !== false);
+    if (!visible.length) return;
+    const card = r => {
+      const initials = (r.name || '').split(' ').map(w => w[0]).slice(0, 2).join('');
+      const stars = '★'.repeat(Math.min(5, r.rating || 5));
+      return `<div class="review-card">
+        <div class="stars">${stars}</div>
+        <blockquote>${r.quote}</blockquote>
+        <div class="who">
+          <div class="avi">${initials}</div>
+          <div><strong>${r.name}</strong><span>${r.role || ''}</span></div>
+        </div>
+      </div>`;
+    };
+    const html = visible.map(card).join('');
+    track.innerHTML = html + html; // two copies for seamless loop
+  }
+
+  renderReviews(getReviews());
+
   // ---------- Calendar ----------
   const calRoot = document.getElementById('calendar');
   if (calRoot) {

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RM Bygg — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* =====================================================
+   RM Bygg Admin Dashboard
+   ===================================================== */
+:root {
+  --bg:        #0D1117;
+  --surface:   #131820;
+  --surface-2: #192030;
+  --border:    rgba(220,216,210,0.10);
+  --border-2:  rgba(220,216,210,0.16);
+  --text:      #E4E0D8;
+  --muted:     #788090;
+  --muted-2:   #9DA6B2;
+  --accent:    #943226;
+  --accent-2:  #B03C2E;
+  --green:     #4a9f6f;
+  --amber:     #c18a2a;
+  --blue:      #3a78b5;
+  --f-body:    "Outfit", -apple-system, sans-serif;
+  --f-mono:    "JetBrains Mono", monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--f-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+input, select, textarea { font: inherit; color: inherit; }
+
+/* ── Login screen ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--bg);
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+}
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.login-logo svg { width: 38px; height: 38px; }
+.login-logo-text { line-height: 1.1; }
+.login-logo-text strong { font-size: 1.2rem; font-weight: 600; }
+.login-logo-text small { display: block; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+.login-card h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.35rem; }
+.login-card p { font-size: 0.88rem; color: var(--muted-2); margin-bottom: 1.75rem; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; font-family: var(--f-mono); }
+.field input {
+  width: 100%;
+  padding: 0.78rem 0.95rem;
+  background: rgba(13,17,23,0.6);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.field input:focus { border-color: rgba(148,50,38,0.55); }
+.btn-login {
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.btn-login:hover { background: var(--accent-2); }
+.login-msg { min-height: 1.2rem; font-size: 0.85rem; color: #e08888; margin-top: 0.75rem; }
+
+/* ── Dashboard layout ── */
+#dashboard { display: none; min-height: 100vh; flex-direction: column; }
+#dashboard.visible { display: flex; }
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.admin-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.admin-header-brand svg { width: 30px; height: 30px; opacity: 0.9; }
+.admin-header-brand span { color: var(--muted); font-weight: 400; margin-left: 0.25rem; }
+.admin-header-right { display: flex; align-items: center; gap: 1rem; }
+.admin-user { font-size: 0.82rem; color: var(--muted-2); }
+.btn-logout {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border-2);
+  border-radius: 5px;
+  font-size: 0.8rem;
+  color: var(--muted-2);
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-logout:hover { color: var(--text); border-color: var(--border-2); }
+
+.admin-body { flex: 1; padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+/* ── Stats row ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+}
+.stat-card .s-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--f-mono);
+  margin-bottom: 0.5rem;
+}
+.stat-card .s-value {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.stat-card .s-sub { font-size: 0.78rem; color: var(--muted-2); margin-top: 0.35rem; }
+.stat-new    .s-value { color: var(--accent-2); }
+.stat-contact .s-value { color: var(--amber); }
+.stat-quoted .s-value { color: var(--blue); }
+.stat-won    .s-value { color: var(--green); }
+
+/* ── Leads panel ── */
+.leads-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.leads-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.leads-toolbar h3 { font-size: 1rem; font-weight: 600; flex: 1; min-width: 100px; }
+.filter-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.filter-btn {
+  padding: 0.38rem 0.8rem;
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  font-size: 0.76rem;
+  color: var(--muted-2);
+  transition: all 0.2s;
+  font-family: var(--f-mono);
+  letter-spacing: 0.08em;
+}
+.filter-btn:hover { color: var(--text); border-color: rgba(220,216,210,0.28); }
+.filter-btn.is-active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.filter-sep { width: 1px; background: var(--border); height: 24px; align-self: center; }
+.btn-refresh {
+  padding: 0.38rem 0.8rem;
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  font-size: 0.76rem;
+  color: var(--muted-2);
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.btn-refresh:hover { color: var(--text); }
+.btn-refresh svg { width: 13px; height: 13px; }
+
+/* ── Table ── */
+.leads-table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.87rem;
+}
+thead th {
+  text-align: left;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--f-mono);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+tbody tr:last-child { border-bottom: 0; }
+tbody tr:hover { background: rgba(220,216,210,0.04); }
+tbody td {
+  padding: 0.85rem 1.1rem;
+  vertical-align: middle;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-date { color: var(--muted-2); font-family: var(--f-mono); font-size: 0.78rem; white-space: nowrap; }
+.td-name { font-weight: 500; }
+.td-email { color: var(--muted-2); font-size: 0.82rem; }
+.td-services { color: var(--muted-2); font-size: 0.82rem; max-width: 180px; }
+
+/* Type badge */
+.badge {
+  display: inline-block;
+  padding: 0.22rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--f-mono);
+  font-weight: 500;
+}
+.badge-book    { background: rgba(58,120,181,0.18); color: #7ab0e0; }
+.badge-quote   { background: rgba(193,138,42,0.18); color: #d4a55a; }
+.badge-invoice { background: rgba(74,159,111,0.18); color: #7dcba0; }
+
+/* Status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.s-new       { border-color: rgba(148,50,38,0.4); color: #d07060; }
+.s-contacted { border-color: rgba(193,138,42,0.4); color: #d4a55a; }
+.s-quoted    { border-color: rgba(58,120,181,0.4); color: #7ab0e0; }
+.s-won       { border-color: rgba(74,159,111,0.4); color: #7dcba0; }
+.s-lost      { border-color: rgba(120,128,144,0.3); color: var(--muted); }
+
+/* ── Status select ── */
+.status-select {
+  background: transparent;
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.75rem;
+  color: var(--muted-2);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.status-select:hover { border-color: rgba(220,216,210,0.28); }
+.status-select:focus { outline: none; border-color: rgba(148,50,38,0.4); }
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--muted);
+}
+.empty-state svg { width: 40px; height: 40px; margin: 0 auto 1rem; opacity: 0.4; }
+.empty-state p { font-size: 0.9rem; }
+
+/* ── Detail drawer ── */
+.drawer-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(6,10,18,0.65);
+  z-index: 50;
+  backdrop-filter: blur(4px);
+}
+.drawer-overlay.is-open { display: block; }
+.drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(480px, 96vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border-2);
+  z-index: 51;
+  overflow-y: auto;
+  padding: 2rem;
+  transform: translateX(110%);
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.drawer.is-open { transform: translateX(0); }
+.drawer-close {
+  position: absolute; top: 1.25rem; right: 1.25rem;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  color: var(--muted-2);
+  transition: background 0.2s;
+}
+.drawer-close:hover { background: var(--accent); color: #fff; }
+.drawer h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; padding-right: 2.5rem; }
+.drawer-section { margin-bottom: 1.5rem; }
+.drawer-section h4 { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-family: var(--f-mono); margin-bottom: 0.75rem; }
+.drawer-row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+.drawer-row:last-child { border-bottom: 0; }
+.drawer-row .dr-label { color: var(--muted-2); flex-shrink: 0; }
+.drawer-row .dr-val { text-align: right; word-break: break-word; }
+.drawer-notes { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem; font-size: 0.88rem; color: var(--muted-2); line-height: 1.6; }
+.drawer-status-row { display: flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem; }
+.drawer-status-row label { font-size: 0.8rem; color: var(--muted-2); }
+.drawer-status-sel {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.drawer-status-sel:focus { border-color: rgba(148,50,38,0.5); }
+
+/* ── Config notice ── */
+.config-notice {
+  background: rgba(148,50,38,0.1);
+  border: 1px solid rgba(148,50,38,0.3);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-size: 0.86rem;
+  color: #d07060;
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
+}
+.config-notice strong { display: block; margin-bottom: 0.25rem; }
+.config-notice code {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  background: rgba(148,50,38,0.15);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+}
+
+/* ── SQL schema helper ── */
+.sql-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-family: var(--f-mono);
+  font-size: 0.74rem;
+  color: var(--muted-2);
+  white-space: pre;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+  line-height: 1.6;
+}
+
+/* ── Loading spinner ── */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border-2);
+  border-top-color: var(--accent-2);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 3rem auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .admin-body { padding: 1rem; }
+  .leads-toolbar { padding: 0.85rem 1rem; }
+  thead th:nth-child(3),
+  tbody td:nth-child(3),
+  thead th:nth-child(5),
+  tbody td:nth-child(5) { display: none; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .stat-card { padding: 1rem; }
+  .stat-card .s-value { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 40 40" fill="none">
+        <circle cx="28" cy="12" r="5" fill="#943226"/>
+        <path d="M4 28 L20 14 L36 28 Z" stroke="#E4E0D8" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        <path d="M9 28 V34 H31 V28" stroke="#E4E0D8" stroke-width="2" fill="none"/>
+      </svg>
+      <div class="login-logo-text">
+        <strong>RM Bygg</strong>
+        <small>Admin dashboard</small>
+      </div>
+    </div>
+    <h2>Sign in</h2>
+    <p>Admin access only. This page is not intended for clients.</p>
+    <form id="login-form">
+      <div class="field">
+        <label>Email</label>
+        <input id="login-email" type="email" autocomplete="email" required placeholder="admin@rmbygg.se"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="login-password" type="password" autocomplete="current-password" required/>
+      </div>
+      <button class="btn-login" type="submit" id="login-btn">Sign in</button>
+      <p class="login-msg" id="login-msg"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DASHBOARD
+════════════════════════════════════════ -->
+<div id="dashboard">
+  <header class="admin-header">
+    <div class="admin-header-brand">
+      <svg viewBox="0 0 40 40" fill="none">
+        <circle cx="28" cy="12" r="5" fill="#943226"/>
+        <path d="M4 28 L20 14 L36 28 Z" stroke="#E4E0D8" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+        <path d="M9 28 V34 H31 V28" stroke="#E4E0D8" stroke-width="1.8" fill="none"/>
+      </svg>
+      RM Bygg <span>/ Admin</span>
+    </div>
+    <div class="admin-header-right">
+      <span class="admin-user" id="admin-user-email"></span>
+      <button class="btn-logout" id="btn-logout">Sign out</button>
+    </div>
+  </header>
+
+  <main class="admin-body">
+
+    <!-- Config notice (hidden once Supabase is wired) -->
+    <div class="config-notice" id="config-notice" style="display:none">
+      <strong>Supabase not configured</strong>
+      Dashboard is in demo mode. To connect real leads:
+      <ol style="margin:0.5rem 0 0.5rem 1.2rem;line-height:1.9">
+        <li>Create a Supabase project at <strong>supabase.com</strong></li>
+        <li>Run the SQL below to create the leads table</li>
+        <li>Add your <code>supabaseUrl</code> and <code>supabaseAnonKey</code> to <code>index.html</code> in <code>RM_AUTH_CONFIG</code></li>
+        <li>Do the same here in <code>admin.html</code> in <code>ADMIN_CONFIG</code></li>
+      </ol>
+      <div class="sql-block">CREATE TABLE leads (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at    TIMESTAMPTZ DEFAULT NOW(),
+  type          TEXT,          -- 'book' | 'quote' | 'invoice'
+  lang          TEXT,
+  name          TEXT,
+  email         TEXT,
+  phone         TEXT,
+  company       TEXT,
+  address       TEXT,
+  services      TEXT,
+  property_type TEXT,
+  timing        TEXT,
+  notes         TEXT,
+  booking_slot  TEXT,
+  status        TEXT DEFAULT 'new'
+);
+
+-- Row-level security: only authenticated users can read/update
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Admins only" ON leads
+  USING (auth.role() = 'authenticated')
+  WITH CHECK (auth.role() = 'authenticated');</div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card">
+        <div class="s-label">Total leads</div>
+        <div class="s-value" id="stat-total">—</div>
+        <div class="s-sub">All time</div>
+      </div>
+      <div class="stat-card stat-new">
+        <div class="s-label">New</div>
+        <div class="s-value" id="stat-new">—</div>
+        <div class="s-sub">Awaiting contact</div>
+      </div>
+      <div class="stat-card stat-contact">
+        <div class="s-label">Contacted</div>
+        <div class="s-value" id="stat-contacted">—</div>
+        <div class="s-sub">In progress</div>
+      </div>
+      <div class="stat-card stat-quoted">
+        <div class="s-label">Quoted</div>
+        <div class="s-value" id="stat-quoted">—</div>
+        <div class="s-sub">Offer sent</div>
+      </div>
+      <div class="stat-card stat-won">
+        <div class="s-label">Won</div>
+        <div class="s-value" id="stat-won">—</div>
+        <div class="s-sub">Closed as won</div>
+      </div>
+    </div>
+
+    <!-- Leads table -->
+    <div class="leads-panel">
+      <div class="leads-toolbar">
+        <h3>Leads</h3>
+        <div class="filter-group" id="type-filters">
+          <button class="filter-btn is-active" data-type="all">All</button>
+          <button class="filter-btn" data-type="book">Bookings</button>
+          <button class="filter-btn" data-type="quote">Quotes</button>
+          <button class="filter-btn" data-type="invoice">Invoices</button>
+        </div>
+        <div class="filter-sep"></div>
+        <div class="filter-group" id="status-filters">
+          <button class="filter-btn is-active" data-status="all">All status</button>
+          <button class="filter-btn" data-status="new">New</button>
+          <button class="filter-btn" data-status="contacted">Contacted</button>
+          <button class="filter-btn" data-status="quoted">Quoted</button>
+          <button class="filter-btn" data-status="won">Won</button>
+          <button class="filter-btn" data-status="lost">Lost</button>
+        </div>
+        <button class="btn-refresh" id="btn-refresh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Refresh
+        </button>
+      </div>
+      <div class="leads-table-wrap">
+        <table id="leads-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Type</th>
+              <th>Services</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody">
+            <tr><td colspan="6"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Lead detail drawer -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer" id="lead-drawer">
+  <button class="drawer-close" id="drawer-close">×</button>
+  <h3 id="drawer-name">Lead detail</h3>
+  <div id="drawer-content"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ─────────────────────────────────────────
+   CONFIGURATION — fill these in
+────────────────────────────────────────── */
+const ADMIN_CONFIG = {
+  supabaseUrl:     '',
+  supabaseAnonKey: '',
+};
+
+/* ─────────────────────────────────────────
+   INIT
+────────────────────────────────────────── */
+const configured = Boolean(ADMIN_CONFIG.supabaseUrl && ADMIN_CONFIG.supabaseAnonKey);
+const sb = configured
+  ? supabase.createClient(ADMIN_CONFIG.supabaseUrl, ADMIN_CONFIG.supabaseAnonKey)
+  : null;
+
+// State
+let allLeads = [];
+let activeType   = 'all';
+let activeStatus = 'all';
+let currentLeadId = null;
+
+// DOM refs
+const loginScreen  = document.getElementById('login-screen');
+const dashboard    = document.getElementById('dashboard');
+const loginForm    = document.getElementById('login-form');
+const loginMsg     = document.getElementById('login-msg');
+const loginBtn     = document.getElementById('login-btn');
+const btnLogout    = document.getElementById('btn-logout');
+const adminEmail   = document.getElementById('admin-user-email');
+const configNotice = document.getElementById('config-notice');
+const tbody        = document.getElementById('leads-tbody');
+const drawerOverlay = document.getElementById('drawer-overlay');
+const leadDrawer   = document.getElementById('lead-drawer');
+const drawerClose  = document.getElementById('drawer-close');
+const drawerContent = document.getElementById('drawer-content');
+const drawerName   = document.getElementById('drawer-name');
+const btnRefresh   = document.getElementById('btn-refresh');
+
+/* ─────────────────────────────────────────
+   AUTH
+────────────────────────────────────────── */
+async function checkSession() {
+  if (!sb) {
+    // No Supabase — show dashboard in demo mode
+    showDashboard(null);
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    showDashboard(session.user);
+  }
+}
+
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  loginMsg.textContent = '';
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Signing in…';
+
+  if (!sb) {
+    // Demo mode: accept any credentials
+    showDashboard(null);
+    return;
+  }
+
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    loginMsg.textContent = error.message;
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Sign in';
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  showDashboard(session?.user || null);
+});
+
+btnLogout.addEventListener('click', async () => {
+  if (sb) await sb.auth.signOut();
+  dashboard.classList.remove('visible');
+  loginScreen.style.display = 'flex';
+  loginBtn.disabled = false;
+  loginBtn.textContent = 'Sign in';
+});
+
+function showDashboard(user) {
+  loginScreen.style.display = 'none';
+  dashboard.classList.add('visible');
+  adminEmail.textContent = user?.email || 'Demo mode';
+  if (!configured) configNotice.style.display = 'block';
+  loadLeads();
+}
+
+/* ─────────────────────────────────────────
+   LEADS
+────────────────────────────────────────── */
+async function loadLeads() {
+  tbody.innerHTML = '<tr><td colspan="6"><div class="spinner"></div></td></tr>';
+
+  if (!sb) {
+    allLeads = getDemoLeads();
+    renderTable();
+    updateStats();
+    return;
+  }
+
+  const { data, error } = await sb
+    .from('leads')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#e08888">Error loading leads: ${error.message}</td></tr>`;
+    return;
+  }
+  allLeads = data || [];
+  renderTable();
+  updateStats();
+}
+
+function filteredLeads() {
+  return allLeads.filter(l => {
+    if (activeType   !== 'all' && l.type   !== activeType)   return false;
+    if (activeStatus !== 'all' && l.status !== activeStatus) return false;
+    return true;
+  });
+}
+
+function renderTable() {
+  const leads = filteredLeads();
+  if (!leads.length) {
+    tbody.innerHTML = `<tr><td colspan="6">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 2v4M16 2v4M2 10h20"/></svg>
+        <p>No leads match the current filter.</p>
+      </div>
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = leads.map(l => `
+    <tr data-id="${l.id}">
+      <td class="td-date">${fmtDate(l.created_at)}</td>
+      <td class="td-name">${esc(l.name || '—')}</td>
+      <td class="td-email">${esc(l.email || '—')}</td>
+      <td><span class="badge badge-${l.type}">${l.type || '—'}</span></td>
+      <td class="td-services">${esc(l.services || '—')}</td>
+      <td><span class="status-badge s-${l.status || 'new'}">${statusLabel(l.status)}</span></td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('tr[data-id]').forEach(row => {
+    row.addEventListener('click', () => openDrawer(row.dataset.id));
+  });
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent     = allLeads.length;
+  document.getElementById('stat-new').textContent       = allLeads.filter(l => l.status === 'new').length;
+  document.getElementById('stat-contacted').textContent = allLeads.filter(l => l.status === 'contacted').length;
+  document.getElementById('stat-quoted').textContent    = allLeads.filter(l => l.status === 'quoted').length;
+  document.getElementById('stat-won').textContent       = allLeads.filter(l => l.status === 'won').length;
+}
+
+/* ─────────────────────────────────────────
+   FILTERS
+────────────────────────────────────────── */
+document.getElementById('type-filters').addEventListener('click', e => {
+  const btn = e.target.closest('[data-type]');
+  if (!btn) return;
+  activeType = btn.dataset.type;
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.toggle('is-active', b === btn));
+  renderTable();
+});
+
+document.getElementById('status-filters').addEventListener('click', e => {
+  const btn = e.target.closest('[data-status]');
+  if (!btn) return;
+  activeStatus = btn.dataset.status;
+  document.querySelectorAll('[data-status]').forEach(b => b.classList.toggle('is-active', b === btn));
+  renderTable();
+});
+
+btnRefresh.addEventListener('click', loadLeads);
+
+/* ─────────────────────────────────────────
+   LEAD DRAWER
+────────────────────────────────────────── */
+function openDrawer(id) {
+  const lead = allLeads.find(l => String(l.id) === String(id));
+  if (!lead) return;
+  currentLeadId = id;
+
+  drawerName.textContent = lead.name || 'Lead detail';
+
+  drawerContent.innerHTML = `
+    <div class="drawer-section">
+      <h4>Contact</h4>
+      ${row('Name', lead.name)}
+      ${row('Email', lead.email ? `<a href="mailto:${esc(lead.email)}" style="color:#7ab0e0">${esc(lead.email)}</a>` : '—')}
+      ${row('Phone', lead.phone ? `<a href="tel:${esc(lead.phone)}" style="color:#7ab0e0">${esc(lead.phone)}</a>` : '—')}
+      ${lead.company ? row('Company', lead.company) : ''}
+    </div>
+    <div class="drawer-section">
+      <h4>Request</h4>
+      ${row('Type', `<span class="badge badge-${lead.type}">${lead.type || '—'}</span>`)}
+      ${row('Language', lead.lang === 'sv' ? '🇸🇪 Swedish' : '🇬🇧 English')}
+      ${lead.services ? row('Services', lead.services) : ''}
+      ${lead.address ? row('Address', lead.address) : ''}
+      ${lead.property_type ? row('Property', lead.property_type) : ''}
+      ${lead.timing ? row('Timing', lead.timing) : ''}
+      ${lead.booking_slot && lead.booking_slot !== '— pick a slot above —' ? row('Booking slot', lead.booking_slot) : ''}
+      ${row('Submitted', fmtDateFull(lead.created_at))}
+    </div>
+    ${lead.notes ? `
+    <div class="drawer-section">
+      <h4>Notes</h4>
+      <div class="drawer-notes">${esc(lead.notes)}</div>
+    </div>` : ''}
+    <div class="drawer-status-row">
+      <label>Status</label>
+      <select class="drawer-status-sel" id="drawer-status-sel">
+        <option value="new"       ${lead.status === 'new'       ? 'selected' : ''}>New</option>
+        <option value="contacted" ${lead.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+        <option value="quoted"    ${lead.status === 'quoted'    ? 'selected' : ''}>Quoted</option>
+        <option value="won"       ${lead.status === 'won'       ? 'selected' : ''}>Won</option>
+        <option value="lost"      ${lead.status === 'lost'      ? 'selected' : ''}>Lost</option>
+      </select>
+    </div>
+  `;
+
+  document.getElementById('drawer-status-sel').addEventListener('change', async e => {
+    const newStatus = e.target.value;
+    const lead = allLeads.find(l => String(l.id) === String(currentLeadId));
+    if (lead) lead.status = newStatus;
+    if (sb) {
+      await sb.from('leads').update({ status: newStatus }).eq('id', currentLeadId);
+    }
+    renderTable();
+    updateStats();
+  });
+
+  drawerOverlay.classList.add('is-open');
+  leadDrawer.classList.add('is-open');
+}
+
+function closeDrawer() {
+  drawerOverlay.classList.remove('is-open');
+  leadDrawer.classList.remove('is-open');
+  currentLeadId = null;
+}
+drawerClose.addEventListener('click', closeDrawer);
+drawerOverlay.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+/* ─────────────────────────────────────────
+   HELPERS
+────────────────────────────────────────── */
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function row(label, val) {
+  return `<div class="drawer-row"><span class="dr-label">${label}</span><span class="dr-val">${val || '—'}</span></div>`;
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function fmtDateFull(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+function statusLabel(s) {
+  return { new:'New', contacted:'Contacted', quoted:'Quoted', won:'Won', lost:'Lost' }[s] || 'New';
+}
+
+/* ─────────────────────────────────────────
+   DEMO DATA (shown when Supabase not set up)
+────────────────────────────────────────── */
+function getDemoLeads() {
+  const now = Date.now();
+  return [
+    { id:'1', created_at: new Date(now - 1*86400000).toISOString(), type:'book', lang:'sv', name:'Anna Karlsson', email:'anna@example.se', phone:'+46 70 123 45 67', services:'Solceller, Batteri', address:'Kungsgatan 12, Göteborg', property_type:'Villa / enbostadshus', timing:'', notes:'Intresserad av solceller med batteri. Ring på förmiddagen.', booking_slot:'Mon 19 May 2025 · 09:00', status:'new' },
+    { id:'2', created_at: new Date(now - 2*86400000).toISOString(), type:'quote', lang:'en', name:'Martin Persson', email:'martin.p@email.com', phone:'+46 70 234 56 78', services:'Solar Panels, EV Charger', address:'', property_type:'Housing association (BRF)', timing:'Within 3 months', notes:'18 EV charging stations for our BRF. Load-balanced to 100A main fuse.', booking_slot:'', status:'contacted' },
+    { id:'3', created_at: new Date(now - 5*86400000).toISOString(), type:'quote', lang:'sv', name:'Lars Svensson', email:'lars@brf-goteborg.se', phone:'+46 70 345 67 89', services:'Takrenovering', address:'Avenyn 44, Göteborg', property_type:'Bostadsrättsförening (BRF)', timing:'Så snart som möjligt', notes:'Taket läcker vid regn. Fuktskador synliga i topp-lägenheter.', booking_slot:'', status:'quoted' },
+    { id:'4', created_at: new Date(now - 8*86400000).toISOString(), type:'book', lang:'sv', name:'Eva Lindqvist', email:'eva@lindqvist.se', phone:'+46 70 456 78 90', services:'Fönsterbyte', address:'Hisingsvägen 8, Göteborg', property_type:'Villa / enbostadshus', timing:'', notes:'', booking_slot:'Thu 22 May 2025 · 10:30', status:'won' },
+    { id:'5', created_at: new Date(now - 12*86400000).toISOString(), type:'invoice', lang:'en', name:'Björn AB', email:'ekonomi@bjorn.se', phone:'+46 31 000 00 00', company:'Björn Fastigheter AB', services:'', address:'', property_type:'', timing:'', notes:'Copy of invoice RM-2025-0042. Send to accounting dept.', booking_slot:'', status:'contacted' },
+  ];
+}
+
+/* ─────────────────────────────────────────
+   BOOT
+────────────────────────────────────────── */
+checkSession();
+</script>
+</body>
+</html>

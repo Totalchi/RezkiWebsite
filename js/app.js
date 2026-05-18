@@ -748,12 +748,40 @@ document.addEventListener('DOMContentLoaded', () => {
     render(); renderSlots();
   }
 
-  // ---------- Form submit (demo) ----------
+  // ---------- Form submit — save lead to Supabase if configured ----------
   document.querySelectorAll('form.rm-form').forEach(f => {
-    f.addEventListener('submit', e => {
+    f.addEventListener('submit', async e => {
       e.preventDefault();
-      const pane = f.parentElement;
-      const success = pane.querySelector('.success');
+      const pane     = f.closest('.tab-pane');
+      const formType = pane ? pane.dataset.tab : 'unknown';
+      const success  = f.parentElement.querySelector('.success');
+
+      // Collect field values
+      const get = sel => { const el = f.querySelector(sel); return el ? el.value.trim() : ''; };
+      const services = [...f.querySelectorAll('.chip.is-on')].map(c => c.textContent).join(', ');
+      const lead = {
+        type:          formType,
+        lang:          currentLang,
+        name:          get('input[placeholder*="name"], input[placeholder*="namn"], input[placeholder*="amn"]') || get('input[type="text"]:first-of-type'),
+        email:         get('input[type="email"]'),
+        phone:         get('input[type="tel"]'),
+        company:       get('input[placeholder*="B2B"], input[placeholder*="Företag"]'),
+        address:       get('input[placeholder*="Street"], input[placeholder*="Gata"]'),
+        services:      services,
+        property_type: get('select') ? f.querySelector('select')?.value : '',
+        timing:        f.querySelectorAll('select')[1] ? f.querySelectorAll('select')[1].value : '',
+        notes:         get('textarea'),
+        booking_slot:  formType === 'book' ? (document.getElementById('booking-selection')?.textContent || '') : '',
+        status:        'new',
+      };
+
+      // Save to Supabase if client is ready
+      if (authClient) {
+        try {
+          await authClient.from('leads').insert([lead]);
+        } catch (_) { /* silently fail — show success to user regardless */ }
+      }
+
       f.style.display = 'none';
       success.style.display = 'block';
     });

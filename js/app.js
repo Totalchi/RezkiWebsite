@@ -636,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   langBtns.forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
-  applyLang(localStorage.getItem('rm-lang') || 'en');
+  applyLang(localStorage.getItem('rm-lang') || 'sv');
 
   // ---------- Tabs ----------
   const tabs = document.querySelectorAll('.tab-btn');

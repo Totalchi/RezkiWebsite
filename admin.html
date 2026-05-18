@@ -640,6 +640,8 @@ const btnRefresh   = document.getElementById('btn-refresh');
    AUTH
 ────────────────────────────────────────── */
 const LOCAL_SESSION_KEY = 'rm_admin_session';
+// Clear any stale localStorage session — we use sessionStorage only
+localStorage.removeItem(LOCAL_SESSION_KEY);
 
 async function checkSession() {
   // Check Supabase session first
@@ -648,7 +650,7 @@ async function checkSession() {
     if (session) { showDashboard(session.user); return; }
   }
   // Fall back to local hardcoded session
-  if (localStorage.getItem(LOCAL_SESSION_KEY) === 'authenticated') {
+  if (sessionStorage.getItem(LOCAL_SESSION_KEY) === 'authenticated') {
     showDashboard(null);
   }
 }
@@ -674,7 +676,7 @@ loginForm.addEventListener('submit', async e => {
 
   // Hardcoded fallback credentials
   if (username === 'rezki' && password === 'rezki') {
-    localStorage.setItem(LOCAL_SESSION_KEY, 'authenticated');
+    sessionStorage.setItem(LOCAL_SESSION_KEY, 'authenticated');
     showDashboard(null);
     return;
   }
@@ -686,7 +688,7 @@ loginForm.addEventListener('submit', async e => {
 
 btnLogout.addEventListener('click', async () => {
   if (sb) await sb.auth.signOut();
-  localStorage.removeItem(LOCAL_SESSION_KEY);
+  sessionStorage.removeItem(LOCAL_SESSION_KEY);
   dashboard.classList.remove('visible');
   loginScreen.style.display = 'flex';
   loginBtn.disabled = false;

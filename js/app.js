@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'nav.cta':    'Book a visit',
         // Hero meta
         'hero.meta.free.num':   'Free',
-        'hero.meta.free.lbl':   'Site visit &amp; inspection',
+        'hero.meta.free.lbl':   'Site visit & inspection',
         'hero.meta.written.num':'Written',
         'hero.meta.written.lbl':'Fixed-price quote',
         'hero.meta.rot.num':    'ROT',
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'svc.06.tag':   '06 · Finish',
         // Service cards — titles
         'svc.01.title': 'Solar panel systems',
-        'svc.02.title': 'Batteries &amp; storage',
+        'svc.02.title': 'Batteries & storage',
         'svc.03.title': 'EV chargers',
         'svc.04.title': 'Window replacement',
         'svc.05.title': 'Roof renovation',
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'cr.email.lbl': 'Email',
         'cr.email.cta': 'Write →',
         'cr.area.lbl':  'Service area',
-        'cr.area.val':  'Gothenburg &amp; surroundings',
+        'cr.area.val':  'Gothenburg & surroundings',
         'cr.area.cta':  'Local',
         'cr.hours.lbl': 'Office hours',
         'cr.hours.cta': 'Open now',
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'pm.04.p':  'Dammdukar, daglig städning och byggnadsställning borttagen sista dagen. Vi lämnar ditt hem eller fastighet som vi hittade det — fast bättre.',
         'pm.05.h4': '5 års hantverksgaranti',
         'pm.05.p':  'Om något vi installerade går fel under vår tillsyn lagar vi det. Inskrivet i varje kontrakt — inte ett marknadsföringslöfte.',
-        'pm.card.p':   'Det är hela pitchen. Det är därför bostadsrättsföreningar, villagäre och fastighetsbolag återkommer.',
+        'pm.card.p':   'Det är hela pitchen. Det är därför bostadsrättsföreningar, villaägare och fastighetsbolag återkommer.',
         'pm.stat.reply': 'Vardagssvar',
         'pm.stat.years': 'I branschen',
         'pm.stat.review':'Snittbetyg',
@@ -458,11 +458,11 @@ document.addEventListener('DOMContentLoaded', () => {
         's.reviews.desc':    'Äkta omdömen från äkta jobb runt Göteborg, Mölndal, Kungsbacka och Partille.',
         'rv.01.q':    '„Rezki gick upp på vårt tak med mig innan han lade offerten. Det sa mig allt om vem jag hade att göra med. Jobbet levererades i tid och till rätt pris.“',
         'rv.01.who':  'Anna K.',
-        'rv.01.role': 'Villagägare · Kungsbacka',
+        'rv.01.role': 'Villaägare · Kungsbacka',
         'rv.02.q':    '„Vi fick tre offerter. Hans var tydligast och den enda som faktiskt förklarade varför. Solceller + batteri i drift sedan två månader — siffrorna stämmer med prognosen.“',
         'rv.02.who':  'Martin P.',
         'rv.02.role': 'Husägare · Mölndal',
-        'rv.03.q':    '„Arton laddstationer för vår BRF, lastbalanserade till huvudäkringen. Från start till nätanslutning på tre veckor. Jag ringer honom först vid nästa projekt.“',
+        'rv.03.q':    '„Arton laddstationer för vår BRF, lastbalanserade till huvudsäkringen. Från start till nätanslutning på tre veckor. Jag ringer honom först vid nästa projekt.”',
         'rv.03.who':  'Lars S.',
         'rv.03.role': 'Styrelseordförande · BRF Göteborg',
         // Contact
@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'cr.email.lbl': 'E-post',
         'cr.email.cta': 'Skriv →',
         'cr.area.lbl':  'Serviceområde',
-        'cr.area.val':  'Göteborg &amp; omnejd',
+        'cr.area.val':  'Göteborg & omnejd',
         'cr.area.cta':  'Lokal',
         'cr.hours.lbl': 'Kontorstid',
         'cr.hours.cta': 'Öppet nu',
@@ -570,10 +570,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const langBtns = document.querySelectorAll('[data-lang]');
+  let currentLang = 'en';
 
   function applyLang(l) {
     const L = LANGS[l];
     if (!L) return;
+    currentLang = l;
 
     // --- Legacy hero direct-ID targets ---
     const byId = id => document.getElementById(id);
@@ -623,6 +625,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Active lang button ---
     langBtns.forEach(b => b.classList.toggle('is-active', b.dataset.lang === l));
     localStorage.setItem('rm-lang', l);
+
+    // --- Re-render calendar month name if calendar is present ---
+    const calMonthEl = document.querySelector('.cal-month');
+    if (calMonthEl && calMonthEl.textContent) {
+      const viewDate = new Date();
+      viewDate.setDate(1);
+      calMonthEl.textContent = `${viewDate.toLocaleString(l === 'sv' ? 'sv-SE' : 'en-GB', { month: 'long' })} ${viewDate.getFullYear()}`;
+    }
   }
 
   langBtns.forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
@@ -683,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function render() {
       const y = view.getFullYear(), m = view.getMonth();
-      monthEl.textContent = `${view.toLocaleString('default', { month: 'long' })} ${y}`;
+      monthEl.textContent = `${view.toLocaleString(currentLang === 'sv' ? 'sv-SE' : 'en-GB', { month: 'long' })} ${y}`;
       gridEl.innerHTML = '';
       const firstDow = (new Date(y, m, 1).getDay() + 6) % 7;
       const daysInMonth = new Date(y, m + 1, 0).getDate();
@@ -709,12 +719,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     function renderSlots() {
+      const T = LANGS[currentLang].t;
       if (!selected) {
         slotsEl.innerHTML = '';
-        slotsLabel.textContent = 'Select a date first';
+        slotsLabel.textContent = T['form.book.slots'] || 'Select a date first';
         return;
       }
-      slotsLabel.textContent = `Available times — ${selected.toDateString()}`;
+      const dateStr = selected.toLocaleDateString(currentLang === 'sv' ? 'sv-SE' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
+      slotsLabel.textContent = (currentLang === 'sv' ? 'Tillgängliga tider — ' : 'Available times — ') + dateStr;
       const times = ['07:30','09:00','10:30','13:00','14:30','16:00'];
       const seed = selected.getDate() * 7 + selected.getMonth() * 13;
       const busySlots = new Set([times[(seed + 1) % times.length], times[(seed + 4) % times.length]]);

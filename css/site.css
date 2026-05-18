@@ -1838,7 +1838,7 @@ footer {
 /* ---------- WhatsApp ---------- */
 .whatsapp-btn {
   position: fixed;
-  bottom: 8rem; left: 2.25rem;
+  bottom: 2.25rem; right: 5rem; left: auto;
   width: 52px; height: 52px;
   border-radius: 50%;
   background: #25d366;
@@ -1874,7 +1874,7 @@ footer {
 }
 .whatsapp-btn:hover .whatsapp-tooltip { opacity: 1; }
 @media (max-width: 720px) {
-  .whatsapp-btn { bottom: 5.5rem; left: 1.25rem; }
+  .whatsapp-btn { bottom: 2.25rem; right: 1.25rem; left: auto; }
   .whatsapp-tooltip { display: none; }
 }
 
@@ -2015,7 +2015,7 @@ footer {
 /* ---------- Back-to-top ---------- */
 .back-top {
   position: fixed;
-  bottom: 2.25rem; right: 2.25rem;
+  bottom: 6rem; right: 2.25rem;
   width: 48px; height: 48px;
   border-radius: 50%;
   background: var(--gold);

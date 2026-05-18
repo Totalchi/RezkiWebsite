@@ -443,8 +443,8 @@ tbody td {
     <p>Admin access only. This page is not intended for clients.</p>
     <form id="login-form">
       <div class="field">
-        <label>Email</label>
-        <input id="login-email" type="email" autocomplete="email" required placeholder="admin@rmbygg.se"/>
+        <label>Username</label>
+        <input id="login-email" type="text" autocomplete="username" required placeholder="Username"/>
       </div>
       <div class="field">
         <label>Password</label>
@@ -639,15 +639,17 @@ const btnRefresh   = document.getElementById('btn-refresh');
 /* ─────────────────────────────────────────
    AUTH
 ────────────────────────────────────────── */
+const LOCAL_SESSION_KEY = 'rm_admin_session';
+
 async function checkSession() {
-  if (!sb) {
-    // No Supabase — show dashboard in demo mode
-    showDashboard(null);
-    return;
+  // Check Supabase session first
+  if (sb) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) { showDashboard(session.user); return; }
   }
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    showDashboard(session.user);
+  // Fall back to local hardcoded session
+  if (localStorage.getItem(LOCAL_SESSION_KEY) === 'authenticated') {
+    showDashboard(null);
   }
 }
 
@@ -657,27 +659,34 @@ loginForm.addEventListener('submit', async e => {
   loginBtn.disabled = true;
   loginBtn.textContent = 'Signing in…';
 
-  if (!sb) {
-    // Demo mode: accept any credentials
+  const username = document.getElementById('login-email').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+
+  // Supabase auth (when configured)
+  if (sb) {
+    const { error } = await sb.auth.signInWithPassword({ email: username, password });
+    if (!error) {
+      const { data: { session } } = await sb.auth.getSession();
+      showDashboard(session?.user || null);
+      return;
+    }
+  }
+
+  // Hardcoded fallback credentials
+  if (username === 'rezki' && password === 'rezki') {
+    localStorage.setItem(LOCAL_SESSION_KEY, 'authenticated');
     showDashboard(null);
     return;
   }
 
-  const email    = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) {
-    loginMsg.textContent = error.message;
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Sign in';
-    return;
-  }
-  const { data: { session } } = await sb.auth.getSession();
-  showDashboard(session?.user || null);
+  loginMsg.textContent = 'Incorrect username or password.';
+  loginBtn.disabled = false;
+  loginBtn.textContent = 'Sign in';
 });
 
 btnLogout.addEventListener('click', async () => {
   if (sb) await sb.auth.signOut();
+  localStorage.removeItem(LOCAL_SESSION_KEY);
   dashboard.classList.remove('visible');
   loginScreen.style.display = 'flex';
   loginBtn.disabled = false;

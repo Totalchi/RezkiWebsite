@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'learn.link': 'Quote →',
         // Promise section
         's.promise.eyebrow': 'Our promise',
-        's.promise.desc':    'Rezki answers his own phone. You’ll know the names of the people on your roof. When something’s unclear — and on a building site it will be — you hear about it first, not last.',
+        ‘s.promise.desc’:    ‘Our team picks up the phone directly. You\’ll know the names of the people on your roof. When something\’s unclear — and on a building site it will be — you hear about it first, not last.’,
         'pm.01.h4': 'Direct line to the owner',
         'pm.01.p':  'No call-centre, no account-manager hand-offs. You get the personal number of the person running the job — and he picks up.',
         'pm.02.h4': 'Fixed-price, written quotes',
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reviews section
         's.reviews.eyebrow': 'What clients say',
         's.reviews.desc':    'Real reviews from real jobs across Gothenburg, Mölndal, Kungsbacka and Partille.',
-        'rv.01.q':    '“Rezki walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price.”',
+        'rv.01.q':    '”The team walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price.”',
         'rv.01.who':  'Anna K.',
         'rv.01.role': 'Villa owner · Kungsbacka',
         'rv.02.q':    '“We had three quotes. His was the clearest and the only one that actually explained why. Solar + battery running two months now, numbers match the forecast.”',
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Contact section
         's.contact.eyebrow': 'Talk to us',
         's.contact.desc':    'Weekday response within 24 hours. Free site visits across Gothenburg, Mölndal, Kungsbacka, Partille, Lerum and Härryda.',
-        'cr.phone.lbl': 'Call Rezki directly',
+        'cr.phone.lbl': 'Call us directly',
         'cr.phone.cta': 'Call →',
         'cr.email.lbl': 'Email',
         'cr.email.cta': 'Write →',
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'form.book.notes.ph':    'Anything we should know before we arrive',
         'form.book.submit':      'Confirm booking',
         'form.book.ok.h3':       'Booking received',
-        'form.book.ok.p':        'Rezki will confirm by phone within 24 hours on weekdays.',
+        'form.book.ok.p':        'Our team will confirm by phone within 24 hours on weekdays.',
         // Quote form
         'form.quote.h3':     'Ask for a <em>price estimate</em>',
         'form.quote.sub':    'Tell us a bit about the job. We reply within 48 hours with a first number and next steps.',
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'learn.link': 'Offert →',
         // Promise
         's.promise.eyebrow': 'Vårt löfte',
-        's.promise.desc':    'Rezki svarar sin egen telefon. Du kommer att känna till namnen på personerna på ditt tak. När något är oklart — och det kommer det att vara på en byggarbetsplats — hör du om det först, inte sist.',
+        's.promise.desc':    'Vårt team svarar direkt. Du kommer att känna till namnen på personerna på ditt tak. När något är oklart — och det kommer det att vara på en byggarbetsplats — hör du om det först, inte sist.',
         'pm.01.h4': 'Direktlinje till ägaren',
         'pm.01.p':  'Inget callcenter, inga kontoansvariga mellahänder. Du får det personliga numret till den som leder jobbet — och han svarar.',
         'pm.02.h4': 'Fastpris, skriftliga offerter',
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reviews
         's.reviews.eyebrow': 'Vad kunderna säger',
         's.reviews.desc':    'Äkta omdömen från äkta jobb runt Göteborg, Mölndal, Kungsbacka och Partille.',
-        'rv.01.q':    '„Rezki gick upp på vårt tak med mig innan han lade offerten. Det sa mig allt om vem jag hade att göra med. Jobbet levererades i tid och till rätt pris.“',
+        'rv.01.q':    '„Teamet gick upp på vårt tak med mig innan de lade offerten. Det sa mig allt om vem jag hade att göra med. Jobbet levererades i tid och till rätt pris.”',
         'rv.01.who':  'Anna K.',
         'rv.01.role': 'Villaägare · Kungsbacka',
         'rv.02.q':    '„Vi fick tre offerter. Hans var tydligast och den enda som faktiskt förklarade varför. Solceller + batteri i drift sedan två månader — siffrorna stämmer med prognosen.“',
@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Contact
         's.contact.eyebrow': 'Prata med oss',
         's.contact.desc':    'Svar på vardagar inom 24 timmar. Kostnadsfria platsbesök runt Göteborg, Mölndal, Kungsbacka, Partille, Lerum och Härryda.',
-        'cr.phone.lbl': 'Ring Rezki direkt',
+        'cr.phone.lbl': 'Ring oss direkt',
         'cr.phone.cta': 'Ring →',
         'cr.email.lbl': 'E-post',
         'cr.email.cta': 'Skriv →',
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'form.book.notes.ph':  'Finns det något vi bör veta innan vi anländer',
         'form.book.submit':    'Bekräfta bokning',
         'form.book.ok.h3':     'Bokning mottagen',
-        'form.book.ok.p':      'Rezki bekräftar per telefon inom 24 timmar på vardagar.',
+        'form.book.ok.p':      'Vårt team bekräftar per telefon inom 24 timmar på vardagar.',
         // Quote form
         'form.quote.h3':     'Begär en <em>prisuppskattning</em>',
         'form.quote.sub':    'Berätta lite om jobbet. Vi svarar inom 48 timmar med ett första pris och nästa steg.',
@@ -677,13 +677,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Reviews marquee ----------
   const DEFAULT_REVIEWS = [
-    { id:'r1', quote:'"Rezki walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price."',                                                               name:'Anna K.',   role:'Villa owner · Kungsbacka',         rating:5, visible:true },
+    { id:'r1', quote:'"The team walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price."',                                                               name:'Anna K.',   role:'Villa owner · Kungsbacka',         rating:5, visible:true },
     { id:'r2', quote:'"We had three quotes. His was the clearest and the only one that actually explained why. Solar + battery running two months now, numbers match the forecast."',                                  name:'Martin P.', role:'Homeowner · Mölndal',              rating:5, visible:true },
     { id:'r3', quote:'"Eighteen EV stations for our BRF, load-balanced to the main fuse. Start to grid-ready in three weeks. I\'d call him first on the next project."',                                             name:'Lars S.',   role:'Board chair · BRF Göteborg',      rating:5, visible:true },
     { id:'r4', quote:'"Taket besiktigades ordentligt innan vi fick offerten. Fuktskador hittades och åtgärdades. Inga överraskningar på fakturan."',                                                                  name:'Karin L.',  role:'Villaägare · Partille',            rating:5, visible:true },
     { id:'r5', quote:'"Twelve windows replaced in one week. The quote listed every fitting and the crew tidied up every single day. That\'s the standard I expect."',                                                 name:'Johan A.',  role:'Property manager · Göteborg',     rating:5, visible:true },
     { id:'r6', quote:'"Fasaden ser ut som ny. Ställning, grundfärg, två lager, städning — allt ingick i priset. Inga dolda kostnader."',                                                                              name:'Sara M.',   role:'Villaägare · Kungsbacka',          rating:5, visible:true },
-    { id:'r7', quote:'"Solar panels for 40 apartments plus a shared battery. Rezki handled the grid connection and all the BRF paperwork. We barely had to lift a finger."',                                          name:'Erik B.',   role:'BRF chairman · Mölndal',           rating:5, visible:true },
+    { id:'r7', quote:'"Solar panels for 40 apartments plus a shared battery. RM Bygg handled the grid connection and all the BRF paperwork. We barely had to lift a finger."',                                          name:'Erik B.',   role:'BRF chairman · Mölndal',           rating:5, visible:true },
   ];
 
   function getReviews() {

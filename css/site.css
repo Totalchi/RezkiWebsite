@@ -2049,6 +2049,73 @@ footer {
 
 /* ---------- Anchors with fixed header offset ---------- */
 :target { scroll-margin-top: 90px; }
+
+/* ---------- Promo popup ---------- */
+.promo-overlay {
+  position: fixed; inset: 0;
+  background: rgba(6,10,18,0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 900;
+  display: grid; place-items: center;
+  padding: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s var(--ease-out);
+}
+.promo-overlay.is-open { opacity: 1; pointer-events: auto; }
+.promo-card {
+  background: var(--navy-1);
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  padding: 2.5rem 2.75rem 2rem;
+  max-width: 460px; width: 100%;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.4s var(--ease-out);
+}
+.promo-overlay.is-open .promo-card { transform: translateY(0) scale(1); }
+.promo-close {
+  position: absolute; top: 1rem; right: 1.1rem;
+  background: none; border: none;
+  color: var(--steel); font-size: 1.1rem;
+  cursor: pointer; padding: 0.3rem 0.5rem;
+  line-height: 1; border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+.promo-close:hover { color: var(--ice); background: var(--navy-3); }
+.promo-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.68rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+.promo-heading {
+  font-family: var(--f-display);
+  font-size: clamp(1.6rem, 5vw, 2.1rem);
+  font-weight: 400; line-height: 1.2;
+  color: var(--ice); margin-bottom: 1rem;
+}
+.promo-heading em { color: var(--gold-2); font-style: italic; }
+.promo-body {
+  font-size: 0.93rem; color: var(--steel-2);
+  line-height: 1.7; margin-bottom: 1.75rem;
+}
+.promo-cta {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; padding: 0.85rem 1.5rem;
+  background: var(--gold); color: #fff;
+  font-family: var(--f-body); font-weight: 600; font-size: 0.92rem;
+  border: none; border-radius: 7px; cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+.promo-cta:hover { background: var(--gold-2); transform: translateY(-1px); }
+.promo-note {
+  margin-top: 0.75rem;
+  font-size: 0.74rem; color: var(--steel);
+  text-align: center; letter-spacing: 0.02em;
+}
 #services, #promise, #process, #projects, #reviews, #contact { scroll-margin-top: 90px; }
 
 /* ---------- Select arrow ---------- */

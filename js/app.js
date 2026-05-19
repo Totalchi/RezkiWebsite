@@ -298,6 +298,12 @@ document.addEventListener('DOMContentLoaded', () => {
         'cookie.btn': 'Accept &amp; Continue',
         // WhatsApp
         'wa.tooltip': 'Chat on WhatsApp',
+        // Promo popup
+        'promo.eyebrow': 'Free of charge',
+        'promo.heading': 'Come see for yourself —<br><em>we\'ll come to you.</em>',
+        'promo.body':    'No cost, no obligation. Just a clear picture of what\'s possible on your property before you decide anything.',
+        'promo.cta':     'Book your free site visit',
+        'promo.note':    'Takes 30 seconds · No payment needed',
       }
     },
 
@@ -565,6 +571,12 @@ document.addEventListener('DOMContentLoaded', () => {
         'cookie.btn': 'Acceptera &amp; Fortsätt',
         // WhatsApp
         'wa.tooltip': 'Chatta på WhatsApp',
+        // Promo popup
+        'promo.eyebrow': 'Helt kostnadsfritt',
+        'promo.heading': 'Se möjligheterna —<br><em>vi kommer till dig.</em>',
+        'promo.body':    'Utan kostnad, utan förpliktelse. Bara en tydlig bild av vad som är möjligt på din fastighet innan du bestämmer dig.',
+        'promo.cta':     'Boka kostnadsfritt platsbesök',
+        'promo.note':    'Tar 30 sekunder · Ingen betalning behövs',
       }
     }
   };
@@ -1001,6 +1013,34 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('rm-cookies', 'ok');
     complianceBar.classList.add('is-hidden');
   });
+
+  // ---------- Promo popup ----------
+  const PROMO_KEY    = 'rm_promo_v1';
+  const promoOverlay = document.getElementById('promo-overlay');
+  if (promoOverlay && !localStorage.getItem(PROMO_KEY)) {
+    const closePromo = () => promoOverlay.classList.remove('is-open');
+
+    document.getElementById('promo-close').addEventListener('click', closePromo);
+    promoOverlay.addEventListener('click', e => { if (e.target === promoOverlay) closePromo(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePromo(); });
+
+    document.getElementById('promo-cta').addEventListener('click', () => {
+      closePromo();
+      const contact = document.getElementById('contact');
+      if (contact) {
+        contact.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+          const bookTab = document.querySelector('.tab-btn[data-tab="book"]');
+          if (bookTab && !bookTab.classList.contains('is-active')) bookTab.click();
+        }, 600);
+      }
+    });
+
+    setTimeout(() => {
+      localStorage.setItem(PROMO_KEY, '1');
+      promoOverlay.classList.add('is-open');
+    }, 25000);
+  }
 
   // ---------- Analytics tracking (anonymous, no personal data) ----------
   const _cfg = window.RM_AUTH_CONFIG || {};

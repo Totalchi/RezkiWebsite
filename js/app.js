@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'svc.06.desc': 'Correct primer, correct paint, correct technique. Scaffolding, prep, and clean-up all included — finish that lasts a decade.',
         // Visual kickers & metrics
         'svc.01.kicker':      'Solar design',
-        'svc.01.metric.val':  '9.6 kWp',
+        'svc.01.metric.val':  '6.3 kWp',
         'svc.01.metric.lbl':  'estimated output',
         'svc.02.kicker':      'Storage profile',
         'svc.02.metric.val':  'Smart load',
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'svc.06.desc': 'Rätt grundfärg, rätt färg, rätt teknik. Byggnadsställning, förberedelse och städning ingår — ett slutresultat som håller ett decennium.',
         // Visual kickers & metrics
         'svc.01.kicker':      'Solcellsdesign',
-        'svc.01.metric.val':  '9,6 kWp',
+        'svc.01.metric.val':  '6,3 kWp',
         'svc.01.metric.lbl':  'uppskattad effekt',
         'svc.02.kicker':      'Lagringsprofil',
         'svc.02.metric.val':  'Smart last',

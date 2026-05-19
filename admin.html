@@ -1517,12 +1517,17 @@ function renderAnalytics(events) {
   const svSess = new Set(pageviews.filter(e => e.lang === 'sv').map(e => e.session_id));
   const svPct  = total ? Math.round(svSess.size / total * 100) : 0;
 
-  // Geographic — aggregate by city using latest entry per session
+  // Geographic — GPS 'geo' events take priority over IP-based 'pageview' data
+  const sessionGeo = {};
+  events.filter(e => (e.event_type === 'geo' || e.event_type === 'pageview') && e.latitude != null).forEach(e => {
+    const sid = e.session_id;
+    if (!sessionGeo[sid] || e.event_type === 'geo') sessionGeo[sid] = e;
+  });
   const geoMap = {};
-  pageviews.forEach(e => {
-    if (!e.city || e.latitude == null) return;
-    if (!geoMap[e.city]) geoMap[e.city] = { city: e.city, region: e.region || '', latitude: +e.latitude, longitude: +e.longitude, sessions: new Set() };
-    geoMap[e.city].sessions.add(e.session_id);
+  Object.values(sessionGeo).forEach(e => {
+    const key = e.city || `${e.latitude},${e.longitude}`;
+    if (!geoMap[key]) geoMap[key] = { city: e.city || '?', region: e.region || '', latitude: +e.latitude, longitude: +e.longitude, sessions: new Set() };
+    geoMap[key].sessions.add(e.session_id);
   });
   const geoData = Object.values(geoMap)
     .map(d => ({ ...d, count: d.sessions.size }))

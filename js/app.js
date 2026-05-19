@@ -1006,6 +1006,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ---------- GDPR bar ----------
+  let _rmTrack = null; // set later by analytics block, used here for geo
+
+  function requestGeoLocation() {
+    if (!navigator.geolocation || !_rmTrack) return;
+    navigator.geolocation.getCurrentPosition(pos => {
+      const { latitude, longitude } = pos.coords;
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`, {
+        headers: { 'User-Agent': 'RMByggAnalytics/1.0' }
+      })
+        .then(r => r.json())
+        .then(geo => {
+          const addr = geo.address || {};
+          const city   = addr.city || addr.town || addr.village || addr.suburb || null;
+          const region = addr.state || null;
+          const country = (addr.country_code || '').toUpperCase() || null;
+          _rmTrack('geo', null, null, { city, region, country, latitude, longitude });
+        })
+        .catch(() => _rmTrack('geo', null, null, { latitude, longitude, country: 'SE' }));
+    }, () => {}); // permission denied — silently ignore
+  }
+
   const complianceBar = document.getElementById('compliance-bar');
   const complianceOk  = document.getElementById('compliance-ok');
   const cookiesAlreadyOk = localStorage.getItem('rm-cookies') === 'ok';
@@ -1014,6 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('rm-cookies', 'ok');
     complianceBar.classList.add('is-hidden');
     schedulePromo();
+    requestGeoLocation();
   });
 
   // ---------- Promo popup ----------
@@ -1076,6 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(body)
       }).catch(() => {});
     }
+    _rmTrack = _track;
 
     // Page view with geolocation (3s timeout fallback)
     {

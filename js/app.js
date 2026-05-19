@@ -905,8 +905,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ---------- Init 3D scenes ----------
-  if (window.RMScenes) window.RMScenes.init();
 
   // ---------- Hero video ----------
   const heroEl    = document.querySelector('.hero');

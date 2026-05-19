@@ -1008,10 +1008,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------- GDPR bar ----------
   const complianceBar = document.getElementById('compliance-bar');
   const complianceOk  = document.getElementById('compliance-ok');
-  if (localStorage.getItem('rm-cookies') === 'ok') complianceBar.classList.add('is-hidden');
+  const cookiesAlreadyOk = localStorage.getItem('rm-cookies') === 'ok';
+  if (cookiesAlreadyOk) complianceBar.classList.add('is-hidden');
   complianceOk.addEventListener('click', () => {
     localStorage.setItem('rm-cookies', 'ok');
     complianceBar.classList.add('is-hidden');
+    schedulePromo();
   });
 
   // ---------- Promo popup ----------
@@ -1036,10 +1038,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    setTimeout(() => {
-      localStorage.setItem(PROMO_KEY, '1');
-      promoOverlay.classList.add('is-open');
-    }, 25000);
+    function schedulePromo() {
+      if (localStorage.getItem(PROMO_KEY)) return;
+      setTimeout(() => {
+        localStorage.setItem(PROMO_KEY, '1');
+        promoOverlay.classList.add('is-open');
+      }, 25000);
+    }
+
+    // Only start timer if cookies already accepted; otherwise wait for acceptance
+    if (cookiesAlreadyOk) schedulePromo();
   }
 
   // ---------- Analytics tracking (anonymous, no personal data) ----------

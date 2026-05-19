@@ -2140,6 +2140,7 @@ footer {
 .compliance-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
+  z-index: 1001;
   background: var(--navy-0);
   border-top: 1px solid var(--line-2);
   padding: 1rem clamp(1.25rem, 4vw, 3.5rem);

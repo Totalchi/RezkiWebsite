@@ -1845,7 +1845,7 @@ footer {
 /* ---------- WhatsApp ---------- */
 .whatsapp-btn {
   position: fixed;
-  bottom: 30%; left: 2.25rem; right: auto;
+  bottom: 22%; left: 2.25rem; right: auto;
   width: 52px; height: 52px;
   border-radius: 50%;
   background: #25d366;

@@ -413,6 +413,36 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   background: linear-gradient(160deg, #0A0D12, #141A28);
   isolation: isolate;
 }
+
+/* ── Photo service visuals ── */
+.svc-visual-photo {
+  background: #0A0D12;
+  overflow: hidden;
+}
+.svc-visual-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.72;
+  transition: transform 0.55s var(--ease-out), opacity 0.35s;
+}
+.svc-card:hover .svc-visual-photo img {
+  transform: scale(1.07);
+  opacity: 0.85;
+}
+.svc-visual-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(10,13,18,0.45) 0%, rgba(10,13,18,0.15) 50%, rgba(10,13,18,0.6) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.svc-visual-photo .visual-kicker,
+.svc-visual-photo .visual-metric { z-index: 2; }
 .svc-visual-pro::before {
   content: "";
   position: absolute;

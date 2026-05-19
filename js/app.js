@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         's.promise.eyebrow': 'Vårt löfte',
         's.promise.desc':    'Vårt team svarar direkt. Du kommer att känna till namnen på personerna på ditt tak. När något är oklart — och det kommer det att vara på en byggarbetsplats — hör du om det först, inte sist.',
         'pm.01.h4': 'Direktlinje till ägaren',
-        'pm.01.p':  'Inget callcenter, inga kontoansvariga mellahänder. Du får det personliga numret till den som leder jobbet — och han svarar.',
+        'pm.01.p':  'Inget callcenter, inga kontoansvariga mellanhänder. Du får det personliga numret till den som leder jobbet — och han svarar.',
         'pm.02.h4': 'Fastpris, skriftliga offerter',
         'pm.02.p':  'Allt i ett dokument — omfång, material, arbetskraft, tidplan, betalningsschema. Det du skriver under är det du betalar.',
         'pm.03.h4': 'Vår egen personal, våra egna standarder',

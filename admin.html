@@ -1036,7 +1036,7 @@ function openDrawer(id) {
 
     <div class="drawer-section" style="margin-top:1.25rem">
       <h4>Admin notes</h4>
-      <div id="admin-notes-log" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:0.75rem;font-size:0.84rem;color:var(--muted-2);line-height:1.65;white-space:pre-wrap;word-break:break-word;max-height:150px;overflow-y:auto;margin-bottom:0.65rem">${(lead.admin_notes && lead.admin_notes.length > 0) ? esc(lead.admin_notes) : '<em style="opacity:.4">No notes yet.</em>'}</div>
+      <div id="admin-notes-log" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;font-size:0.84rem;max-height:200px;overflow-y:auto;margin-bottom:0.65rem">${renderNoteEntries(lead.admin_notes)}</div>
       <textarea class="admin-notes-area" id="admin-notes-area" rows="2" placeholder="Add a note…"></textarea>
       <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem">
         <button class="btn-save-notes" id="btn-save-notes">Add note</button>
@@ -1102,6 +1102,31 @@ function closeDrawer() {
 drawerClose.addEventListener('click', closeDrawer);
 drawerOverlay.addEventListener('click', closeDrawer);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+/* ─────────────────────────────────────────
+   NOTES HELPERS
+────────────────────────────────────────── */
+function renderNoteEntries(adminNotes) {
+  if (!adminNotes || !adminNotes.trim()) return '<em style="opacity:.4;color:var(--muted)">No notes yet.</em>';
+  const lines = adminNotes.split('\n').filter(l => l.trim());
+  return lines.map((line, i) =>
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">' +
+    '<span style="flex:1;color:var(--text);font-size:0.84rem;line-height:1.55;white-space:pre-wrap;word-break:break-word">' + esc(line) + '</span>' +
+    '<button onclick="deleteNote(' + i + ')" style="flex-shrink:0;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:0 0.1rem;transition:color 0.15s" onmouseover="this.style.color=\'#e08888\'" onmouseout="this.style.color=\'var(--muted)\'" title="Delete this note">×</button>' +
+    '</div>'
+  ).join('');
+}
+
+window.deleteNote = async function(index) {
+  const lead = allLeads.find(l => String(l.id) === String(currentLeadId));
+  if (!lead) return;
+  const lines = (lead.admin_notes || '').split('\n').filter(l => l.trim());
+  lines.splice(index, 1);
+  const updated = lines.join('\n');
+  lead.admin_notes = updated;
+  if (sb) await sb.from('leads').update({ admin_notes: updated }).eq('id', currentLeadId);
+  openDrawer(currentLeadId);
+};
 
 /* ─────────────────────────────────────────
    HELPERS

@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'gi.10.sp': 'Windows',
         // Reviews section
         's.reviews.eyebrow': 'What clients say',
-        's.reviews.desc':    'Real reviews from real jobs across Gävle, Söderhamn, Sandviken and Hofors.',
+        's.reviews.desc':    'Real reviews from real jobs across Gävle, Uppsala, Hudiksvall and Falun.',
         'rv.01.q':    '“The team walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price.”',
         'rv.01.who':  'Anna K.',
         'rv.01.role': 'Villa owner · Sandviken',
@@ -469,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'gi.10.sp': 'Fönster',
         // Reviews
         's.reviews.eyebrow': 'Vad kunderna säger',
-        's.reviews.desc':    'Äkta omdömen från äkta jobb runt Gävle, Söderhamn, Sandviken och Hofors.',
+        's.reviews.desc':    'Äkta omdömen från äkta jobb runt Gävle, Uppsala, Hudiksvall och Falun.',
         'rv.01.q':    '„Teamet gick upp på vårt tak med mig innan de lade offerten. Det sa mig allt om vem jag hade att göra med. Jobbet levererades i tid och till rätt pris.“',
         'rv.01.who':  'Anna K.',
         'rv.01.role': 'Villaägare · Sandviken',

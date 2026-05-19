@@ -1,4 +1,4 @@
-/* ==========================================================
+﻿/* ==========================================================
    RM Bygg & Montage AB — app logic
    ========================================================== */
 
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const LANGS = {
     en: {
       // Hero (direct ID targets kept for compat)
-      eyebrow_badge: 'Local · Trusted · Gothenburg',
+      eyebrow_badge: 'Local · Trusted · Gävle',
       h1_line1:   'Your neighbourhood',
       h1_line2_a: 'builder with',
       h1_em:      'heart',
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'step.05.meta': '+ 5-yr guarantee',
         // Gallery section
         's.gallery.eyebrow': 'Recent work',
-        's.gallery.desc':    'From villa rooftops in Kungsbacka to a BRF energy upgrade in central Gothenburg — click any tile to open.',
+        's.gallery.desc':    'From villa rooftops in Sandviken to a BRF energy upgrade in central Gävle — click any tile to open.',
         'gf.all':    'All',
         'gf.solar':  'Solar',
         'gf.bat':    'Battery',
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Gallery items
         'gi.01.h6': 'Villa Särö · 9.6 kWp rooftop',
         'gi.01.sp': 'Solar · 2025',
-        'gi.02.h6': 'Partille · Tile replacement',
+        'gi.02.h6': 'Hofors · Tile replacement',
         'gi.02.sp': 'Roofing',
         'gi.03.h6': 'Home wallbox · 22 kW',
         'gi.03.sp': 'EV · B2C',
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'gi.06.sp': 'Solar · B2B',
         'gi.07.h6': 'Standing-seam metal',
         'gi.07.sp': 'Roofing',
-        'gi.08.h6': 'BRF Mölndal · 18 stations',
+        'gi.08.h6': 'BRF Söderhamn · 18 stations',
         'gi.08.sp': 'EV · Load-balanced',
         'gi.09.h6': 'Falu red · full façade',
         'gi.09.sp': 'Paint · Villa',
@@ -189,25 +189,25 @@ document.addEventListener('DOMContentLoaded', () => {
         'gi.10.sp': 'Windows',
         // Reviews section
         's.reviews.eyebrow': 'What clients say',
-        's.reviews.desc':    'Real reviews from real jobs across Gothenburg, Mölndal, Kungsbacka and Partille.',
+        's.reviews.desc':    'Real reviews from real jobs across Gävle, Söderhamn, Sandviken and Hofors.',
         'rv.01.q':    '“The team walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price.”',
         'rv.01.who':  'Anna K.',
-        'rv.01.role': 'Villa owner · Kungsbacka',
+        'rv.01.role': 'Villa owner · Sandviken',
         'rv.02.q':    '“We had three quotes. His was the clearest and the only one that actually explained why. Solar + battery running two months now, numbers match the forecast.”',
         'rv.02.who':  'Martin P.',
-        'rv.02.role': 'Homeowner · Mölndal',
+        'rv.02.role': 'Homeowner · Söderhamn',
         'rv.03.q':    '“Eighteen EV stations for our BRF, load-balanced to the main fuse. Start to grid-ready in three weeks. I’d call him first on the next project.”',
         'rv.03.who':  'Lars S.',
-        'rv.03.role': 'Board chair · BRF Göteborg',
+        'rv.03.role': 'Board chair · BRF Gävle',
         // Contact section
         's.contact.eyebrow': 'Talk to us',
-        's.contact.desc':    'Weekday response within 24 hours. Free site visits across Gothenburg, Mölndal, Kungsbacka, Partille, Lerum and Härryda.',
+        's.contact.desc':    'Weekday response within 24 hours. Free site visits across Gävle, Söderhamn, Sandviken, Hofors, Ockelbo and Bollnäs.',
         'cr.phone.lbl': 'Call us directly',
         'cr.phone.cta': 'Call →',
         'cr.email.lbl': 'Email',
         'cr.email.cta': 'Write →',
         'cr.area.lbl':  'Service area',
-        'cr.area.val':  'Gothenburg & surroundings',
+        'cr.area.val':  'Gävle & surroundings',
         'cr.area.cta':  'Local',
         'cr.hours.lbl': 'Office hours',
         'cr.hours.cta': 'Open now',
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'form.book.phone.lbl':   'Phone',
         'form.book.email.lbl':   'Email',
         'form.book.addr.lbl':    'Property address',
-        'form.book.addr.ph':     'Street, Gothenburg',
+        'form.book.addr.ph':     'Street, Gävle',
         'form.book.about.lbl':   'What would you like to talk about',
         'form.book.notes.lbl':   'Notes',
         'form.book.notes.ph':    'Anything we should know before we arrive',
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'opt.inv.new':     'New B2B customer setup',
         'opt.inv.cred':    'Credit note',
         // Footer
-        'ft.brand.p':      'Your neighbourhood builder in Gothenburg. Solar, batteries, chargers, windows, roofs, façades — one crew, one quote, one handshake.',
+        'ft.brand.p':      'Your neighbourhood builder in Gävle. Solar, batteries, chargers, windows, roofs, façades — one crew, one quote, one handshake.',
         'ft.col.services': 'Services',
         'ft.col.company':  'Company',
         'ft.col.contact':  'Contact',
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     sv: {
-      eyebrow_badge: 'Lokal · Pålitlig · Göteborg',
+      eyebrow_badge: 'Lokal · Pålitlig · Gävle',
       h1_line1:   'Din lokala',
       h1_line2_a: 'byggare med',
       h1_em:      'hjärta',
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'step.05.meta': '+ 5 års garanti',
         // Gallery
         's.gallery.eyebrow': 'Senaste projekt',
-        's.gallery.desc':    'Från villatak i Kungsbacka till en BRF-energiuppgradering i centrala Göteborg — klicka på valfri bild för att öppna.',
+        's.gallery.desc':    'Från villatak i Sandviken till en BRF-energiuppgradering i centrala Gävle — klicka på valfri bild för att öppna.',
         'gf.all':    'Alla',
         'gf.solar':  'Solceller',
         'gf.bat':    'Batteri',
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Gallery items
         'gi.01.h6': 'Villa Särö · 9,6 kWp tak',
         'gi.01.sp': 'Solceller · 2025',
-        'gi.02.h6': 'Partille · Tegelutbyte',
+        'gi.02.h6': 'Hofors · Tegelutbyte',
         'gi.02.sp': 'Tak',
         'gi.03.h6': 'Hemmaladdbox · 22 kW',
         'gi.03.sp': 'Laddning · B2C',
@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'gi.06.sp': 'Solceller · B2B',
         'gi.07.h6': 'Stående falsplåt',
         'gi.07.sp': 'Tak',
-        'gi.08.h6': 'BRF Mölndal · 18 stationer',
+        'gi.08.h6': 'BRF Söderhamn · 18 stationer',
         'gi.08.sp': 'Laddning · Lastbalanserad',
         'gi.09.h6': 'Faluröd · hel fasad',
         'gi.09.sp': 'Målning · Villa',
@@ -465,25 +465,25 @@ document.addEventListener('DOMContentLoaded', () => {
         'gi.10.sp': 'Fönster',
         // Reviews
         's.reviews.eyebrow': 'Vad kunderna säger',
-        's.reviews.desc':    'Äkta omdömen från äkta jobb runt Göteborg, Mölndal, Kungsbacka och Partille.',
+        's.reviews.desc':    'Äkta omdömen från äkta jobb runt Gävle, Söderhamn, Sandviken och Hofors.',
         'rv.01.q':    '„Teamet gick upp på vårt tak med mig innan de lade offerten. Det sa mig allt om vem jag hade att göra med. Jobbet levererades i tid och till rätt pris.“',
         'rv.01.who':  'Anna K.',
-        'rv.01.role': 'Villaägare · Kungsbacka',
+        'rv.01.role': 'Villaägare · Sandviken',
         'rv.02.q':    '„Vi fick tre offerter. Hans var tydligast och den enda som faktiskt förklarade varför. Solceller + batteri i drift sedan två månader — siffrorna stämmer med prognosen.“',
         'rv.02.who':  'Martin P.',
-        'rv.02.role': 'Husägare · Mölndal',
+        'rv.02.role': 'Husägare · Söderhamn',
         'rv.03.q':    '„Arton laddstationer för vår BRF, lastbalanserade till huvudsäkringen. Från start till nätanslutning på tre veckor. Jag ringer honom först vid nästa projekt.”',
         'rv.03.who':  'Lars S.',
-        'rv.03.role': 'Styrelseordförande · BRF Göteborg',
+        'rv.03.role': 'Styrelseordförande · BRF Gävle',
         // Contact
         's.contact.eyebrow': 'Prata med oss',
-        's.contact.desc':    'Svar på vardagar inom 24 timmar. Kostnadsfria platsbesök runt Göteborg, Mölndal, Kungsbacka, Partille, Lerum och Härryda.',
+        's.contact.desc':    'Svar på vardagar inom 24 timmar. Kostnadsfria platsbesök runt Gävle, Söderhamn, Sandviken, Hofors, Ockelbo och Bollnäs.',
         'cr.phone.lbl': 'Ring oss direkt',
         'cr.phone.cta': 'Ring →',
         'cr.email.lbl': 'E-post',
         'cr.email.cta': 'Skriv →',
         'cr.area.lbl':  'Serviceområde',
-        'cr.area.val':  'Göteborg & omnejd',
+        'cr.area.val':  'Gävle & omnejd',
         'cr.area.cta':  'Lokal',
         'cr.hours.lbl': 'Kontorstid',
         'cr.hours.cta': 'Öppet nu',
@@ -500,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'form.book.phone.lbl': 'Telefon',
         'form.book.email.lbl': 'E-post',
         'form.book.addr.lbl':  'Fastighetens adress',
-        'form.book.addr.ph':   'Gata, Göteborg',
+        'form.book.addr.ph':   'Gata, Gävle',
         'form.book.about.lbl': 'Vad vill du prata om',
         'form.book.notes.lbl': 'Anteckningar',
         'form.book.notes.ph':  'Finns det något vi bör veta innan vi anländer',
@@ -555,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'opt.inv.new':  'Ny B2B-kundregistrering',
         'opt.inv.cred': 'Kreditnota',
         // Footer
-        'ft.brand.p':      'Din lokala byggare i Göteborg. Solceller, batterier, laddboxar, fönster, tak, fasader — ett lag, en offert, ett handslag.',
+        'ft.brand.p':      'Din lokala byggare i Gävle. Solceller, batterier, laddboxar, fönster, tak, fasader — ett lag, en offert, ett handslag.',
         'ft.col.services': 'Tjänster',
         'ft.col.company':  'Företag',
         'ft.col.contact':  'Kontakt',
@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const dateStr = selected.toLocaleDateString(currentLang === 'sv' ? 'sv-SE' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'long' });
       slotsLabel.textContent = (currentLang === 'sv' ? 'Tillgängliga tider — ' : 'Available times — ') + dateStr;
-      const times = ['07:30','09:00','10:30','13:00','14:30','16:00'];
+      const times = ['09:00','10:30','12:00','13:30','15:00','17:00'];
       const seed = selected.getDate() * 7 + selected.getMonth() * 13;
       const busySlots = new Set([times[(seed + 1) % times.length], times[(seed + 4) % times.length]]);
       slotsEl.innerHTML = '';

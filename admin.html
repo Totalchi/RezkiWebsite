@@ -535,6 +535,22 @@ tbody td {
 .rv-toggle.is-on { background: rgba(74,159,111,0.25); border-color: rgba(74,159,111,0.5); }
 .rv-toggle.is-on::after { transform: translateX(16px); background: #7dcba0; }
 
+/* ── Analytics bars ── */
+.an-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.86rem;
+}
+.an-row:last-child { border-bottom: 0; }
+.an-label { width: 130px; flex-shrink: 0; color: var(--text); }
+.an-bar-wrap { flex: 1; height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.an-bar { height: 100%; border-radius: 999px; background: var(--accent-2); transition: width 0.6s cubic-bezier(0.16,1,0.3,1); }
+.an-count { width: 36px; text-align: right; color: var(--muted-2); font-family: var(--f-mono); font-size: 0.75rem; flex-shrink: 0; }
+.an-pct { width: 38px; text-align: right; color: var(--muted); font-size: 0.75rem; flex-shrink: 0; }
+
 /* ── Mobile ── */
 @media (max-width: 640px) {
   .admin-body { padding: 1rem; }
@@ -609,6 +625,7 @@ tbody td {
     <div class="admin-tabs">
       <button class="admin-tab is-active" data-panel="leads">Leads</button>
       <button class="admin-tab" data-panel="reviews">Reviews</button>
+      <button class="admin-tab" data-panel="analytics">Analytics</button>
     </div>
 
     <!-- ── LEADS PANEL ── -->
@@ -763,6 +780,66 @@ CREATE POLICY "Admins only" ON leads
         </div>
       </div>
     </div><!-- /panel-reviews -->
+
+    <!-- ── ANALYTICS PANEL ── -->
+    <div id="panel-analytics" style="display:none">
+
+      <!-- Time filter -->
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap">
+        <span style="font-size:0.8rem;color:var(--muted);font-family:var(--f-mono);letter-spacing:0.1em;text-transform:uppercase;margin-right:0.5rem">Period</span>
+        <div class="filter-group" id="analytics-period">
+          <button class="filter-btn" data-period="1">Today</button>
+          <button class="filter-btn is-active" data-period="7">7 days</button>
+          <button class="filter-btn" data-period="30">30 days</button>
+          <button class="filter-btn" data-period="0">All time</button>
+        </div>
+        <button class="btn-refresh" id="btn-refresh-analytics" style="margin-left:auto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-row" id="an-stats" style="margin-bottom:1.5rem">
+        <div class="stat-card">
+          <div class="s-label">Visits</div>
+          <div class="s-value" id="an-visits">—</div>
+          <div class="s-sub">Unique sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Avg. time on page</div>
+          <div class="s-value" id="an-avgtime">—</div>
+          <div class="s-sub">Minutes : seconds</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Mobile</div>
+          <div class="s-value" id="an-mobile">—</div>
+          <div class="s-sub">of visitors</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Swedish (SV)</div>
+          <div class="s-value" id="an-lang">—</div>
+          <div class="s-sub">of visitors</div>
+        </div>
+      </div>
+
+      <!-- Two columns: sections + clicks -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="leads-panel">
+          <div class="leads-toolbar"><h3>Sections viewed</h3></div>
+          <div id="an-sections" style="padding:1rem 1.25rem">
+            <div class="spinner"></div>
+          </div>
+        </div>
+        <div class="leads-panel">
+          <div class="leads-toolbar"><h3>Top clicks</h3></div>
+          <div id="an-clicks" style="padding:1rem 1.25rem">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-analytics -->
 
   </main>
 </div>
@@ -1174,9 +1251,11 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('is-active'));
     tab.classList.add('is-active');
     const panel = tab.dataset.panel;
-    document.getElementById('panel-leads').style.display   = panel === 'leads'   ? '' : 'none';
-    document.getElementById('panel-reviews').style.display = panel === 'reviews' ? '' : 'none';
-    if (panel === 'reviews') renderReviewsList();
+    document.getElementById('panel-leads').style.display     = panel === 'leads'     ? '' : 'none';
+    document.getElementById('panel-reviews').style.display   = panel === 'reviews'   ? '' : 'none';
+    document.getElementById('panel-analytics').style.display = panel === 'analytics' ? '' : 'none';
+    if (panel === 'reviews')   renderReviewsList();
+    if (panel === 'analytics') loadAnalytics();
   });
 });
 
@@ -1291,6 +1370,113 @@ document.getElementById('rf-save').addEventListener('click', () => {
   reviewFormWrap.style.display = 'none';
   renderReviewsList();
 });
+
+/* ─────────────────────────────────────────
+   ANALYTICS
+────────────────────────────────────────── */
+let analyticsPeriod = 7;
+
+document.getElementById('analytics-period').addEventListener('click', e => {
+  const btn = e.target.closest('[data-period]');
+  if (!btn) return;
+  analyticsPeriod = parseInt(btn.dataset.period);
+  document.querySelectorAll('[data-period]').forEach(b => b.classList.toggle('is-active', b === btn));
+  loadAnalytics();
+});
+
+document.getElementById('btn-refresh-analytics').addEventListener('click', loadAnalytics);
+
+async function loadAnalytics() {
+  ['an-sections','an-clicks'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="spinner"></div>';
+  });
+  ['an-visits','an-avgtime','an-mobile','an-lang'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+
+  if (!sb) { renderAnalytics([]); return; }
+
+  let query = sb.from('analytics_events').select('*');
+  if (analyticsPeriod > 0) {
+    const since = new Date(Date.now() - analyticsPeriod * 86400000).toISOString();
+    query = query.gte('created_at', since);
+  }
+  const { data, error } = await query;
+  if (error) {
+    document.getElementById('an-sections').innerHTML = '<p style="color:#e08888;padding:1rem">Error: ' + error.message + '</p>';
+    return;
+  }
+  renderAnalytics(data || []);
+}
+
+function renderAnalytics(events) {
+  // Unique sessions from pageview events
+  const pageviews  = events.filter(e => e.event_type === 'pageview');
+  const sessions   = new Set(pageviews.map(e => e.session_id));
+  const total      = sessions.size;
+
+  // Avg time on page
+  const durations  = events.filter(e => e.event_type === 'duration' && e.value > 0);
+  const avgSec     = durations.length ? Math.round(durations.reduce((s, e) => s + e.value, 0) / durations.length) : 0;
+  const avgMin     = Math.floor(avgSec / 60);
+  const avgSecRem  = avgSec % 60;
+
+  // Mobile %
+  const mobileCount = pageviews.filter(e => e.device === 'mobile').length;
+  const mobilePct   = total ? Math.round(mobileCount / total * 100) : 0;
+
+  // Language %
+  const svCount = pageviews.filter(e => e.lang === 'sv').length;
+  const svPct   = total ? Math.round(svCount / total * 100) : 0;
+
+  document.getElementById('an-visits').textContent  = total;
+  document.getElementById('an-avgtime').textContent = total ? avgMin + 'm ' + avgSecRem + 's' : '—';
+  document.getElementById('an-mobile').textContent  = total ? mobilePct + '%' : '—';
+  document.getElementById('an-lang').textContent    = total ? svPct + '%' : '—';
+
+  // Section views — count per unique session
+  const sectionMap = {};
+  events.filter(e => e.event_type === 'section').forEach(e => {
+    sectionMap[e.label] = (sectionMap[e.label] || 0) + 1;
+  });
+  const sectionOrder = ['Hero','Services','Promise','Process','Gallery','Reviews','Contact'];
+  const sectionEntries = sectionOrder
+    .filter(k => sectionMap[k])
+    .map(k => [k, sectionMap[k]])
+    .sort((a, b) => b[1] - a[1]);
+  const secMax = sectionEntries[0] ? sectionEntries[0][1] : 1;
+
+  document.getElementById('an-sections').innerHTML = sectionEntries.length
+    ? sectionEntries.map(([label, count]) =>
+        '<div class="an-row">' +
+        '<span class="an-label">' + label + '</span>' +
+        '<div class="an-bar-wrap"><div class="an-bar" style="width:' + Math.round(count / secMax * 100) + '%"></div></div>' +
+        '<span class="an-count">' + count + '</span>' +
+        '</div>'
+      ).join('')
+    : '<p style="color:var(--muted);font-size:0.88rem">No section data yet.</p>';
+
+  // Clicks — aggregate and sort
+  const clickMap = {};
+  events.filter(e => e.event_type === 'click').forEach(e => {
+    const key = e.label || 'unknown';
+    clickMap[key] = (clickMap[key] || 0) + 1;
+  });
+  const clickEntries = Object.entries(clickMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const clickMax = clickEntries[0] ? clickEntries[0][1] : 1;
+  const clickTotal = clickEntries.reduce((s, [, v]) => s + v, 0);
+
+  document.getElementById('an-clicks').innerHTML = clickEntries.length
+    ? clickEntries.map(([label, count]) =>
+        '<div class="an-row">' +
+        '<span class="an-label" style="font-size:0.8rem">' + esc(label) + '</span>' +
+        '<div class="an-bar-wrap"><div class="an-bar" style="width:' + Math.round(count / clickMax * 100) + '%"></div></div>' +
+        '<span class="an-count">' + count + '</span>' +
+        '<span class="an-pct">' + (clickTotal ? Math.round(count / clickTotal * 100) + '%' : '') + '</span>' +
+        '</div>'
+      ).join('')
+    : '<p style="color:var(--muted);font-size:0.88rem">No click data yet.</p>';
+}
 
 /* ─────────────────────────────────────────
    BOOT

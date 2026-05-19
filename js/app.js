@@ -1015,4 +1015,66 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('rm-cookies', 'ok');
     complianceBar.classList.add('is-hidden');
   });
+
+  // ---------- Analytics tracking (anonymous, no personal data) ----------
+  const _cfg = window.RM_AUTH_CONFIG || {};
+  if (_cfg.supabaseUrl && _cfg.supabaseAnonKey) {
+    const _sid = sessionStorage.getItem('rm_sid') || (() => {
+      const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      sessionStorage.setItem('rm_sid', id);
+      return id;
+    })();
+    const _dev  = window.innerWidth < 768 ? 'mobile' : 'desktop';
+    const _lang = localStorage.getItem('rm-lang') || 'sv';
+
+    function _track(type, label, value) {
+      const body = { session_id: _sid, event_type: type, device: _dev, lang: _lang };
+      if (label) body.label = String(label).slice(0, 60);
+      if (value)  body.value = value;
+      fetch(_cfg.supabaseUrl + '/rest/v1/analytics_events', {
+        method: 'POST',
+        headers: {
+          'apikey': _cfg.supabaseAnonKey,
+          'Authorization': 'Bearer ' + _cfg.supabaseAnonKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(body)
+      }).catch(() => {});
+    }
+
+    // Page view
+    _track('pageview');
+
+    // Section visibility
+    const _secObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const label = { home:'Hero', services:'Services', promise:'Promise', process:'Process', projects:'Gallery', reviews:'Reviews', contact:'Contact' }[e.target.id] || e.target.id;
+          _track('section', label);
+          _secObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('section[id]').forEach(s => _secObs.observe(s));
+
+    // Click tracking
+    document.addEventListener('click', e => {
+      const el = e.target.closest('.btn-primary, .btn-ghost, .nav-cta, .whatsapp-btn, .tab-btn, .gallery-filter button, [data-lang], .svc-foot .learn');
+      if (!el) return;
+      const label = (el.dataset.i18n && el.dataset.i18n.replace(/\./g, ' ')) ||
+                    el.textContent.trim().slice(0, 50) ||
+                    el.getAttribute('aria-label') || 'btn';
+      _track('click', label);
+    }, { passive: true });
+
+    // Time on page
+    const _t0 = Date.now();
+    const _sendDur = () => {
+      const sec = Math.round((Date.now() - _t0) / 1000);
+      if (sec >= 3) _track('duration', null, sec);
+    };
+    document.addEventListener('visibilitychange', () => { if (document.hidden) _sendDur(); });
+    window.addEventListener('beforeunload', _sendDur);
+  }
 });

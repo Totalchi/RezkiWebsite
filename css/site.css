@@ -1921,9 +1921,10 @@ footer {
   background: rgba(6,10,18,0.7);
   z-index: 70;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.3s var(--ease);
-  }
-.mobile-nav-overlay.is-open { opacity: 1; }
+}
+.mobile-nav-overlay.is-open { opacity: 1; pointer-events: auto; }
 
 /* ---------- Mobile nav drawer ---------- */
 .mobile-nav-drawer {
@@ -1999,8 +2000,8 @@ footer {
 .mobile-nav-lang button.is-active { background: var(--ice); color: var(--navy-1); }
 
 @media (max-width: 720px) {
-  .mobile-nav-overlay,
-  .mobile-nav-drawer { display: flex; }
+  .mobile-nav-overlay { display: flex; }
+  .mobile-nav-drawer  { display: flex; }
 }
 
 /* ---------- Active nav state ---------- */

@@ -870,64 +870,50 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   top: 100px;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.5rem;
   padding: 1rem 0;
 }
-.pe-quote {
-  position: relative;
-}
+.pe-quote { position: relative; }
 .pe-mark {
   font-family: var(--f-display);
   font-size: clamp(5rem, 10vw, 9rem);
-  color: var(--gold-2);
-  opacity: 0.25;
+  color: var(--copper);
+  opacity: 0.18;
   line-height: 0.6;
   display: block;
-  margin-bottom: -0.5rem;
+  margin-bottom: -1rem;
   pointer-events: none;
   user-select: none;
 }
 .pe-quote blockquote {
   font-family: var(--f-display);
-  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  font-size: clamp(1.75rem, 3vw, 2.7rem);
   font-weight: 400;
   line-height: 1.25;
-  color: var(--ice);
+  color: var(--ink);
   letter-spacing: -0.01em;
 }
 .pe-quote blockquote em {
-  color: var(--gold-2);
+  color: var(--copper);
   font-style: italic;
-}
-.pe-rule {
-  width: 40px;
-  height: 1px;
-  background: var(--gold-2);
-  opacity: 0.5;
-}
-.pe-cite {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--steel);
-  font-style: normal;
 }
 .pe-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
-  border-top: 1px solid var(--line-2);
+  border-top: 1.5px solid var(--line-warm);
   padding-top: 2rem;
-  margin-top: 0.5rem;
 }
 .pe-stat { text-align: left; }
-.pe-stat + .pe-stat { border-left: 1px solid var(--line-2); padding-left: 1.5rem; }
+.pe-stat + .pe-stat {
+  border-left: 1.5px solid var(--line-warm);
+  padding-left: 1.5rem;
+}
 .pe-n {
   font-family: var(--f-display);
   font-size: clamp(2rem, 3.5vw, 2.8rem);
   font-weight: 400;
-  color: var(--ice);
+  color: var(--ink);
   line-height: 1;
   margin-bottom: 0.35rem;
 }
@@ -936,7 +922,7 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--steel);
+  color: var(--fog);
 }
 @media (max-width: 1100px) {
   .promise-editorial { position: relative; top: 0; }

@@ -1119,17 +1119,22 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(() => _track('pageview'));
     }
 
-    // Section visibility
+    // Section visibility + track current section for heartbeat
+    let _liveSection = 'Hero';
     const _secObs = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
           const label = { home:'Hero', services:'Services', promise:'Promise', process:'Process', projects:'Gallery', reviews:'Reviews', contact:'Contact' }[e.target.id] || e.target.id;
           _track('section', label);
+          _liveSection = label;
           _secObs.unobserve(e.target);
         }
       });
     }, { threshold: 0.3 });
     document.querySelectorAll('section[id]').forEach(s => _secObs.observe(s));
+
+    // Heartbeat every 30s — keeps session "live" in admin dashboard
+    setInterval(() => _track('heartbeat', _liveSection), 30000);
 
     // Click tracking
     document.addEventListener('click', e => {

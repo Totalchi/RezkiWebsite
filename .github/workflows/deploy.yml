@@ -15,9 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          exclude_assets: '.github,node_modules,.git,.gitignore,.idea'
+          folder: .
+          clean: true
+          clean-exclude: |
+            .nojekyll

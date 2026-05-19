@@ -1870,7 +1870,7 @@ footer {
 }
 .whatsapp-btn:hover .whatsapp-tooltip { opacity: 1; }
 @media (max-width: 720px) {
-  .whatsapp-btn { bottom: 10%; left: 1.25rem; right: auto; }
+  .whatsapp-btn { bottom: 5%; left: 1.25rem; right: auto; }
   .whatsapp-tooltip { display: none; }
 }
 

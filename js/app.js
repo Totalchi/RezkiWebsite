@@ -296,6 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Cookie bar
         'cookie.p':   'This site uses cookies to improve your experience. By continuing you agree to our use of cookies per GDPR &amp; Swedish consumer law.',
         'cookie.btn': 'Accept &amp; Continue',
+        // Layered stack
+        'ls.hint': 'Hover to reveal all projects',
         // WhatsApp
         'wa.tooltip': 'Chat on WhatsApp',
         // Promo popup
@@ -569,6 +571,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Cookie bar
         'cookie.p':   'Denna webbplats använder cookies för att förbättra din upplevelse. Genom att fortsätta godkänner du vår användning av cookies enligt GDPR och svensk konsumentlagstiftning.',
         'cookie.btn': 'Acceptera &amp; Fortsätt',
+        // Layered stack
+        'ls.hint': 'Hovra för att visa alla projekt',
         // WhatsApp
         'wa.tooltip': 'Chatta på WhatsApp',
         // Promo popup
@@ -933,6 +937,49 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.addEventListener('scroll', updateProgress, { passive: true });
   updateProgress();
+
+  // ---------- Layered Stack ----------
+  const lsWrapper = document.getElementById('layered-stack');
+  if (lsWrapper) {
+    const grid  = lsWrapper.querySelector('.ls-grid');
+    const items = [...lsWrapper.querySelectorAll('.ls-item')];
+    const ROTS  = items.map(() => (Math.random() * 22 - 11).toFixed(2));
+    let isSpread = false;
+
+    function stackItems() {
+      isSpread = false;
+      lsWrapper.classList.remove('is-spread');
+      const cw = grid.offsetWidth;
+      const ch = grid.offsetHeight;
+      items.forEach((item, i) => {
+        const dx = cw / 2 - (item.offsetLeft + item.offsetWidth  / 2);
+        const dy = ch / 2 - (item.offsetTop  + item.offsetHeight / 2);
+        item.style.transitionDelay = `${i * 0}ms`;
+        item.style.transform = `translate(${dx}px,${dy}px) rotate(${ROTS[i]}deg)`;
+        item.style.zIndex = i;
+      });
+    }
+
+    function spreadItems() {
+      isSpread = true;
+      lsWrapper.classList.add('is-spread');
+      items.forEach((item, i) => {
+        item.style.transitionDelay = `${i * 45}ms`;
+        item.style.transform = 'translate(0,0) rotate(0deg)';
+        item.style.zIndex = '';
+      });
+      setTimeout(() => items.forEach(el => el.style.transitionDelay = ''), 800);
+    }
+
+    // Init after layout is ready
+    requestAnimationFrame(() => requestAnimationFrame(stackItems));
+
+    lsWrapper.addEventListener('mouseenter', () => { if (!isSpread) spreadItems(); });
+    lsWrapper.addEventListener('mouseleave', () => { if (isSpread)  stackItems();  });
+
+    // Touch: tap to toggle
+    lsWrapper.addEventListener('click', () => isSpread ? stackItems() : spreadItems());
+  }
 
   // ---------- Back-to-top ----------
   const backTop = document.getElementById('back-top');

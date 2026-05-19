@@ -551,6 +551,14 @@ tbody td {
 .an-count { width: 36px; text-align: right; color: var(--muted-2); font-family: var(--f-mono); font-size: 0.75rem; flex-shrink: 0; }
 .an-pct { width: 38px; text-align: right; color: var(--muted); font-size: 0.75rem; flex-shrink: 0; }
 
+/* ── Nickname edit ── */
+.nickname-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.nickname-display { font-size: 0.88rem; font-weight: 600; color: var(--text); cursor: pointer; border-bottom: 1px dashed var(--border-2); transition: border-color 0.2s; }
+.nickname-display:hover { border-color: var(--accent-2); color: var(--accent-2); }
+.nickname-input { font: inherit; font-size: 0.88rem; background: var(--surface-2); border: 1px solid var(--accent-2); border-radius: 4px; color: var(--text); padding: 0.2rem 0.5rem; width: 120px; outline: none; }
+.note-system { color: #7ab0e0 !important; font-style: italic; font-size: 0.8rem; }
+.note-author { color: var(--accent-2); font-weight: 600; }
+
 /* ── Mobile ── */
 @media (max-width: 640px) {
   .admin-body { padding: 1rem; }
@@ -614,6 +622,10 @@ tbody td {
       RM Bygg <span>/ Admin</span>
     </div>
     <div class="admin-header-right">
+      <div class="nickname-wrap">
+        <span class="nickname-display" id="nickname-display" title="Click to change your display name"></span>
+        <span style="font-size:0.7rem;color:var(--muted)">✎</span>
+      </div>
       <span class="admin-user" id="admin-user-email"></span>
       <button class="btn-logout" id="btn-logout">Sign out</button>
     </div>
@@ -875,6 +887,20 @@ let allLeads = [];
 let activeType   = 'all';
 let activeStatus = 'all';
 let currentLeadId = null;
+let adminNickname = localStorage.getItem('rm_admin_nickname') || '';
+
+function getNick() { return adminNickname || 'Admin'; }
+
+function logEntry(text) {
+  const d = new Date();
+  const ts = d.toISOString().slice(0,10) + ' ' + d.toTimeString().slice(0,5);
+  return '[' + ts + ' | ' + getNick() + '] ' + text;
+}
+
+function appendToNotes(lead, entry) {
+  const existing = lead.admin_notes || '';
+  return existing ? existing + String.fromCharCode(10) + entry : entry;
+}
 
 // DOM refs
 const loginScreen  = document.getElementById('login-screen');
@@ -955,10 +981,35 @@ btnLogout.addEventListener('click', async () => {
 function showDashboard(user) {
   loginScreen.style.display = 'none';
   dashboard.classList.add('visible');
-  adminEmail.textContent = user?.email || 'Demo mode';
+  const email = user?.email || '';
+  adminEmail.textContent = email;
+  if (!adminNickname && email) {
+    adminNickname = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    localStorage.setItem('rm_admin_nickname', adminNickname);
+  }
+  const nd = document.getElementById('nickname-display');
+  if (nd) nd.textContent = getNick();
   if (!configured) configNotice.style.display = 'block';
   loadLeads();
 }
+
+// Nickname click-to-edit
+document.getElementById('nickname-display').addEventListener('click', function() {
+  const wrap = document.querySelector('.nickname-wrap');
+  const current = getNick();
+  wrap.innerHTML = '<input class="nickname-input" id="nickname-input" value="' + current + '" maxlength="20"/><span style="font-size:0.7rem;color:var(--muted-2)">Enter to save</span>';
+  const inp = document.getElementById('nickname-input');
+  inp.focus(); inp.select();
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      const val = inp.value.trim() || current;
+      adminNickname = val;
+      localStorage.setItem('rm_admin_nickname', val);
+      wrap.innerHTML = '<span class="nickname-display" id="nickname-display">' + val + '</span><span style="font-size:0.7rem;color:var(--muted)">✎</span>';
+      document.getElementById('nickname-display').addEventListener('click', arguments.callee.outer);
+    }
+  });
+});
 
 /* ─────────────────────────────────────────
    LEADS
@@ -1131,22 +1182,25 @@ function openDrawer(id) {
   document.getElementById('drawer-status-sel').addEventListener('change', async e => {
     const newStatus = e.target.value;
     const lead = allLeads.find(l => String(l.id) === String(currentLeadId));
-    if (lead) lead.status = newStatus;
+    if (!lead) return;
+    const oldStatus = lead.status || 'new';
+    lead.status = newStatus;
+    const entry = logEntry('Status: ' + statusLabel(oldStatus) + ' -> ' + statusLabel(newStatus));
+    lead.admin_notes = appendToNotes(lead, entry);
     if (sb) {
-      await sb.from('leads').update({ status: newStatus }).eq('id', currentLeadId);
+      await sb.from('leads').update({ status: newStatus, admin_notes: lead.admin_notes }).eq('id', currentLeadId);
     }
     renderTable();
     updateStats();
+    openDrawer(currentLeadId);
   });
 
   document.getElementById('btn-save-notes').addEventListener('click', async () => {
     const newText = document.getElementById('admin-notes-area').value.trim();
     if (!newText) return;
-    const d = new Date();
-    const ts = d.toISOString().slice(0,10) + ' ' + d.toTimeString().slice(0,5);
     const lead = allLeads.find(l => String(l.id) === String(currentLeadId));
-    const existing = (lead && lead.admin_notes) ? lead.admin_notes : '';
-    const updated = existing ? (existing + String.fromCharCode(10) + '[' + ts + '] ' + newText) : ('[' + ts + '] ' + newText);
+    const entry = logEntry(newText);
+    const updated = appendToNotes(lead || {}, entry);
     if (lead) lead.admin_notes = updated;
     if (sb) await sb.from('leads').update({ admin_notes: updated }).eq('id', currentLeadId);
     // Rebuild drawer so the log always reflects saved state
@@ -1186,12 +1240,21 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(
 function renderNoteEntries(adminNotes) {
   if (!adminNotes || !adminNotes.trim()) return '<em style="opacity:.4;color:var(--muted)">No notes yet.</em>';
   const lines = adminNotes.split('\n').filter(l => l.trim());
-  return lines.map((line, i) =>
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">' +
-    '<span style="flex:1;color:var(--text);font-size:0.84rem;line-height:1.55;white-space:pre-wrap;word-break:break-word">' + esc(line) + '</span>' +
-    '<button onclick="deleteNote(' + i + ')" style="flex-shrink:0;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:0 0.1rem;transition:color 0.15s" onmouseover="this.style.color=\'#e08888\'" onmouseout="this.style.color=\'var(--muted)\'" title="Delete this note">×</button>' +
-    '</div>'
-  ).join('');
+  return lines.map((line, i) => {
+    const isStatus = line.includes('] Status:');
+    // Format: [date | Author] text — highlight author part
+    const formatted = esc(line).replace(/\[([^\]]+)\]/, function(match, inner) {
+      const parts = inner.split(' | ');
+      if (parts.length === 2) {
+        return '[<span style="color:var(--muted-2)">' + parts[0] + '</span> | <span class="note-author">' + parts[1] + '</span>]';
+      }
+      return match;
+    });
+    return '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">' +
+      '<span style="flex:1;font-size:0.82rem;line-height:1.55;white-space:pre-wrap;word-break:break-word' + (isStatus ? ';color:#7ab0e0;font-style:italic' : ';color:var(--text)') + '">' + formatted + '</span>' +
+      '<button onclick="deleteNote(' + i + ')" style="flex-shrink:0;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:0 0.1rem" onmouseover="this.style.color=\'#e08888\'" onmouseout="this.style.color=\'var(--muted)\'" title="Delete">×</button>' +
+      '</div>';
+  }).join('');
 }
 
 window.deleteNote = async function(index) {

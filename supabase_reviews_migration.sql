@@ -1,3 +1,18 @@
+-- RM Bygg & Montage AB — Database migrations
+-- ─────────────────────────────────────────────
+-- MIGRATION 2: Add geolocation columns to analytics_events
+-- Run this in the Supabase SQL editor
+
+alter table analytics_events
+  add column if not exists city      text,
+  add column if not exists region    text,
+  add column if not exists country   text,
+  add column if not exists latitude  float8,
+  add column if not exists longitude float8;
+
+-- ─────────────────────────────────────────────
+-- MIGRATION 1: Reviews table (run first if not done yet)
+-- ─────────────────────────────────────────────
 -- RM Bygg & Montage AB — Reviews table migration
 -- Run this in the Supabase SQL editor: https://supabase.com/dashboard/project/wdmrfcgdcrhbgvknsece/sql
 

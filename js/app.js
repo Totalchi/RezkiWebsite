@@ -1013,10 +1013,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const _dev  = window.innerWidth < 768 ? 'mobile' : 'desktop';
     const _lang = localStorage.getItem('rm-lang') || 'sv';
 
-    function _track(type, label, value) {
-      const body = { session_id: _sid, event_type: type, device: _dev, lang: _lang };
-      if (label) body.label = String(label).slice(0, 60);
-      if (value)  body.value = value;
+    function _track(type, label, value, extra) {
+      const body = { session_id: _sid, event_type: type, device: _dev, lang: _lang, ...(extra || {}) };
+      if (label != null) body.label = String(label).slice(0, 60);
+      if (value  != null) body.value = value;
       fetch(_cfg.supabaseUrl + '/rest/v1/analytics_events', {
         method: 'POST',
         headers: {
@@ -1029,8 +1029,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }).catch(() => {});
     }
 
-    // Page view
-    _track('pageview');
+    // Page view with geolocation (3s timeout fallback)
+    {
+      const ctrl = new AbortController();
+      const tId  = setTimeout(() => ctrl.abort(), 3000);
+      fetch('https://ipapi.co/json/', { signal: ctrl.signal })
+        .then(r => r.json())
+        .then(geo => {
+          clearTimeout(tId);
+          _track('pageview', null, null, {
+            city:      geo.city      || null,
+            region:    geo.region    || null,
+            country:   geo.country_code || null,
+            latitude:  geo.latitude  || null,
+            longitude: geo.longitude || null
+          });
+        })
+        .catch(() => _track('pageview'));
+    }
 
     // Section visibility
     const _secObs = new IntersectionObserver(entries => {

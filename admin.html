@@ -6,6 +6,7 @@
 <title>RM Bygg — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 /* =====================================================
    RM Bygg Admin Dashboard
@@ -535,6 +536,23 @@ tbody td {
 .rv-toggle.is-on { background: rgba(74,159,111,0.25); border-color: rgba(74,159,111,0.5); }
 .rv-toggle.is-on::after { transform: translateX(16px); background: #7dcba0; }
 
+/* ── Analytics map ── */
+#an-map { height: 340px; background: var(--surface-2); border-radius: 0 0 8px 8px; }
+.leaflet-container { background: #0d1117 !important; font-family: var(--f-body) !important; }
+.leaflet-popup-content-wrapper { background: var(--surface); color: var(--text); border: 1px solid var(--border-2); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+.leaflet-popup-tip { background: var(--surface); }
+.leaflet-popup-content { margin: 10px 14px; font-size: 0.85rem; line-height: 1.5; }
+.leaflet-popup-close-button { color: var(--muted) !important; }
+.leaflet-control-zoom a { background: var(--surface-2) !important; color: var(--text) !important; border-color: var(--border-2) !important; }
+.leaflet-control-zoom a:hover { background: var(--surface) !important; }
+.leaflet-bar { border: 1px solid var(--border-2) !important; box-shadow: none !important; }
+.an-cities-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.an-cities-row:last-child { border-bottom: 0; }
+.an-cities-rank { width: 18px; flex-shrink: 0; color: var(--muted); font-family: var(--f-mono); font-size: 0.7rem; text-align: center; }
+.an-cities-name { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.an-cities-region { color: var(--muted); font-size: 0.76rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; flex-shrink: 0; }
+.an-cities-count { width: 28px; text-align: right; color: var(--muted-2); font-family: var(--f-mono); font-size: 0.75rem; flex-shrink: 0; }
+
 /* ── Analytics bars ── */
 .an-row {
   display: flex;
@@ -833,6 +851,25 @@ CREATE POLICY "Admins only" ON leads
           <div class="s-value" id="an-lang">—</div>
           <div class="s-sub">of visitors</div>
         </div>
+        <div class="stat-card">
+          <div class="s-label">Top city</div>
+          <div class="s-value" id="an-topcity" style="font-size:1.3rem">—</div>
+          <div class="s-sub">Most visits</div>
+        </div>
+      </div>
+
+      <!-- Map + Top cities -->
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem;margin-bottom:1rem">
+        <div class="leads-panel" style="overflow:hidden">
+          <div class="leads-toolbar"><h3>Visitor map</h3></div>
+          <div id="an-map"></div>
+        </div>
+        <div class="leads-panel">
+          <div class="leads-toolbar"><h3>Top cities</h3></div>
+          <div id="an-cities" style="padding:1rem 1.25rem">
+            <div class="spinner"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Two columns: sections + clicks -->
@@ -865,6 +902,7 @@ CREATE POLICY "Admins only" ON leads
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ─────────────────────────────────────────
    CONFIGURATION — fill these in
@@ -1424,6 +1462,8 @@ document.getElementById('rf-save').addEventListener('click', async () => {
    ANALYTICS
 ────────────────────────────────────────── */
 let analyticsPeriod = 7;
+let _leafletMap = null;
+let _leafletMarkers = [];
 
 document.getElementById('analytics-period').addEventListener('click', e => {
   const btn = e.target.closest('[data-period]');
@@ -1436,10 +1476,10 @@ document.getElementById('analytics-period').addEventListener('click', e => {
 document.getElementById('btn-refresh-analytics').addEventListener('click', loadAnalytics);
 
 async function loadAnalytics() {
-  ['an-sections','an-clicks'].forEach(id => {
+  ['an-sections','an-clicks','an-cities'].forEach(id => {
     document.getElementById(id).innerHTML = '<div class="spinner"></div>';
   });
-  ['an-visits','an-avgtime','an-mobile','an-lang'].forEach(id => {
+  ['an-visits','an-avgtime','an-mobile','an-lang','an-topcity'].forEach(id => {
     document.getElementById(id).textContent = '—';
   });
 
@@ -1459,40 +1499,49 @@ async function loadAnalytics() {
 }
 
 function renderAnalytics(events) {
-  // Unique sessions from pageview events
-  const pageviews  = events.filter(e => e.event_type === 'pageview');
-  const sessions   = new Set(pageviews.map(e => e.session_id));
-  const total      = sessions.size;
+  const pageviews = events.filter(e => e.event_type === 'pageview');
+  const sessions  = new Set(pageviews.map(e => e.session_id));
+  const total     = sessions.size;
 
-  // Avg time on page
-  const durations  = events.filter(e => e.event_type === 'duration' && e.value > 0);
-  const avgSec     = durations.length ? Math.round(durations.reduce((s, e) => s + e.value, 0) / durations.length) : 0;
-  const avgMin     = Math.floor(avgSec / 60);
-  const avgSecRem  = avgSec % 60;
+  // Avg time — one duration event per session, take average
+  const durations = events.filter(e => e.event_type === 'duration' && e.value > 0);
+  const avgSec    = durations.length ? Math.round(durations.reduce((s, e) => s + e.value, 0) / durations.length) : 0;
+  const avgMin    = Math.floor(avgSec / 60);
+  const avgSecRem = String(avgSec % 60).padStart(2, '0');
 
-  // Mobile %
-  const mobileCount = pageviews.filter(e => e.device === 'mobile').length;
-  const mobilePct   = total ? Math.round(mobileCount / total * 100) : 0;
+  // Mobile % — count unique mobile sessions (fixes overcounting)
+  const mobileSess = new Set(pageviews.filter(e => e.device === 'mobile').map(e => e.session_id));
+  const mobilePct  = total ? Math.round(mobileSess.size / total * 100) : 0;
 
-  // Language %
-  const svCount = pageviews.filter(e => e.lang === 'sv').length;
-  const svPct   = total ? Math.round(svCount / total * 100) : 0;
+  // Swedish % — count unique SV sessions
+  const svSess = new Set(pageviews.filter(e => e.lang === 'sv').map(e => e.session_id));
+  const svPct  = total ? Math.round(svSess.size / total * 100) : 0;
 
-  document.getElementById('an-visits').textContent  = total;
+  // Geographic — aggregate by city using latest entry per session
+  const geoMap = {};
+  pageviews.forEach(e => {
+    if (!e.city || e.latitude == null) return;
+    if (!geoMap[e.city]) geoMap[e.city] = { city: e.city, region: e.region || '', latitude: +e.latitude, longitude: +e.longitude, sessions: new Set() };
+    geoMap[e.city].sessions.add(e.session_id);
+  });
+  const geoData = Object.values(geoMap)
+    .map(d => ({ ...d, count: d.sessions.size }))
+    .sort((a, b) => b.count - a.count);
+  const topCity = geoData[0] ? geoData[0].city : '—';
+
+  document.getElementById('an-visits').textContent  = total || '—';
   document.getElementById('an-avgtime').textContent = total ? avgMin + 'm ' + avgSecRem + 's' : '—';
   document.getElementById('an-mobile').textContent  = total ? mobilePct + '%' : '—';
   document.getElementById('an-lang').textContent    = total ? svPct + '%' : '—';
+  document.getElementById('an-topcity').textContent = topCity;
 
-  // Section views — count per unique session
+  // Section views
   const sectionMap = {};
   events.filter(e => e.event_type === 'section').forEach(e => {
     sectionMap[e.label] = (sectionMap[e.label] || 0) + 1;
   });
   const sectionOrder = ['Hero','Services','Promise','Process','Gallery','Reviews','Contact'];
-  const sectionEntries = sectionOrder
-    .filter(k => sectionMap[k])
-    .map(k => [k, sectionMap[k]])
-    .sort((a, b) => b[1] - a[1]);
+  const sectionEntries = sectionOrder.filter(k => sectionMap[k]).map(k => [k, sectionMap[k]]).sort((a, b) => b[1] - a[1]);
   const secMax = sectionEntries[0] ? sectionEntries[0][1] : 1;
 
   document.getElementById('an-sections').innerHTML = sectionEntries.length
@@ -1505,14 +1554,14 @@ function renderAnalytics(events) {
       ).join('')
     : '<p style="color:var(--muted);font-size:0.88rem">No section data yet.</p>';
 
-  // Clicks — aggregate and sort
+  // Top clicks
   const clickMap = {};
   events.filter(e => e.event_type === 'click').forEach(e => {
     const key = e.label || 'unknown';
     clickMap[key] = (clickMap[key] || 0) + 1;
   });
   const clickEntries = Object.entries(clickMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
-  const clickMax = clickEntries[0] ? clickEntries[0][1] : 1;
+  const clickMax   = clickEntries[0] ? clickEntries[0][1] : 1;
   const clickTotal = clickEntries.reduce((s, [, v]) => s + v, 0);
 
   document.getElementById('an-clicks').innerHTML = clickEntries.length
@@ -1525,6 +1574,69 @@ function renderAnalytics(events) {
         '</div>'
       ).join('')
     : '<p style="color:var(--muted);font-size:0.88rem">No click data yet.</p>';
+
+  renderTopCities(geoData);
+  renderMap(geoData);
+}
+
+function renderTopCities(geoData) {
+  const el = document.getElementById('an-cities');
+  if (!el) return;
+  if (!geoData.length) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:0.84rem;line-height:1.6">No location data yet.<br>New visits will appear here.</p>';
+    return;
+  }
+  el.innerHTML = geoData.slice(0, 12).map((d, i) => `
+    <div class="an-cities-row">
+      <span class="an-cities-rank">${i + 1}</span>
+      <span class="an-cities-name">${esc(d.city)}</span>
+      <span class="an-cities-region">${esc(d.region)}</span>
+      <span class="an-cities-count">${d.count}</span>
+    </div>
+  `).join('');
+}
+
+function renderMap(geoData) {
+  if (typeof L === 'undefined') return;
+  if (!_leafletMap) {
+    _leafletMap = L.map('an-map', {
+      center: [62.5, 16],
+      zoom: 5,
+      zoomControl: true,
+      scrollWheelZoom: false,
+      attributionControl: false
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19
+    }).addTo(_leafletMap);
+    setTimeout(() => _leafletMap.invalidateSize(), 120);
+  } else {
+    _leafletMarkers.forEach(m => _leafletMap.removeLayer(m));
+    _leafletMarkers = [];
+    _leafletMap.invalidateSize();
+  }
+  if (!geoData.length) return;
+  const max = Math.max(...geoData.map(d => d.count));
+  geoData.forEach(d => {
+    const radius = 5 + Math.sqrt(d.count / max) * 20;
+    const m = L.circleMarker([d.latitude, d.longitude], {
+      radius,
+      fillColor: '#B03C2E',
+      color: '#7a1f15',
+      weight: 1.5,
+      opacity: 1,
+      fillOpacity: 0.55
+    })
+    .bindPopup(
+      '<strong>' + esc(d.city) + '</strong>' +
+      (d.region ? '<br><span style="color:#788090;font-size:0.8rem">' + esc(d.region) + '</span>' : '') +
+      '<br>' + d.count + ' visit' + (d.count !== 1 ? 's' : '')
+    )
+    .addTo(_leafletMap);
+    _leafletMarkers.push(m);
+  });
+  const bounds = L.latLngBounds(_leafletMarkers.map(m => m.getLatLng()));
+  _leafletMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
 }
 
 /* ─────────────────────────────────────────

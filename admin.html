@@ -407,6 +407,56 @@ tbody td {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Clickable stat cards ── */
+.stat-card { cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+.stat-card:hover { border-color: rgba(220,216,210,0.22); }
+.stat-card.is-active { border-color: var(--accent-2) !important; box-shadow: 0 0 0 1px var(--accent-2); }
+
+/* ── Admin notes in drawer ── */
+.admin-notes-area {
+  width: 100%;
+  min-height: 90px;
+  padding: 0.75rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: var(--f-body);
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.admin-notes-area:focus { border-color: rgba(148,50,38,0.5); }
+.btn-save-notes {
+  padding: 0.42rem 0.9rem;
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-save-notes:hover { background: var(--accent-2); }
+.btn-archive {
+  padding: 0.42rem 0.9rem;
+  border: 1px solid rgba(120,128,144,0.35);
+  border-radius: 5px;
+  font-size: 0.8rem;
+  color: var(--muted-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-archive:hover { border-color: rgba(220,80,80,0.4); color: #e08888; }
+.btn-restore { border-color: rgba(74,159,111,0.4); color: #7dcba0; }
+.btn-restore:hover { border-color: rgba(74,159,111,0.6); color: #7dcba0; }
+.notes-saved { font-size: 0.75rem; color: var(--green); opacity: 0; transition: opacity 0.3s; }
+.notes-saved.show { opacity: 1; }
+.s-archived { border-color: rgba(120,128,144,0.35); color: var(--muted); }
+
 /* ── Admin tabs ── */
 .admin-tabs {
   display: flex;
@@ -601,27 +651,27 @@ CREATE POLICY "Admins only" ON leads
 
     <!-- Stats row -->
     <div class="stats-row" id="stats-row">
-      <div class="stat-card">
+      <div class="stat-card" data-filter-status="all">
         <div class="s-label">Total leads</div>
         <div class="s-value" id="stat-total">—</div>
         <div class="s-sub">All time</div>
       </div>
-      <div class="stat-card stat-new">
+      <div class="stat-card stat-new" data-filter-status="new">
         <div class="s-label">New</div>
         <div class="s-value" id="stat-new">—</div>
         <div class="s-sub">Awaiting contact</div>
       </div>
-      <div class="stat-card stat-contact">
+      <div class="stat-card stat-contact" data-filter-status="contacted">
         <div class="s-label">Contacted</div>
         <div class="s-value" id="stat-contacted">—</div>
         <div class="s-sub">In progress</div>
       </div>
-      <div class="stat-card stat-quoted">
+      <div class="stat-card stat-quoted" data-filter-status="quoted">
         <div class="s-label">Quoted</div>
         <div class="s-value" id="stat-quoted">—</div>
         <div class="s-sub">Offer sent</div>
       </div>
-      <div class="stat-card stat-won">
+      <div class="stat-card stat-won" data-filter-status="won">
         <div class="s-label">Won</div>
         <div class="s-value" id="stat-won">—</div>
         <div class="s-sub">Closed as won</div>
@@ -646,6 +696,7 @@ CREATE POLICY "Admins only" ON leads
           <button class="filter-btn" data-status="quoted">Quoted</button>
           <button class="filter-btn" data-status="won">Won</button>
           <button class="filter-btn" data-status="lost">Lost</button>
+          <button class="filter-btn" data-status="archived">Archived</button>
         </div>
         <button class="btn-refresh" id="btn-refresh">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -858,9 +909,18 @@ async function loadLeads() {
   updateStats();
 }
 
+function setStatusFilter(status) {
+  activeStatus = status;
+  document.querySelectorAll('[data-status]').forEach(b => b.classList.toggle('is-active', b.dataset.status === status));
+  document.querySelectorAll('[data-filter-status]').forEach(c => c.classList.toggle('is-active', c.dataset.filterStatus === status));
+  renderTable();
+}
+
 function filteredLeads() {
   return allLeads.filter(l => {
-    if (activeType   !== 'all' && l.type   !== activeType)   return false;
+    if (activeStatus === 'archived') return l.archived === true;
+    if (l.archived === true) return false;
+    if (activeType !== 'all' && l.type !== activeType) return false;
     if (activeStatus !== 'all' && l.status !== activeStatus) return false;
     return true;
   });
@@ -894,16 +954,23 @@ function renderTable() {
 }
 
 function updateStats() {
-  document.getElementById('stat-total').textContent     = allLeads.length;
-  document.getElementById('stat-new').textContent       = allLeads.filter(l => l.status === 'new').length;
-  document.getElementById('stat-contacted').textContent = allLeads.filter(l => l.status === 'contacted').length;
-  document.getElementById('stat-quoted').textContent    = allLeads.filter(l => l.status === 'quoted').length;
-  document.getElementById('stat-won').textContent       = allLeads.filter(l => l.status === 'won').length;
+  const active = allLeads.filter(l => !l.archived);
+  document.getElementById('stat-total').textContent     = active.length;
+  document.getElementById('stat-new').textContent       = active.filter(l => l.status === 'new').length;
+  document.getElementById('stat-contacted').textContent = active.filter(l => l.status === 'contacted').length;
+  document.getElementById('stat-quoted').textContent    = active.filter(l => l.status === 'quoted').length;
+  document.getElementById('stat-won').textContent       = active.filter(l => l.status === 'won').length;
 }
 
 /* ─────────────────────────────────────────
    FILTERS
 ────────────────────────────────────────── */
+document.getElementById('stats-row').addEventListener('click', e => {
+  const card = e.target.closest('[data-filter-status]');
+  if (!card) return;
+  setStatusFilter(card.dataset.filterStatus);
+});
+
 document.getElementById('type-filters').addEventListener('click', e => {
   const btn = e.target.closest('[data-type]');
   if (!btn) return;
@@ -915,9 +982,7 @@ document.getElementById('type-filters').addEventListener('click', e => {
 document.getElementById('status-filters').addEventListener('click', e => {
   const btn = e.target.closest('[data-status]');
   if (!btn) return;
-  activeStatus = btn.dataset.status;
-  document.querySelectorAll('[data-status]').forEach(b => b.classList.toggle('is-active', b === btn));
-  renderTable();
+  setStatusFilter(btn.dataset.status);
 });
 
 btnRefresh.addEventListener('click', loadLeads);
@@ -966,6 +1031,21 @@ function openDrawer(id) {
         <option value="lost"      ${lead.status === 'lost'      ? 'selected' : ''}>Lost</option>
       </select>
     </div>
+
+    <div class="drawer-section" style="margin-top:1.25rem">
+      <h4>Admin notes</h4>
+      <textarea class="admin-notes-area" id="admin-notes-area" placeholder="Internal notes, follow-up reminders…">${esc(lead.admin_notes || '')}</textarea>
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem">
+        <button class="btn-save-notes" id="btn-save-notes">Save notes</button>
+        <span class="notes-saved" id="notes-saved">Saved ✓</span>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <button class="btn-archive ${lead.archived ? 'btn-restore' : ''}" id="btn-archive-lead">
+        ${lead.archived ? 'Restore lead' : 'Archive lead'}
+      </button>
+    </div>
   `;
 
   document.getElementById('drawer-status-sel').addEventListener('change', async e => {
@@ -975,6 +1055,27 @@ function openDrawer(id) {
     if (sb) {
       await sb.from('leads').update({ status: newStatus }).eq('id', currentLeadId);
     }
+    renderTable();
+    updateStats();
+  });
+
+  document.getElementById('btn-save-notes').addEventListener('click', async () => {
+    const notes = document.getElementById('admin-notes-area').value;
+    const lead = allLeads.find(l => String(l.id) === String(currentLeadId));
+    if (lead) lead.admin_notes = notes;
+    if (sb) await sb.from('leads').update({ admin_notes: notes }).eq('id', currentLeadId);
+    const savedEl = document.getElementById('notes-saved');
+    savedEl.classList.add('show');
+    setTimeout(() => savedEl.classList.remove('show'), 2000);
+  });
+
+  document.getElementById('btn-archive-lead').addEventListener('click', async () => {
+    const lead = allLeads.find(l => String(l.id) === String(currentLeadId));
+    if (!lead) return;
+    const newArchived = !lead.archived;
+    lead.archived = newArchived;
+    if (sb) await sb.from('leads').update({ archived: newArchived }).eq('id', currentLeadId);
+    closeDrawer();
     renderTable();
     updateStats();
   });
@@ -1013,7 +1114,7 @@ function fmtDateFull(iso) {
   return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 function statusLabel(s) {
-  return { new:'New', contacted:'Contacted', quoted:'Quoted', won:'Won', lost:'Lost' }[s] || 'New';
+  return { new:'New', contacted:'Contacted', quoted:'Quoted', won:'Won', lost:'Lost', archived:'Archived' }[s] || 'New';
 }
 
 /* ─────────────────────────────────────────

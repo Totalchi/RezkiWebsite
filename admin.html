@@ -713,6 +713,7 @@ CREATE POLICY "Admins only" ON leads
               <th>Type</th>
               <th>Services</th>
               <th>Status</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="leads-tbody">
@@ -945,6 +946,7 @@ function renderTable() {
       <td><span class="badge badge-${l.type}">${l.type || '—'}</span></td>
       <td class="td-services">${esc(l.services || '—')}</td>
       <td><span class="status-badge s-${l.status || 'new'}">${statusLabel(l.status)}</span></td>
+      <td style="width:28px;text-align:center">${l.admin_notes ? '<svg title="Has notes" viewBox="0 0 24 24" fill="none" stroke="#c18a2a" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' : ''}</td>
     </tr>
   `).join('');
 
@@ -1034,7 +1036,8 @@ function openDrawer(id) {
 
     <div class="drawer-section" style="margin-top:1.25rem">
       <h4>Admin notes</h4>
-      <textarea class="admin-notes-area" id="admin-notes-area" placeholder="Internal notes, follow-up reminders…">${esc(lead.admin_notes || '')}</textarea>
+      ${lead.admin_notes ? '<div class="drawer-notes" style="margin-bottom:0.75rem;white-space:pre-wrap">' + esc(lead.admin_notes) + '</div>' : ''}
+      <textarea class="admin-notes-area" id="admin-notes-area" placeholder="Write notes here…">${esc(lead.admin_notes || '')}</textarea>
       <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem">
         <button class="btn-save-notes" id="btn-save-notes">Save notes</button>
         <span class="notes-saved" id="notes-saved">Saved ✓</span>

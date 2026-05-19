@@ -1540,13 +1540,11 @@ footer {
   position: fixed; inset: 0;
   background: rgba(6,10,18,0.92);
   z-index: 100;
-  display: grid; place-items: center;
+  display: none; place-items: center;
   padding: 2rem;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s;
   backdrop-filter: blur(14px);
 }
-.lightbox.is-open { opacity: 1; pointer-events: auto; }
+.lightbox.is-open { display: grid; }
 .lightbox img {
   max-height: 88vh;
   max-width: 1100px;

@@ -1116,10 +1116,9 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
 /* ---------- Layered Stack ---------- */
 .layered-showcase { background: var(--navy-0); }
 
-.ls-hint {
-  display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--steel); margin-bottom: 1.5rem;
+.ls-item.ls-hidden {
+  pointer-events: none;
+  opacity: 0;
 }
 
 .ls-wrapper {

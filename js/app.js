@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'learn.link': 'Quote →',
         // Promise section
         's.promise.eyebrow': 'Our promise',
-        ‘s.promise.desc’:    ‘Our team picks up the phone directly. You\’ll know the names of the people on your roof. When something\’s unclear — and on a building site it will be — you hear about it first, not last.’,
+        's.promise.desc':    'Our team picks up the phone directly. You’ll know the names of the people on your roof. When something’s unclear — and on a building site it will be — you hear about it first, not last.',
         'pm.01.h4': 'Direct line to the owner',
         'pm.01.p':  'No call-centre, no account-manager hand-offs. You get the personal number of the person running the job — and he picks up.',
         'pm.02.h4': 'Fixed-price, written quotes',
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reviews section
         's.reviews.eyebrow': 'What clients say',
         's.reviews.desc':    'Real reviews from real jobs across Gothenburg, Mölndal, Kungsbacka and Partille.',
-        'rv.01.q':    '”The team walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price.”',
+        'rv.01.q':    '“The team walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price.”',
         'rv.01.who':  'Anna K.',
         'rv.01.role': 'Villa owner · Kungsbacka',
         'rv.02.q':    '“We had three quotes. His was the clearest and the only one that actually explained why. Solar + battery running two months now, numbers match the forecast.”',
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reviews
         's.reviews.eyebrow': 'Vad kunderna säger',
         's.reviews.desc':    'Äkta omdömen från äkta jobb runt Göteborg, Mölndal, Kungsbacka och Partille.',
-        'rv.01.q':    '„Teamet gick upp på vårt tak med mig innan de lade offerten. Det sa mig allt om vem jag hade att göra med. Jobbet levererades i tid och till rätt pris.”',
+        'rv.01.q':    '„Teamet gick upp på vårt tak med mig innan de lade offerten. Det sa mig allt om vem jag hade att göra med. Jobbet levererades i tid och till rätt pris.“',
         'rv.01.who':  'Anna K.',
         'rv.01.role': 'Villaägare · Kungsbacka',
         'rv.02.q':    '„Vi fick tre offerter. Hans var tydligast och den enda som faktiskt förklarade varför. Solceller + batteri i drift sedan två månader — siffrorna stämmer med prognosen.“',
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'form.book.notes.ph':  'Finns det något vi bör veta innan vi anländer',
         'form.book.submit':    'Bekräfta bokning',
         'form.book.ok.h3':     'Bokning mottagen',
-        'form.book.ok.p':      'Vårt team bekräftar per telefon inom 24 timmar på vardagar.',
+        'form.book.ok.p':      'Vårt team bekärftar per telefon inom 24 timmar på vardagar.',
         // Quote form
         'form.quote.h3':     'Begär en <em>prisuppskattning</em>',
         'form.quote.sub':    'Berätta lite om jobbet. Vi svarar inom 48 timmar med ett första pris och nästa steg.',

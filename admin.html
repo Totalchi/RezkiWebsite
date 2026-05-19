@@ -455,6 +455,22 @@ tbody td {
 .btn-restore:hover { border-color: rgba(74,159,111,0.6); color: #7dcba0; }
 .notes-saved { font-size: 0.75rem; color: var(--green); opacity: 0; transition: opacity 0.3s; }
 .notes-saved.show { opacity: 1; }
+.notes-log {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted-2);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-bottom: 0.65rem;
+}
+.notes-log .note-entry { color: var(--text); }
+.notes-log .note-ts { color: var(--muted); font-size: 0.76rem; }
 .s-archived { border-color: rgba(120,128,144,0.35); color: var(--muted); }
 
 /* ── Admin tabs ── */
@@ -1036,11 +1052,11 @@ function openDrawer(id) {
 
     <div class="drawer-section" style="margin-top:1.25rem">
       <h4>Admin notes</h4>
-      ${lead.admin_notes ? '<div class="drawer-notes" style="margin-bottom:0.75rem;white-space:pre-wrap">' + esc(lead.admin_notes) + '</div>' : ''}
-      <textarea class="admin-notes-area" id="admin-notes-area" placeholder="Write notes here…">${esc(lead.admin_notes || '')}</textarea>
+      <div class="notes-log" id="notes-log">${lead.admin_notes ? esc(lead.admin_notes) : '<span style="opacity:.45">No notes yet.</span>'}</div>
+      <textarea class="admin-notes-area" id="admin-notes-new" rows="2" placeholder="Add a note…"></textarea>
       <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem">
-        <button class="btn-save-notes" id="btn-save-notes">Save notes</button>
-        <span class="notes-saved" id="notes-saved">Saved ✓</span>
+        <button class="btn-save-notes" id="btn-save-notes">Add note</button>
+        <span class="notes-saved" id="notes-saved">Added ✓</span>
       </div>
     </div>
 
@@ -1063,10 +1079,18 @@ function openDrawer(id) {
   });
 
   document.getElementById('btn-save-notes').addEventListener('click', async () => {
-    const notes = document.getElementById('admin-notes-area').value;
+    const newText = document.getElementById('admin-notes-new').value.trim();
+    if (!newText) return;
+    const ts = new Date().toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' });
     const lead = allLeads.find(l => String(l.id) === String(currentLeadId));
-    if (lead) lead.admin_notes = notes;
-    if (sb) await sb.from('leads').update({ admin_notes: notes }).eq('id', currentLeadId);
+    const existing = lead?.admin_notes || '';
+    const updated = existing ? existing + '
+[' + ts + '] ' + newText : '[' + ts + '] ' + newText;
+    if (lead) lead.admin_notes = updated;
+    if (sb) await sb.from('leads').update({ admin_notes: updated }).eq('id', currentLeadId);
+    document.getElementById('admin-notes-new').value = '';
+    const logEl = document.getElementById('notes-log');
+    if (logEl) logEl.textContent = updated;
     const savedEl = document.getElementById('notes-saved');
     savedEl.classList.add('show');
     setTimeout(() => savedEl.classList.remove('show'), 2000);

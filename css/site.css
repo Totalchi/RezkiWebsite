@@ -247,7 +247,7 @@ a, button, [role="button"],
   grid-template-columns: 1fr;
   max-width: 1280px;
   margin: 0 auto;
-  padding: clamp(5rem, 11vh, 7rem) clamp(1.25rem, 4vw, 3rem) clamp(4rem, 8vh, 6rem);
+  padding: clamp(2rem, 5vh, 3.5rem) clamp(1.25rem, 4vw, 3rem) clamp(4rem, 8vh, 6rem);
   min-height: 100vh;
   align-items: start;
 }

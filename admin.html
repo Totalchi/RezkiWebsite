@@ -1325,74 +1325,59 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
 /* ─────────────────────────────────────────
    REVIEWS CRUD
 ────────────────────────────────────────── */
-const REVIEWS_KEY   = 'rm_reviews';
-const reviewsListEl = document.getElementById('reviews-list');
+const reviewsListEl  = document.getElementById('reviews-list');
 const reviewFormWrap = document.getElementById('review-form-wrap');
 const rfName  = document.getElementById('rf-name');
 const rfRole  = document.getElementById('rf-role');
 const rfQuote = document.getElementById('rf-quote');
 const rfId    = document.getElementById('rf-id');
 
-const DEFAULT_REVIEWS_ADMIN = [
-  { id:'r1', quote:'"The team walked our roof with me before quoting. That alone told me who I was dealing with. Job came in on the day, on the price."',                                                               name:'Anna K.',   role:'Villa owner · Kungsbacka',     rating:5, visible:true },
-  { id:'r2', quote:'"We had three quotes. His was the clearest and the only one that actually explained why. Solar + battery running two months now, numbers match the forecast."',                                  name:'Martin P.', role:'Homeowner · Mölndal',          rating:5, visible:true },
-  { id:'r3', quote:'"Eighteen EV stations for our BRF, load-balanced to the main fuse. Start to grid-ready in three weeks. I\'d call him first on the next project."',                                             name:'Lars S.',   role:'Board chair · BRF Göteborg',  rating:5, visible:true },
-  { id:'r4', quote:'"Taket besiktigades ordentligt innan vi fick offerten. Fuktskador hittades och åtgärdades. Inga överraskningar på fakturan."',                                                                  name:'Karin L.',  role:'Villaägare · Partille',        rating:5, visible:true },
-  { id:'r5', quote:'"Twelve windows replaced in one week. The quote listed every fitting and the crew tidied up every single day. That\'s the standard I expect."',                                                 name:'Johan A.',  role:'Property manager · Göteborg', rating:5, visible:true },
-  { id:'r6', quote:'"Fasaden ser ut som ny. Ställning, grundfärg, två lager, städning — allt ingick i priset. Inga dolda kostnader."',                                                                              name:'Sara M.',   role:'Villaägare · Kungsbacka',      rating:5, visible:true },
-  { id:'r7', quote:'"Solar panels for 40 apartments plus a shared battery. RM Bygg handled the grid connection and all the BRF paperwork. We barely had to lift a finger."',                                          name:'Erik B.',   role:'BRF chairman · Mölndal',       rating:5, visible:true },
-];
+let reviewsCache = [];
 
-function loadReviewsData() {
-  try {
-    const stored = localStorage.getItem(REVIEWS_KEY);
-    if (stored) {
-      const p = JSON.parse(stored);
-      if (Array.isArray(p) && p.length) return p;
-    }
-  } catch (_) {}
-  return JSON.parse(JSON.stringify(DEFAULT_REVIEWS_ADMIN));
-}
-
-function saveReviewsData(data) {
-  localStorage.setItem(REVIEWS_KEY, JSON.stringify(data));
-}
-
-function renderReviewsList() {
-  const reviews = loadReviewsData();
-  if (!reviews.length) {
-    reviewsListEl.innerHTML = '<div class="empty-state"><p>No reviews yet. Click "+ Add review" to create one.</p></div>';
+async function renderReviewsList() {
+  reviewsListEl.innerHTML = '<div class="spinner"></div>';
+  if (!sb) {
+    reviewsListEl.innerHTML = '<div class="empty-state"><p>Supabase not connected.</p></div>';
     return;
   }
-  reviewsListEl.innerHTML = reviews.map((r, i) => `
-    <div class="review-row" data-idx="${i}">
-      <button class="rv-toggle ${r.visible !== false ? 'is-on' : ''}" data-action="toggle" data-idx="${i}" title="${r.visible !== false ? 'Visible on site' : 'Hidden'}"></button>
+  const { data, error } = await sb.from('reviews').select('*').order('created_at');
+  if (error) {
+    reviewsListEl.innerHTML = '<div class="empty-state"><p>Error loading reviews.</p></div>';
+    return;
+  }
+  reviewsCache = data || [];
+  if (!reviewsCache.length) {
+    reviewsListEl.innerHTML = '<div class="empty-state"><p>No reviews yet. Click “+ Add review” to create one.</p></div>';
+    return;
+  }
+  reviewsListEl.innerHTML = reviewsCache.map(r => `
+    <div class="review-row">
+      <button class="rv-toggle ${r.visible ? 'is-on' : ''}" data-action="toggle" data-id="${r.id}" title="${r.visible ? 'Visible on site' : 'Hidden'}"></button>
       <div class="review-row-body">
         <div class="review-row-quote">${esc(r.quote)}</div>
-        <div class="review-row-meta">★★★★★ &nbsp;·&nbsp; ${esc(r.name)} &nbsp;·&nbsp; ${esc(r.role || '')}</div>
+        <div class="review-row-meta">★★★★★ &nbsp;&middot;&nbsp; ${esc(r.name)} &nbsp;&middot;&nbsp; ${esc(r.role || '')}</div>
       </div>
       <div class="review-row-actions">
-        <button class="rv-btn" data-action="edit" data-idx="${i}">Edit</button>
-        <button class="rv-btn rv-btn-del" data-action="delete" data-idx="${i}">Delete</button>
+        <button class="rv-btn" data-action="edit" data-id="${r.id}">Edit</button>
+        <button class="rv-btn rv-btn-del" data-action="delete" data-id="${r.id}">Delete</button>
       </div>
     </div>
   `).join('');
 
   reviewsListEl.querySelectorAll('[data-action]').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', async e => {
       e.stopPropagation();
-      const idx = parseInt(btn.dataset.idx);
-      const data = loadReviewsData();
+      const id = btn.dataset.id;
+      const review = reviewsCache.find(r => r.id === id);
+      if (!review) return;
       if (btn.dataset.action === 'toggle') {
-        data[idx].visible = !data[idx].visible;
-        saveReviewsData(data);
+        await sb.from('reviews').update({ visible: !review.visible }).eq('id', id);
         renderReviewsList();
       } else if (btn.dataset.action === 'edit') {
-        openReviewForm(data[idx], idx);
+        openReviewForm(review);
       } else if (btn.dataset.action === 'delete') {
         if (confirm('Delete this review?')) {
-          data.splice(idx, 1);
-          saveReviewsData(data);
+          await sb.from('reviews').delete().eq('id', id);
           renderReviewsList();
         }
       }
@@ -1400,12 +1385,12 @@ function renderReviewsList() {
   });
 }
 
-function openReviewForm(review, idx) {
+function openReviewForm(review) {
   document.getElementById('review-form-title').textContent = review ? 'Edit review' : 'New review';
   rfName.value  = review ? review.name  : '';
   rfRole.value  = review ? review.role  : '';
   rfQuote.value = review ? review.quote : '';
-  rfId.value    = idx !== undefined ? idx : '';
+  rfId.value    = review ? review.id    : '';
   reviewFormWrap.style.display = 'block';
   rfName.focus();
 }
@@ -1416,20 +1401,21 @@ document.getElementById('rf-cancel').addEventListener('click', () => {
   reviewFormWrap.style.display = 'none';
 });
 
-document.getElementById('rf-save').addEventListener('click', () => {
+document.getElementById('rf-save').addEventListener('click', async () => {
   const name  = rfName.value.trim();
   const role  = rfRole.value.trim();
   const quote = rfQuote.value.trim();
   if (!name || !quote) { alert('Name and quote are required.'); return; }
-  const data = loadReviewsData();
-  const entry = { id: 'r' + Date.now(), name, role, quote, rating: 5, visible: true };
-  const idx = rfId.value !== '' ? parseInt(rfId.value) : -1;
-  if (idx >= 0) {
-    data[idx] = { ...data[idx], name, role, quote };
+  if (!sb) { alert('Supabase not connected.'); return; }
+  const id = rfId.value;
+  const saveBtn = document.getElementById('rf-save');
+  saveBtn.disabled = true;
+  if (id) {
+    await sb.from('reviews').update({ name, role, quote }).eq('id', id);
   } else {
-    data.push(entry);
+    await sb.from('reviews').insert({ name, role, quote, rating: 5, visible: true });
   }
-  saveReviewsData(data);
+  saveBtn.disabled = false;
   reviewFormWrap.style.display = 'none';
   renderReviewsList();
 });

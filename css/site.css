@@ -1570,19 +1570,17 @@ footer {
   position: fixed;
   inset: 0;
   z-index: 120;
-  display: grid;
+  display: none;
   place-items: center;
   padding: 1.25rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s var(--ease);
 }
-.auth-modal.is-open { opacity: 1; pointer-events: auto; }
+.auth-modal.is-open { display: grid; }
 .auth-backdrop {
   position: absolute;
   inset: 0;
   background: rgba(6,10,18,0.76);
   backdrop-filter: blur(10px);
+  pointer-events: none;
 }
 .auth-card {
   position: relative;

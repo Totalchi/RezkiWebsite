@@ -1,6 +1,6 @@
-/* ==========================================================
+﻿/* ==========================================================
    RM Bygg & Montage AB
-   Scandinavian Craft — charcoal · Falurött red · warm stone
+   Scandinavian Craft â€” charcoal Â· FalurÃ¶tt red Â· warm stone
    ========================================================== */
 
 :root {
@@ -20,7 +20,7 @@
   --paper:  #F5F3EF;
   --cream:  #EAE6DE;
 
-  /* Accent: Falurött */
+  /* Accent: FalurÃ¶tt */
   --gold:   #943226;
   --gold-2: #B03C2E;
   --gold-3: #C45044;
@@ -112,7 +112,7 @@ a, button, [role="button"],
   z-index: 60;
   padding: 1.1rem clamp(1.25rem, 3vw, 2.75rem);
   display: flex; align-items: center; justify-content: space-between;
-  transition: background 0.4s var(--ease), backdrop-filter 0.4s;
+  transition: background 0.4s var(--ease);
 }
 .nav::before {
   content: "";
@@ -122,7 +122,7 @@ a, button, [role="button"],
   pointer-events: none;
 }
 .nav.is-scrolled::before { opacity: 1; }
-.nav.is-scrolled { backdrop-filter: blur(16px) saturate(130%); }
+.nav.is-scrolled {  }
 
 .nav-inner {
   position: relative;
@@ -450,8 +450,7 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   border: 1px solid rgba(220,216,210,0.1);
   border-radius: 8px;
   background: rgba(13,17,23,0.75);
-  backdrop-filter: blur(10px);
-}
+  }
 .visual-metric strong {
   display: block;
   color: var(--ice);
@@ -892,8 +891,7 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   border: 1px solid rgba(220,216,210,0.1);
   border-radius: 10px;
   background: rgba(13,17,23,0.7);
-  backdrop-filter: blur(10px);
-}
+  }
 .owner-avatar {
   position: relative;
   width: 42px;
@@ -1304,8 +1302,7 @@ section.section { padding: 7rem clamp(1.25rem, 4vw, 3.5rem); position: relative;
   border: 1px solid var(--line-2);
   border-radius: 12px;
   padding: 2rem;
-  backdrop-filter: blur(12px);
-  box-shadow: var(--shadow);
+    box-shadow: var(--shadow);
   position: relative;
   overflow: visible;
 }
@@ -1542,8 +1539,7 @@ footer {
   z-index: 100;
   display: none; place-items: center;
   padding: 2rem;
-  backdrop-filter: blur(14px);
-}
+  }
 .lightbox.is-open { display: grid; }
 .lightbox img {
   max-height: 88vh;
@@ -1577,8 +1573,7 @@ footer {
   position: absolute;
   inset: 0;
   background: rgba(6,10,18,0.76);
-  backdrop-filter: blur(10px);
-  pointer-events: none;
+    pointer-events: none;
 }
 .auth-card {
   position: relative;
@@ -1798,9 +1793,7 @@ footer {
   width: 40px; height: 40px;
   border-radius: 50%;
   background: rgba(13,17,23,0.55);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
-  border: 1px solid rgba(220,216,210,0.14);
+    -webkit-  border: 1px solid rgba(220,216,210,0.14);
   color: var(--ice);
   display: grid; place-items: center;
   cursor: pointer;
@@ -1929,8 +1922,7 @@ footer {
   z-index: 70;
   opacity: 0;
   transition: opacity 0.3s var(--ease);
-  backdrop-filter: blur(5px);
-}
+  }
 .mobile-nav-overlay.is-open { opacity: 1; }
 
 /* ---------- Mobile nav drawer ---------- */
@@ -2057,9 +2049,7 @@ footer {
 .promo-overlay.is-open {
   display: grid;
   background: rgba(6,10,18,0.6);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  animation: promo-bg-in 0.35s var(--ease-out) forwards;
+    -webkit-  animation: promo-bg-in 0.35s var(--ease-out) forwards;
 }
 @keyframes promo-bg-in {
   from { opacity: 0; }
@@ -2187,3 +2177,4 @@ footer {
   background: rgba(148,50,38,0.28);
   color: var(--ice);
 }
+

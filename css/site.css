@@ -21,9 +21,9 @@
   --cream:  #EAE6DE;
 
   /* Accent: FalurÃ¶tt */
-  --gold:   #7A2018;
-  --gold-2: #8B2820;
-  --gold-3: #A03028;
+  --gold:   #943226;
+  --gold-2: #B03C2E;
+  --gold-3: #C45044;
   --sun:    #D9BDB8;
   --copper: #7A2818;
 
@@ -89,6 +89,7 @@ a, button, [role="button"],
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7), 0 0 12px rgba(0,0,0,0.5);
 }
 .eyebrow::before {
   content: "";

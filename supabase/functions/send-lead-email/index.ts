@@ -107,27 +107,28 @@ function buildCustomerEmail(lead: any, lang: Lang): { subject: string; html: str
 }
 
 function buildNotificationEmail(lead: any): { subject: string; html: string } {
-  const subject = `New ${lead.type || "lead"} from ${lead.name || lead.email || "unknown"}`;
+  const typeLabel = COPY.sv.typeMap[lead.type] || lead.type || "lead";
+  const subject = `Ny förfrågan (${typeLabel}) från ${lead.name || lead.email || "okänd"}`;
   const emailLink = lead.email ? `<a href="mailto:${esc(lead.email)}" style="color:${C.red};text-decoration:none">${esc(lead.email)}</a>` : "";
   const phoneLink = lead.phone ? `<a href="tel:${esc(lead.phone)}" style="color:${C.red};text-decoration:none">${esc(lead.phone)}</a>` : "";
   const body = `
-    <p style="font-size:17px;margin:0 0 8px">New lead received</p>
-    <p style="font-size:13px;color:${C.muted};margin:0 0 24px">Submitted via website · language: <strong>${esc(lead.lang)}</strong></p>
+    <p style="font-size:17px;margin:0 0 8px">Ny lead mottagen</p>
+    <p style="font-size:13px;color:${C.muted};margin:0 0 24px">Skickad via webbplatsen · språk: <strong>${esc(lead.lang)}</strong></p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${C.line}">
-      ${row("Type", lead.type || "")}
-      ${row("Name", lead.name || "")}
-      ${row("Email", emailLink, true)}
-      ${row("Phone", phoneLink, true)}
-      ${row("Company", lead.company || "")}
-      ${row("Address", lead.address || "")}
-      ${row("Services", lead.services || "")}
-      ${row("Property", lead.property_type || "")}
-      ${row("Timing", lead.timing || "")}
-      ${row("Booking", lead.booking_slot || "")}
-      ${row("Notes", lead.notes || "")}
+      ${row("Typ", typeLabel)}
+      ${row("Namn", lead.name || "")}
+      ${row("E-post", emailLink, true)}
+      ${row("Telefon", phoneLink, true)}
+      ${row("Företag", lead.company || "")}
+      ${row("Adress", lead.address || "")}
+      ${row("Tjänster", lead.services || "")}
+      ${row("Fastighet", lead.property_type || "")}
+      ${row("Tidsplan", lead.timing || "")}
+      ${row("Bokning", lead.booking_slot || "")}
+      ${row("Anteckningar", lead.notes || "")}
     </table>
     <p style="margin:28px 0 0;font-size:12px;color:${C.muted}">
-      Open the admin dashboard: <a href="https://totalchi.github.io/RezkiWebsite/admin.html" style="color:${C.red}">view leads</a>
+      Öppna admin-panelen: <a href="https://totalchi.github.io/RezkiWebsite/admin.html" style="color:${C.red}">visa leads</a>
     </p>
   `;
   return { subject, html: shell(subject, body) };
@@ -180,7 +181,9 @@ Deno.serve(async (req) => {
     });
   }
 
-  const lang: Lang = lead.lang === "sv" ? "sv" : "en";
+  // Currently all customer mails are forced to Swedish (per business decision).
+  // To switch back to per-lead language, change to: lead.lang === "en" ? "en" : "sv"
+  const lang: Lang = "sv";
 
   const customer = buildCustomerEmail(lead, lang);
   const notification = buildNotificationEmail(lead);

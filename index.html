@@ -1,8 +1,10 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; media-src 'self' https://d8j0ntlcm91z4.cloudfront.net; connect-src 'self' https://wdmrfcgdcrhbgvknsece.supabase.co https://ipapi.co https://nominatim.openstreetmap.org; base-uri 'self'; object-src 'none'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>RM Bygg &amp; Montage AB — Builder with heart · Gävle</title>
 <meta name="description" content="RM Bygg &amp; Montage AB — lokal specialist på solceller, batterier, laddboxar, fönster, tak och fasadmålning i Gävle. Personlig service, skriftliga offerter, boka online."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,8 +60,8 @@
   </ul>
   <div class="mobile-nav-footer">
     <div class="mobile-nav-lang">
-      <button data-lang="en" class="is-active">EN</button>
-      <button data-lang="sv">SV</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="sv" class="is-active">SV</button>
     </div>
     <a href="#contact" class="btn btn-primary" style="justify-content:center">
       <span data-i18n="nav.cta">Book a visit</span>
@@ -924,6 +926,6 @@
   };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=3"></script>
+<script src="js/app.js?v=4"></script>
 </body>
 </html>

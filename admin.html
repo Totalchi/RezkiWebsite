@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://unpkg.com https://*.basemaps.cartocdn.com; connect-src 'self' https://wdmrfcgdcrhbgvknsece.supabase.co; base-uri 'self'; object-src 'none'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>RM Bygg — Admin</title>
 <link rel="icon" href="assets/logo.png?v=2"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -646,8 +648,8 @@ tbody td {
     <p>Admin access only. This page is not intended for clients.</p>
     <form id="login-form">
       <div class="field">
-        <label>Username</label>
-        <input id="login-email" type="text" autocomplete="username" required placeholder="Username"/>
+        <label>Email</label>
+        <input id="login-email" type="email" autocomplete="username" required placeholder="you@rmbygg.se"/>
       </div>
       <div class="field">
         <label>Password</label>
@@ -1003,56 +1005,47 @@ const btnRefresh   = document.getElementById('btn-refresh');
 /* ─────────────────────────────────────────
    AUTH
 ────────────────────────────────────────── */
-const LOCAL_SESSION_KEY = 'rm_admin_session';
-// Clear any stale localStorage session — we use sessionStorage only
-localStorage.removeItem(LOCAL_SESSION_KEY);
+// Remove any legacy client-side session left over from the old hardcoded login.
+localStorage.removeItem('rm_admin_session');
+sessionStorage.removeItem('rm_admin_session');
 
 async function checkSession() {
-  // Check Supabase session first
-  if (sb) {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) { showDashboard(session.user); return; }
-  }
-  // Fall back to local hardcoded session
-  if (sessionStorage.getItem(LOCAL_SESSION_KEY) === 'authenticated') {
-    showDashboard(null);
-  }
+  // Authentication is handled entirely by Supabase. There is no client-side
+  // credential fallback — the dashboard only renders for a valid session.
+  if (!sb) return;
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showDashboard(session.user);
 }
 
 loginForm.addEventListener('submit', async e => {
   e.preventDefault();
   loginMsg.textContent = '';
-  loginBtn.disabled = true;
-  loginBtn.textContent = 'Signing in…';
 
-  const username = document.getElementById('login-email').value.trim().toLowerCase();
-  const password = document.getElementById('login-password').value;
-
-  // Supabase auth (when configured)
-  if (sb) {
-    const { error } = await sb.auth.signInWithPassword({ email: username, password });
-    if (!error) {
-      const { data: { session } } = await sb.auth.getSession();
-      showDashboard(session?.user || null);
-      return;
-    }
-  }
-
-  // Hardcoded fallback credentials
-  if (username === 'rezki' && password === 'rezki') {
-    sessionStorage.setItem(LOCAL_SESSION_KEY, 'authenticated');
-    showDashboard(null);
+  if (!sb) {
+    loginMsg.textContent = 'Login is not configured. Add your Supabase URL and anon key in ADMIN_CONFIG.';
     return;
   }
 
-  loginMsg.textContent = 'Incorrect username or password.';
-  loginBtn.disabled = false;
-  loginBtn.textContent = 'Sign in';
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Signing in…';
+
+  const email    = document.getElementById('login-email').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    loginMsg.textContent = 'Incorrect email or password.';
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Sign in';
+    return;
+  }
+
+  const { data: { session } } = await sb.auth.getSession();
+  showDashboard(session?.user || null);
 });
 
 btnLogout.addEventListener('click', async () => {
   if (sb) await sb.auth.signOut();
-  sessionStorage.removeItem(LOCAL_SESSION_KEY);
   dashboard.classList.remove('visible');
   loginScreen.style.display = 'flex';
   loginBtn.disabled = false;

@@ -12,6 +12,9 @@
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "RM Bygg <onboarding@resend.dev>";
 const NOTIFICATION_EMAIL = Deno.env.get("NOTIFICATION_EMAIL") || "info@rmbygg.com";
+// Optional: address that appears in the Reply-To header. Useful when FROM is a
+// noreply@verified-domain address but real replies should land in a different inbox.
+const REPLY_TO = Deno.env.get("REPLY_TO") || "";
 
 type Lang = "sv" | "en";
 
@@ -138,13 +141,16 @@ async function sendEmail(to: string, subject: string, html: string): Promise<{ o
   if (!RESEND_API_KEY) return { ok: false, error: "RESEND_API_KEY not configured" };
   if (!to) return { ok: false, error: "no recipient" };
 
+  const payload: Record<string, unknown> = { from: FROM_EMAIL, to: [to], subject, html };
+  if (REPLY_TO) payload.reply_to = REPLY_TO;
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from: FROM_EMAIL, to: [to], subject, html }),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {

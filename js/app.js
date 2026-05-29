@@ -136,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'pm.05.p':  'If something we installed goes wrong on our watch, we fix it. Written into every contract — not a marketing promise.',
         'pm.card.p':   'That’s the whole pitch. It’s why housing associations, villa owners and property companies keep coming back.',
         'pm.quote':    'The person who gives you the quote<br>is the person on your roof.<br><em>That’s how it should work.</em>',
-        'pm.cite':     'Rezki · Owner &amp; site manager, RM Bygg &amp; Montage AB',
         'pm.stat.reply':'Weekday reply',
         'pm.stat.years':'Trading',
         'pm.stat.review':'Avg review',
@@ -414,7 +413,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'pm.05.p':  'Om något vi installerade går fel under vår tillsyn lagar vi det. Inskrivet i varje kontrakt — inte ett marknadsföringslöfte.',
         'pm.card.p':   'Det är hela pitchen. Det är därför bostadsrättsföreningar, villaägare och fastighetsbolag återkommer.',
         'pm.quote':    'Den som ger dig offerten<br>är den som jobbar på ditt tak.<br><em>Så ska det vara.</em>',
-        'pm.cite':     'Rezki · Ägare &amp; platschef, RM Bygg &amp; Montage AB',
         'pm.stat.reply': 'Vardagssvar',
         'pm.stat.years': 'I branschen',
         'pm.stat.review':'Snittbetyg',
@@ -701,17 +699,20 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderReviews(reviews) {
     const track = document.getElementById('review-track');
     if (!track) return;
+    const esc = s => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     const visible = reviews.filter(r => r.visible !== false);
     if (!visible.length) return;
     const card = r => {
-      const initials = (r.name || '').split(' ').map(w => w[0]).slice(0, 2).join('');
+      const initials = esc((r.name || '').split(' ').map(w => w[0]).slice(0, 2).join(''));
       const stars = '★'.repeat(Math.min(5, r.rating || 5));
       return `<div class="review-card">
         <div class="stars">${stars}</div>
-        <blockquote>${r.quote}</blockquote>
+        <blockquote>${esc(r.quote)}</blockquote>
         <div class="who">
           <div class="avi">${initials}</div>
-          <div><strong>${r.name}</strong><span>${r.role || ''}</span></div>
+          <div><strong>${esc(r.name)}</strong><span>${esc(r.role || '')}</span></div>
         </div>
       </div>`;
     };
@@ -1131,7 +1132,8 @@ document.addEventListener('DOMContentLoaded', () => {
   complianceOk.addEventListener('click', () => {
     localStorage.setItem('rm-cookies', 'ok');
     complianceBar.classList.add('is-hidden');
-    schedulePromo();
+    // schedulePromo is only defined when the promo hasn't been shown yet.
+    if (typeof schedulePromo === 'function') schedulePromo();
     requestGeoLocation();
   });
 

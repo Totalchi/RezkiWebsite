@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const LANGS = {
     en: {
       // Hero (direct ID targets kept for compat)
+      doc_title:  'RM Bygg & Montage AB — Builder with heart · Gävle',
       eyebrow_badge: 'Local · Trusted · Gävle',
       h1_line1:   'Your neighbourhood',
       h1_line2_a: 'builder with',
@@ -312,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     sv: {
+      doc_title:  'RM Bygg & Montage AB — Byggare med hjärta · Gävle',
       eyebrow_badge: 'Lokal · Pålitlig · Gävle',
       h1_line1:   'Din lokala',
       h1_line2_a: 'byggare med',
@@ -596,6 +598,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const L = LANGS[l];
     if (!L) return;
     currentLang = l;
+    if (L.doc_title) document.title = L.doc_title;
+    document.documentElement.lang = l;
 
     // --- Legacy hero direct-ID targets ---
     const byId = id => document.getElementById(id);

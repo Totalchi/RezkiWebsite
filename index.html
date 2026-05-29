@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; media-src 'self' https://d8j0ntlcm91z4.cloudfront.net; connect-src 'self' https://wdmrfcgdcrhbgvknsece.supabase.co https://ipapi.co https://nominatim.openstreetmap.org; base-uri 'self'; object-src 'none'; form-action 'self'"/>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
-<title>RM Bygg &amp; Montage AB — Builder with heart · Gävle</title>
+<title>RM Bygg &amp; Montage AB — Byggare med hjärta · Gävle</title>
 <meta name="description" content="RM Bygg &amp; Montage AB — lokal specialist på solceller, batterier, laddboxar, fönster, tak och fasadmålning i Gävle. Personlig service, skriftliga offerter, boka online."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,7 +145,7 @@
     <!-- Solar -->
     <article class="svc-card reveal">
       <div class="svc-visual svc-visual-photo" aria-hidden="true">
-        <img src="assets/rezki1.jpg" alt="" loading="lazy" decoding="async" style="object-position:center 40%"/>
+        <img src="assets/solar-villa.jpg" alt="" loading="lazy" decoding="async" style="object-position:center 40%"/>
         <div class="visual-kicker" data-i18n="svc.01.kicker">Solar design</div>
         <div class="visual-metric">
           <strong data-i18n="svc.01.metric.val">6.3 kWp</strong>
@@ -418,11 +418,11 @@
 
     <div class="ls-wrapper reveal" id="layered-stack">
       <div class="ls-grid">
-        <div class="ls-item" data-cat="solar"><img src="assets/rezki1.jpg" alt="Solar villa" loading="lazy"/><span>Solar · Villa</span></div>
+        <div class="ls-item" data-cat="solar"><img src="assets/solar-villa.jpg" alt="Solar villa" loading="lazy"/><span>Solar · Villa</span></div>
         <div class="ls-item" data-cat="ev"><img src="https://images.unsplash.com/photo-1593941707874-ef25b8b4a92b?w=500&h=640&fit=crop&auto=format&q=75" alt="EV" loading="lazy"/><span>EV · 22 kW</span></div>
         <div class="ls-item" data-cat="roof"><img src="https://images.unsplash.com/photo-1760331840361-d751cfc1becf?w=500&h=640&fit=crop&auto=format&q=75" alt="Roof" loading="lazy"/><span>Roofing</span></div>
         <div class="ls-item" data-cat="paint"><img src="assets/facade.jpg" alt="Facade painting" loading="lazy" style="object-position:center center"/><span>Painting · Falurött</span></div>
-        <div class="ls-item" data-cat="solar"><img src="assets/rezki2.jpg" alt="Solar BRF" loading="lazy"/><span>Solar · BRF</span></div>
+        <div class="ls-item" data-cat="solar"><img src="assets/solar-brf.jpg" alt="Solar BRF" loading="lazy"/><span>Solar · BRF</span></div>
         <div class="ls-item" data-cat="battery"><img src="assets/battery16kwh.jpg" alt="16 kWh battery" loading="lazy" style="object-position:center center"/><span>Battery · 16 kWh</span></div>
         <div class="ls-item" data-cat="window"><img src="https://images.unsplash.com/photo-1723639905934-744ae9bbc3a0?w=500&h=640&fit=crop&auto=format&q=75" alt="Windows" loading="lazy"/><span>Windows</span></div>
         <div class="ls-item" data-cat="solar"><img src="assets/inverter.jpg" alt="Solis inverter" loading="lazy" style="object-position:center top"/><span>Solar · Inverter</span></div>
@@ -560,11 +560,11 @@
           </div>
           <span class="cta" data-i18n="cr.phone.cta">Call →</span>
         </a>
-        <a class="contact-row" href="mailto:info@rmbygg.se">
+        <a class="contact-row" href="mailto:info@rmbygg.com">
           <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg></span>
           <div>
             <div class="lbl" data-i18n="cr.email.lbl">Email</div>
-            <div class="val">info@rmbygg.se</div>
+            <div class="val">info@rmbygg.com</div>
           </div>
           <span class="cta" data-i18n="cr.email.cta">Write →</span>
         </a>
@@ -625,21 +625,21 @@
         <form class="rm-form">
           <div class="field-row">
             <div class="field">
-              <label data-i18n="form.book.name.lbl">Name</label>
-              <input required placeholder="Your name"/>
+              <label for="bk-name" data-i18n="form.book.name.lbl">Name</label>
+              <input id="bk-name" required placeholder="Your name"/>
             </div>
             <div class="field">
-              <label data-i18n="form.book.phone.lbl">Phone</label>
-              <input required placeholder="+46 ..." type="tel"/>
+              <label for="bk-phone" data-i18n="form.book.phone.lbl">Phone</label>
+              <input id="bk-phone" required placeholder="+46 ..." type="tel"/>
             </div>
           </div>
           <div class="field">
-            <label data-i18n="form.book.email.lbl">Email</label>
-            <input required type="email" placeholder="you@domain.com"/>
+            <label for="bk-email" data-i18n="form.book.email.lbl">Email</label>
+            <input id="bk-email" required type="email" placeholder="you@domain.com"/>
           </div>
           <div class="field">
-            <label data-i18n="form.book.addr.lbl">Property address</label>
-            <input required data-i18n-ph="form.book.addr.ph" placeholder="Street, Gävle"/>
+            <label for="bk-addr" data-i18n="form.book.addr.lbl">Property address</label>
+            <input id="bk-addr" required data-i18n-ph="form.book.addr.ph" placeholder="Street, Gävle"/>
           </div>
           <div class="field">
             <label data-i18n="form.book.about.lbl">What would you like to talk about</label>
@@ -653,8 +653,8 @@
             </div>
           </div>
           <div class="field">
-            <label data-i18n="form.book.notes.lbl">Notes <span style="opacity:.5">(optional)</span></label>
-            <textarea data-i18n-ph="form.book.notes.ph" placeholder="Anything we should know before we arrive"></textarea>
+            <label for="bk-notes" data-i18n="form.book.notes.lbl">Notes <span style="opacity:.5">(optional)</span></label>
+            <textarea id="bk-notes" data-i18n-ph="form.book.notes.ph" placeholder="Anything we should know before we arrive"></textarea>
           </div>
           <div class="submit">
             <span class="note">Selected: <strong id="booking-selection" style="color:var(--gold-2)">— pick a slot above —</strong></span>
@@ -678,22 +678,22 @@
         <form class="rm-form">
           <div class="field-row">
             <div class="field">
-              <label data-i18n="form.quote.name.lbl">Name</label>
-              <input required placeholder="Your name"/>
+              <label for="q-name" data-i18n="form.quote.name.lbl">Name</label>
+              <input id="q-name" required placeholder="Your name"/>
             </div>
             <div class="field">
-              <label data-i18n="form.quote.co.lbl">Company <span style="opacity:.5">(optional)</span></label>
-              <input placeholder="For B2B"/>
+              <label for="q-co" data-i18n="form.quote.co.lbl">Company <span style="opacity:.5">(optional)</span></label>
+              <input id="q-co" placeholder="For B2B"/>
             </div>
           </div>
           <div class="field-row">
             <div class="field">
-              <label data-i18n="form.quote.email.lbl">Email</label>
-              <input required type="email"/>
+              <label for="q-email" data-i18n="form.quote.email.lbl">Email</label>
+              <input id="q-email" required type="email"/>
             </div>
             <div class="field">
-              <label data-i18n="form.quote.phone.lbl">Phone</label>
-              <input required type="tel"/>
+              <label for="q-phone" data-i18n="form.quote.phone.lbl">Phone</label>
+              <input id="q-phone" required type="tel"/>
             </div>
           </div>
           <div class="field">
@@ -709,8 +709,8 @@
           </div>
           <div class="field-row">
             <div class="field">
-              <label data-i18n="form.quote.type.lbl">Property type</label>
-              <select>
+              <label for="q-type" data-i18n="form.quote.type.lbl">Property type</label>
+              <select id="q-type">
                 <option data-i18n="opt.prop.villa">Villa / single-family</option>
                 <option data-i18n="opt.prop.terr">Terraced / row</option>
                 <option data-i18n="opt.prop.brf">Housing association (BRF)</option>
@@ -718,8 +718,8 @@
               </select>
             </div>
             <div class="field">
-              <label data-i18n="form.quote.time.lbl">Timing</label>
-              <select>
+              <label for="q-time" data-i18n="form.quote.time.lbl">Timing</label>
+              <select id="q-time">
                 <option data-i18n="opt.time.asap">As soon as possible</option>
                 <option data-i18n="opt.time.3m">Within 3 months</option>
                 <option data-i18n="opt.time.6m">Within 6 months</option>
@@ -728,8 +728,8 @@
             </div>
           </div>
           <div class="field">
-            <label data-i18n="form.quote.desc.lbl">Describe the project</label>
-            <textarea required data-i18n-ph="form.quote.desc.ph" placeholder="Scope, rough square metres, any deadlines…"></textarea>
+            <label for="q-desc" data-i18n="form.quote.desc.lbl">Describe the project</label>
+            <textarea id="q-desc" required data-i18n-ph="form.quote.desc.ph" placeholder="Scope, rough square metres, any deadlines…"></textarea>
           </div>
           <div class="submit">
             <span class="note" data-i18n="form.quote.note">No obligation · no data sharing</span>
@@ -753,27 +753,27 @@
         <form class="rm-form">
           <div class="field-row">
             <div class="field">
-              <label data-i18n="form.inv.co.lbl">Company / name</label>
-              <input required/>
+              <label for="inv-co" data-i18n="form.inv.co.lbl">Company / name</label>
+              <input id="inv-co" required/>
             </div>
             <div class="field">
-              <label>Org-nr / personnummer</label>
-              <input placeholder="5XXXXX-XXXX"/>
+              <label for="inv-org">Org-nr / personnummer</label>
+              <input id="inv-org" placeholder="5XXXXX-XXXX"/>
             </div>
           </div>
           <div class="field-row">
             <div class="field">
-              <label data-i18n="form.inv.email.lbl">Email</label>
-              <input required type="email"/>
+              <label for="inv-email" data-i18n="form.inv.email.lbl">Email</label>
+              <input id="inv-email" required type="email"/>
             </div>
             <div class="field">
-              <label data-i18n="form.inv.phone.lbl">Phone</label>
-              <input required type="tel"/>
+              <label for="inv-phone" data-i18n="form.inv.phone.lbl">Phone</label>
+              <input id="inv-phone" required type="tel"/>
             </div>
           </div>
           <div class="field">
-            <label data-i18n="form.inv.type.lbl">Request type</label>
-            <select>
+            <label for="inv-type" data-i18n="form.inv.type.lbl">Request type</label>
+            <select id="inv-type">
               <option data-i18n="opt.inv.copy">Copy of invoice</option>
               <option data-i18n="opt.inv.corr">Correction of invoice</option>
               <option data-i18n="opt.inv.chg">Change billing details</option>
@@ -782,12 +782,12 @@
             </select>
           </div>
           <div class="field">
-            <label data-i18n="form.inv.ref.lbl">Reference / invoice number <span style="opacity:.5">(if known)</span></label>
-            <input data-i18n-ph="form.inv.ref.ph" placeholder="RM-2025-XXXX"/>
+            <label for="inv-ref" data-i18n="form.inv.ref.lbl">Reference / invoice number <span style="opacity:.5">(if known)</span></label>
+            <input id="inv-ref" data-i18n-ph="form.inv.ref.ph" placeholder="RM-2025-XXXX"/>
           </div>
           <div class="field">
-            <label data-i18n="form.inv.det.lbl">Details</label>
-            <textarea required data-i18n-ph="form.inv.det.ph" placeholder="What you need, and by when"></textarea>
+            <label for="inv-det" data-i18n="form.inv.det.lbl">Details</label>
+            <textarea id="inv-det" required data-i18n-ph="form.inv.det.ph" placeholder="What you need, and by when"></textarea>
           </div>
           <div class="submit">
             <span class="note" data-i18n="form.inv.note">Handled same working day</span>
@@ -841,9 +841,9 @@
       <h6 data-i18n="ft.col.contact">Contact</h6>
       <ul>
         <li><a href="tel:0706607744">0706 607 744</a></li>
-        <li><a href="mailto:info@rmbygg.se">info@rmbygg.se</a></li>
+        <li><a href="mailto:info@rmbygg.com">info@rmbygg.com</a></li>
         <li>Gävle · Sverige</li>
-        <li>Mån–Fre 07:00–17:00</li>
+        <li>Mån–Fre 09:00–18:00</li>
       </ul>
     </div>
   </div>

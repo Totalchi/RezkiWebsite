@@ -1,0 +1,79 @@
+﻿/* ==========================================================
+   RM Bygg & Montage AB
+   Scandinavian Craft â€” charcoal Â· FalurÃ¶tt red Â· warm stone
+   ========================================================== */
+
+:root {
+  /* Charcoal (dark sections) */
+  --navy-0: #0D1117;
+  --navy-1: #131820;
+  --navy-2: #192030;
+  --navy-3: #222B3A;
+  --navy-4: #2C3648;
+
+  /* Stone (text on dark) */
+  --steel:  #788090;
+  --steel-2:#9DA6B2;
+  --ice:    #E4E0D8;
+
+  /* Warm (light sections) */
+  --paper:  #F5F3EF;
+  --cream:  #EAE6DE;
+
+  /* Accent: FalurÃ¶tt */
+  --gold:   #943226;
+  --gold-2: #E8D5A8;
+  --gold-3: #C45044;
+  --sun:    #D9BDB8;
+  --copper: #7A2818;
+
+  /* Ink (text on light) */
+  --ink:    #1C2028;
+  --ink-2:  #3C4858;
+  --fog:    #68788A;
+
+  /* Utility */
+  --forest: #4E7A5E;
+
+  /* Borders */
+  --line:      rgba(220,216,210,0.08);
+  --line-2:    rgba(220,216,210,0.13);
+  --line-warm: rgba(28,32,40,0.09);
+
+  /* Shadows */
+  --shadow:   0 20px 60px rgba(6,10,18,0.48);
+  --shadow-g: 0 10px 32px rgba(148,50,38,0.18);
+
+  /* Easing */
+  --ease:        cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Fonts */
+  --f-display: "Cormorant Garamond", "Times New Roman", serif;
+  --f-body:    "Outfit", -apple-system, "Segoe UI", sans-serif;
+  --f-mono:    "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--f-body);
+  color: var(--ice);
+  background: var(--navy-1);
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, canvas, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+/* Prevent 300ms tap delay and double-tap zoom on all interactive elements */
+a, button, [role="button"],
+.cal-cell, .slot, .chip, .gitem, .svc-foot .learn,
+.gallery-filter button, .tab-btn, .nav-lang button,
+.nav-links a, .mobile-nav-link { touch-action: manipulation; }
+

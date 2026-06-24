@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/css/variables.css"/>
-<link rel="stylesheet" href="assets/css/base.css"/>
+<link rel="stylesheet" href="assets/css/base.css?v=1"/>
 <link rel="stylesheet" href="assets/css/components.css"/>
 <link rel="stylesheet" href="assets/css/utilities.css"/>
 <link rel="icon" href="assets/images/logo.png?v=2"/>
@@ -172,7 +172,7 @@
     <!-- Battery -->
     <article class="svc-card reveal">
       <div class="svc-visual svc-visual-photo" aria-hidden="true">
-        <img src="https://images.unsplash.com/photo-1653942895451-efc0aaee0156?w=480&h=220&fit=crop&crop=center&auto=format&q=80" alt="" loading="lazy" decoding="async" onerror="this.style.opacity='0'"/>
+        <img src="assets/images/battery-storage.jpg" alt="" loading="lazy" decoding="async"/>
         <div class="visual-kicker" data-i18n="svc.02.kicker">Storage profile</div>
         <div class="visual-metric">
           <strong data-i18n="svc.02.metric.val">Smart load</strong>
@@ -194,7 +194,7 @@
     <!-- EV -->
     <article class="svc-card reveal">
       <div class="svc-visual svc-visual-photo" aria-hidden="true">
-        <img src="https://images.unsplash.com/photo-1593941707874-ef25b8b4a92b?w=480&h=220&fit=crop&crop=center&auto=format&q=80" alt="" loading="lazy" decoding="async" onerror="this.style.opacity='0'"/>
+        <img src="assets/images/ev-charger.webp" alt="" loading="lazy" decoding="async"/>
         <div class="visual-kicker" data-i18n="svc.03.kicker">EV charging</div>
         <div class="visual-metric">
           <strong data-i18n="svc.03.metric.val">22 kW</strong>
@@ -217,7 +217,7 @@
     <!-- Windows -->
     <article class="svc-card reveal">
       <div class="svc-visual svc-visual-photo" aria-hidden="true">
-        <img src="https://images.unsplash.com/photo-1723639905934-744ae9bbc3a0?w=480&h=220&fit=crop&crop=center&auto=format&q=80" alt="" loading="lazy" decoding="async" onerror="this.style.opacity='0'"/>
+        <img src="assets/images/window-replacement.jpg" alt="" loading="lazy" decoding="async"/>
         <div class="visual-kicker" data-i18n="svc.04.kicker">Envelope upgrade</div>
         <div class="visual-metric">
           <strong data-i18n="svc.04.metric.val">Triple glass</strong>
@@ -239,7 +239,7 @@
     <!-- Roof -->
     <article class="svc-card reveal">
       <div class="svc-visual svc-visual-photo" aria-hidden="true">
-        <img src="https://images.unsplash.com/photo-1760331840361-d751cfc1becf?w=480&h=220&fit=crop&crop=center&auto=format&q=80" alt="" loading="lazy" decoding="async" onerror="this.style.opacity='0'"/>
+        <img src="assets/images/roof-renovation.jpg" alt="" loading="lazy" decoding="async"/>
         <div class="visual-kicker" data-i18n="svc.05.kicker">Roof survey</div>
         <div class="visual-metric">
           <strong data-i18n="svc.05.metric.val">Moisture check</strong>
@@ -262,7 +262,7 @@
     <!-- Paint -->
     <article class="svc-card reveal">
       <div class="svc-visual svc-visual-photo" aria-hidden="true">
-        <img src="https://images.unsplash.com/photo-1774977737078-7ccc2ac697e6?w=480&h=220&fit=crop&crop=center&auto=format&q=80" alt="" loading="lazy" decoding="async" onerror="this.style.opacity='0'"/>
+        <img src="assets/images/facade-painting.jpg" alt="" loading="lazy" decoding="async"/>
         <div class="visual-kicker" data-i18n="svc.06.kicker">Facade finish</div>
         <div class="visual-metric">
           <strong data-i18n="svc.06.metric.val">10 yr finish</strong>
@@ -423,12 +423,12 @@
     <div class="ls-wrapper reveal" id="layered-stack">
       <div class="ls-grid">
         <div class="ls-item" data-cat="solar"><img src="assets/images/solar-villa.jpg" alt="Solar villa" loading="lazy"/><span>Solar · Villa</span></div>
-        <div class="ls-item" data-cat="ev"><img src="https://images.unsplash.com/photo-1593941707874-ef25b8b4a92b?w=500&h=640&fit=crop&auto=format&q=75" alt="EV" loading="lazy"/><span>EV · 22 kW</span></div>
-        <div class="ls-item" data-cat="roof"><img src="https://images.unsplash.com/photo-1760331840361-d751cfc1becf?w=500&h=640&fit=crop&auto=format&q=75" alt="Roof" loading="lazy"/><span>Roofing</span></div>
-        <div class="ls-item" data-cat="paint"><img src="assets/images/facade.jpg" alt="Facade painting" loading="lazy" style="object-position:center center"/><span>Painting · Falurött</span></div>
+        <div class="ls-item" data-cat="ev"><img src="assets/images/ev-charger.webp" alt="EV charger" loading="lazy"/><span>EV · 22 kW</span></div>
+        <div class="ls-item" data-cat="roof"><img src="assets/images/roof-renovation.jpg" alt="Roof renovation" loading="lazy" style="object-position:center center"/><span>Roofing</span></div>
+        <div class="ls-item" data-cat="paint"><img src="assets/images/facade-painting.jpg" alt="Facade painting" loading="lazy" style="object-position:center center"/><span>Painting · Falurött</span></div>
         <div class="ls-item" data-cat="solar"><img src="assets/images/solar-brf.jpg" alt="Solar BRF" loading="lazy"/><span>Solar · BRF</span></div>
-        <div class="ls-item" data-cat="battery"><img src="assets/images/battery16kwh.jpg" alt="16 kWh battery" loading="lazy" style="object-position:center center"/><span>Battery · 16 kWh</span></div>
-        <div class="ls-item" data-cat="window"><img src="https://images.unsplash.com/photo-1723639905934-744ae9bbc3a0?w=500&h=640&fit=crop&auto=format&q=75" alt="Windows" loading="lazy"/><span>Windows</span></div>
+        <div class="ls-item" data-cat="battery"><img src="assets/images/battery-storage.jpg" alt="Battery storage" loading="lazy" style="object-position:center center"/><span>Battery · 16 kWh</span></div>
+        <div class="ls-item" data-cat="window"><img src="assets/images/window-replacement.jpg" alt="Windows" loading="lazy"/><span>Windows</span></div>
         <div class="ls-item" data-cat="solar"><img src="assets/images/inverter.jpg" alt="Solis inverter" loading="lazy" style="object-position:center top"/><span>Solar · Inverter</span></div>
       </div>
     </div>

@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
         's.contact.h2':  'Book a visit. <em>Ask for a quote.</em><br>Or just ring.',
         // Services section header
         's.services.eyebrow': 'What we do',
-        's.services.desc':    'Six specialisms. One coordinated team. From the first measurement to the final clean-up, you deal with the same people — and one written quote.',
         // Service cards — tags
         'svc.01.tag':   '01 · Energy',
         'svc.02.tag':   '02 · Storage',
@@ -99,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'learn.link': 'Quote →',
         // Promise section
         's.promise.eyebrow': 'Our promise',
-        's.promise.desc':    'Our team picks up the phone directly. You’ll know the names of the people on your roof. When something’s unclear — and on a building site it will be — you hear about it first, not last.',
         'pm.01.h4': 'Direct line to the owner',
         'pm.01.p':  'No call-centre, no account-manager hand-offs. You get the personal number of the person running the job — and he picks up.',
         'pm.02.h4': 'Fixed-price, written quotes',
@@ -328,7 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
         's.contact.h2':  'Boka ett besök. <em>Begär en offert.</em><br>Eller ring.',
         // Services header
         's.services.eyebrow': 'Vad vi gör',
-        's.services.desc':    'Sex specialområden. Ett koordinerat team. Från första mätningen till sista städningen möter du samma människor — och en skriftlig offert.',
         // Service tags
         'svc.01.tag': '01 · Energi',
         'svc.02.tag': '02 · Lagring',
@@ -377,7 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'learn.link': 'Offert →',
         // Promise
         's.promise.eyebrow': 'Vårt löfte',
-        's.promise.desc':    'Vårt team svarar direkt. Du kommer att känna till namnen på personerna på ditt tak. När något är oklart — och det kommer det att vara på en byggarbetsplats — hör du om det först, inte sist.',
         'pm.01.h4': 'Direktlinje till ägaren',
         'pm.01.p':  'Inget callcenter, inga kontoansvariga mellanhänder. Du får det personliga numret till den som leder jobbet — och han svarar.',
         'pm.02.h4': 'Fastpris, skriftliga offerter',

@@ -937,10 +937,9 @@
   window.RM_AUTH_CONFIG = {
     supabaseUrl: "https://wdmrfcgdcrhbgvknsece.supabase.co",
     supabaseAnonKey: "sb_publishable_sMzUORcQLLcx1vu8RSTa-A_NAxWUVaG",
-    // Cloudflare Turnstile site key. The value below is Cloudflare's public TEST
-    // key (always passes, blocks nothing). Swap it for the real site key together
-    // with TURNSTILE_SECRET_KEY on Supabase — see supabase/functions/submit-lead/SETUP.md
-    turnstileSiteKey: "1x00000000000000000000AA"
+    // Cloudflare Turnstile site key (public). The matching secret key lives in the
+    // Supabase secret TURNSTILE_SECRET_KEY — see supabase/functions/submit-lead/SETUP.md
+    turnstileSiteKey: "0x4AAAAAADwg8gE5N2PFjjMo"
   };
   // Render one Turnstile widget per lead form once the api.js script is ready.
   window.onTurnstileLoad = function () {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; media-src 'self' https://d8j0ntlcm91z4.cloudfront.net; connect-src 'self' https://wdmrfcgdcrhbgvknsece.supabase.co https://ipapi.co https://nominatim.openstreetmap.org; base-uri 'self'; object-src 'none'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; media-src 'self' https://d8j0ntlcm91z4.cloudfront.net; connect-src 'self' https://wdmrfcgdcrhbgvknsece.supabase.co https://ipapi.co https://nominatim.openstreetmap.org; frame-src https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; form-action 'self'"/>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>RM Bygg &amp; Montage AB — Byggare med hjärta · Gävle</title>
 <meta name="description" content="RM Bygg &amp; Montage AB — lokal specialist på solceller, batterier, laddboxar, fönster, tak och fasadmålning i Gävle. Personlig service, skriftliga offerter, boka online."/>
@@ -625,6 +625,7 @@
         </div>
 
         <form class="rm-form">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;opacity:0"/>
           <div class="field-row">
             <div class="field">
               <label for="bk-name" data-i18n="form.book.name.lbl">Name</label>
@@ -658,6 +659,9 @@
             <label for="bk-notes" data-i18n="form.book.notes.lbl">Notes <span style="opacity:.5">(optional)</span></label>
             <textarea id="bk-notes" data-i18n-ph="form.book.notes.ph" placeholder="Anything we should know before we arrive"></textarea>
           </div>
+          <div class="field">
+            <div class="cf-turnstile"></div>
+          </div>
           <div class="submit">
             <span class="note">Selected: <strong id="booking-selection" style="color:var(--gold-2)">— pick a slot above —</strong></span>
             <button class="btn btn-primary" type="submit">
@@ -678,6 +682,7 @@
         <h3 data-i18n-html="form.quote.h3">Ask for a <em>price estimate</em></h3>
         <p class="fc-sub" data-i18n="form.quote.sub">Tell us a bit about the job. We reply within 48 hours with a first number and next steps.</p>
         <form class="rm-form">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;opacity:0"/>
           <div class="field-row">
             <div class="field">
               <label for="q-name" data-i18n="form.quote.name.lbl">Name</label>
@@ -733,6 +738,9 @@
             <label for="q-desc" data-i18n="form.quote.desc.lbl">Describe the project</label>
             <textarea id="q-desc" required data-i18n-ph="form.quote.desc.ph" placeholder="Scope, rough square metres, any deadlines…"></textarea>
           </div>
+          <div class="field">
+            <div class="cf-turnstile"></div>
+          </div>
           <div class="submit">
             <span class="note" data-i18n="form.quote.note">No obligation · no data sharing</span>
             <button class="btn btn-primary" type="submit">
@@ -753,6 +761,7 @@
         <h3 data-i18n-html="form.inv.h3">Request an <em>invoice</em> or receipt</h3>
         <p class="fc-sub" data-i18n="form.inv.sub">Existing clients — need a copy, a correction, or B2B invoicing details? Fill this in and we'll reply same working day.</p>
         <form class="rm-form">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;opacity:0"/>
           <div class="field-row">
             <div class="field">
               <label for="inv-co" data-i18n="form.inv.co.lbl">Company / name</label>
@@ -790,6 +799,9 @@
           <div class="field">
             <label for="inv-det" data-i18n="form.inv.det.lbl">Details</label>
             <textarea id="inv-det" required data-i18n-ph="form.inv.det.ph" placeholder="What you need, and by when"></textarea>
+          </div>
+          <div class="field">
+            <div class="cf-turnstile"></div>
           </div>
           <div class="submit">
             <span class="note" data-i18n="form.inv.note">Handled same working day</span>
@@ -924,11 +936,25 @@
 <script>
   window.RM_AUTH_CONFIG = {
     supabaseUrl: "https://wdmrfcgdcrhbgvknsece.supabase.co",
-    supabaseAnonKey: "sb_publishable_sMzUORcQLLcx1vu8RSTa-A_NAxWUVaG"
+    supabaseAnonKey: "sb_publishable_sMzUORcQLLcx1vu8RSTa-A_NAxWUVaG",
+    // Cloudflare Turnstile site key. The value below is Cloudflare's public TEST
+    // key (always passes, blocks nothing). Swap it for the real site key together
+    // with TURNSTILE_SECRET_KEY on Supabase — see supabase/functions/submit-lead/SETUP.md
+    turnstileSiteKey: "1x00000000000000000000AA"
+  };
+  // Render one Turnstile widget per lead form once the api.js script is ready.
+  window.onTurnstileLoad = function () {
+    document.querySelectorAll('.cf-turnstile').forEach(function (el) {
+      window.turnstile.render(el, {
+        sitekey: window.RM_AUTH_CONFIG.turnstileSiteKey,
+        language: localStorage.getItem('rm-lang') || 'sv'
+      });
+    });
   };
 </script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/app.js?v=1"></script>
+<script src="assets/js/app.js?v=2"></script>
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/interactions.js"></script>
 <script src="assets/js/consent.js"></script>

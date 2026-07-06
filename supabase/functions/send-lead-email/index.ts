@@ -15,6 +15,10 @@ const NOTIFICATION_EMAIL = Deno.env.get("NOTIFICATION_EMAIL") || "info@rmbygg.co
 // Optional: address that appears in the Reply-To header. Useful when FROM is a
 // noreply@verified-domain address but real replies should land in a different inbox.
 const REPLY_TO = Deno.env.get("REPLY_TO") || "";
+// Optional but recommended: shared secret the Database Webhook must send in an
+// `x-webhook-secret` header. When set, requests without it are rejected — this
+// stops bots from invoking the function directly to burn the Resend quota.
+const WEBHOOK_SECRET = Deno.env.get("WEBHOOK_SECRET") || "";
 
 type Lang = "sv" | "en";
 
@@ -47,7 +51,7 @@ const COPY = {
     bookingLabel: "Booking",
     closing: "Got an urgent question? Call us on +46 72 214 32 98.",
     sign: "Best regards,\nThe team at RM Bygg & Montage",
-    typeMap: { book: "Book a visit", quote: "Quote request", invoice: "Invoice" },
+    typeMap: { book: "Book a visit", quote: "Quote request", invoice: "Invoice" } as Record<string, string>,
   },
 };
 
@@ -161,29 +165,36 @@ async function sendEmail(to: string, subject: string, html: string): Promise<{ o
 }
 
 Deno.serve(async (req) => {
-  const cors = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization,apikey,x-client-info",
-  };
+  // This function is only ever called server-to-server by the Database Webhook,
+  // so there is no CORS and no OPTIONS handling: browsers have no business here.
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return new Response("Method not allowed", { status: 405, headers: cors });
+  if (WEBHOOK_SECRET && req.headers.get("x-webhook-secret") !== WEBHOOK_SECRET) {
+    return new Response(JSON.stringify({ ok: false, error: "unauthorized" }), {
+      status: 401, headers: { "Content-Type": "application/json" },
+    });
+  }
 
   let payload: any;
   try {
     payload = await req.json();
   } catch {
-    return new Response(JSON.stringify({ ok: false, error: "invalid JSON" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: false, error: "invalid JSON" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 
-  // Supabase Database Webhook payload: { type, table, record, schema, old_record }
-  // Also support direct invocation where the body IS the lead.
-  const lead = payload?.record ?? payload;
+  // Require the Database Webhook payload shape: { type, table, record, ... }.
+  // Direct invocation with a bare lead body is no longer accepted — it let
+  // anyone on the internet send emails through our Resend account.
+  if (payload?.type !== "INSERT" || payload?.table !== "leads" || !payload?.record) {
+    return new Response(JSON.stringify({ ok: false, error: "invalid payload" }), {
+      status: 400, headers: { "Content-Type": "application/json" },
+    });
+  }
+  const lead = payload.record;
 
-  if (!lead || !lead.email) {
+  if (!lead.email) {
     return new Response(JSON.stringify({ ok: false, error: "no lead.email in payload" }), {
-      status: 200, headers: { ...cors, "Content-Type": "application/json" },
+      status: 200, headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -205,6 +216,6 @@ Deno.serve(async (req) => {
     notification: notifResult,
   }), {
     status: 200,
-    headers: { ...cors, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
   });
 });

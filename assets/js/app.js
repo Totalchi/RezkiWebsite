@@ -237,6 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'form.inv.submit':   'Submit',
         'form.inv.ok.h3':    'Got it',
         'form.inv.ok.p':     'Our office will reply the same working day.',
+        // Form errors
+        'form.err.captcha':  'Please confirm you are human before submitting.',
+        'form.err.generic':  'Something went wrong — please try again, or call us on 070-660 77 44.',
         // Select options — property type
         'opt.prop.villa':  'Villa / single-family',
         'opt.prop.terr':   'Terraced / row',
@@ -513,6 +516,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'form.inv.submit':    'Skicka',
         'form.inv.ok.h3':     'Vi har mottagit det',
         'form.inv.ok.p':      'Vårt kontor svarar samma arbetsdag.',
+        // Form errors
+        'form.err.captcha':   'Bekräfta att du är en människa innan du skickar.',
+        'form.err.generic':   'Något gick fel — försök igen eller ring oss på 070-660 77 44.',
         // Select options — property type
         'opt.prop.villa': 'Villa / enbostadshus',
         'opt.prop.terr':  'Radhus',
@@ -706,13 +712,42 @@ document.addEventListener('DOMContentLoaded', () => {
     render(); renderSlots();
   }
 
-  // ---------- Form submit — save lead to Supabase if configured ----------
+  // ---------- Form submit — human check (Turnstile) + save via Edge Function ----------
+  // Leads are no longer inserted into the table straight from the browser: bots were
+  // POSTing fake leads with the public anon key. The submit-lead Edge Function verifies
+  // the Turnstile token server-side before writing (anon INSERT on `leads` is revoked).
+  const pageLoadedAt = Date.now();
   document.querySelectorAll('form.rm-form').forEach(f => {
     f.addEventListener('submit', async e => {
       e.preventDefault();
       const pane     = f.closest('.tab-pane');
       const formType = pane ? pane.dataset.tab : 'unknown';
       const success  = f.parentElement.querySelector('.success');
+      const T        = LANGS[currentLang].t;
+
+      let errEl = f.querySelector('.form-error');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.className = 'form-error';
+        errEl.style.cssText = 'color:#b3402f;font-size:0.85rem;line-height:1.5;margin:0.75rem 0 0;display:none';
+        f.appendChild(errEl);
+      }
+      const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
+      errEl.style.display = 'none';
+
+      // Bot tripwires: hidden honeypot field filled, or submitted seconds after page
+      // load. Show the normal success screen but store nothing.
+      const honeypot = f.querySelector('input[name="website"]');
+      if ((honeypot && honeypot.value) || Date.now() - pageLoadedAt < 3000) {
+        f.style.display = 'none';
+        success.style.display = 'block';
+        return;
+      }
+
+      // Turnstile writes its token into a hidden cf-turnstile-response input
+      const tokenInput = f.querySelector('input[name="cf-turnstile-response"]');
+      const token = tokenInput ? tokenInput.value : '';
+      if (!token) { fail(T['form.err.captcha']); return; }
 
       // Collect field values
       const get = sel => { const el = f.querySelector(sel); return el ? el.value.trim() : ''; };
@@ -730,18 +765,26 @@ document.addEventListener('DOMContentLoaded', () => {
         timing:        f.querySelectorAll('select')[1] ? f.querySelectorAll('select')[1].value : '',
         notes:         get('textarea'),
         booking_slot:  formType === 'book' ? (document.getElementById('booking-selection')?.textContent || '') : '',
-        status:        'new',
       };
 
-      // Save to Supabase if client is ready
-      if (authClient) {
-        try {
-          await authClient.from('leads').insert([lead]);
-        } catch (_) { /* silently fail — show success to user regardless */ }
+      const submitBtn = f.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        if (!authClient) throw new Error('supabase not configured');
+        const { data, error } = await authClient.functions.invoke('submit-lead', {
+          body: { token: token, lead: lead },
+        });
+        if (error || !data || data.ok !== true) throw (error || new Error((data && data.error) || 'submit failed'));
+        f.style.display = 'none';
+        success.style.display = 'block';
+      } catch (err) {
+        const status = err && err.context && err.context.status;
+        fail(status === 403 ? T['form.err.captcha'] : T['form.err.generic']);
+        // Tokens are single-use — reset this form's widget so a retry gets a fresh one
+        if (window.turnstile) { try { window.turnstile.reset(f.querySelector('.cf-turnstile')); } catch (_) {} }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
-
-      f.style.display = 'none';
-      success.style.display = 'block';
     });
   });
 

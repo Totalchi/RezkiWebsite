@@ -414,6 +414,13 @@ import_map = "./functions/send-lead-email/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/send-lead-email/index.ts"
+
+[functions.submit-lead]
+enabled = true
+# The browser calls this with the publishable key (not a JWT); the real gate is
+# the server-side Turnstile verification inside the function itself.
+verify_jwt = false
+entrypoint = "./functions/submit-lead/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/send-lead-email/*.html" ]

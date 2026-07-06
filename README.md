@@ -31,8 +31,10 @@ RezkiWebsite/
 │   │
 │   └── images/                   # logo, gallery photos, QR codes
 │
-├── supabase/                     # Supabase Edge Function (send-lead-email)
+├── supabase/                     # Supabase Edge Functions (submit-lead = captcha-
+│                                 #   verified lead intake, send-lead-email)
 ├── supabase_reviews_migration.sql
+├── supabase_leads_captcha_migration.sql  # revokes anon INSERT on leads (anti-spam)
 ├── .github/workflows/deploy.yml  # deploys the repo root to the gh-pages branch
 └── README.md                     # this file
 ```

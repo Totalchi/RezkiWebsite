@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="robots" content="noindex, nofollow"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://unpkg.com https://*.basemaps.cartocdn.com; connect-src 'self' https://wdmrfcgdcrhbgvknsece.supabase.co; base-uri 'self'; object-src 'none'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://unpkg.com https://*.basemaps.cartocdn.com https://wdmrfcgdcrhbgvknsece.supabase.co; connect-src 'self' https://wdmrfcgdcrhbgvknsece.supabase.co; base-uri 'self'; object-src 'none'; form-action 'self'"/>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>RM Bygg — Admin</title>
 <link rel="icon" href="assets/images/logo.png?v=2"/>
@@ -541,6 +541,88 @@ tbody td {
 .rv-toggle.is-on { background: rgba(74,159,111,0.25); border-color: rgba(74,159,111,0.5); }
 .rv-toggle.is-on::after { transform: translateX(16px); background: #7dcba0; }
 
+/* ── Project form fields ── */
+.pf-label {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+  font-family: var(--f-mono);
+}
+.pf-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+select.pf-input { cursor: pointer; }
+.pf-photo-drop {
+  position: relative;
+  height: 110px;
+  border: 1px dashed var(--border-2);
+  border-radius: 8px;
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.pf-photo-drop:hover { border-color: var(--accent-2); }
+.pf-photo-drop img { width: 100%; height: 100%; object-fit: cover; }
+.pf-photo-drop span { font-size: 0.78rem; color: var(--muted-2); text-align: center; padding: 0 1rem; }
+.pf-thumbs {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  min-height: 44px;
+}
+.pf-thumb { position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-2); }
+.pf-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pf-thumb-remove {
+  position: absolute; top: 2px; right: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(6,10,18,0.75);
+  color: #fff;
+  font-size: 0.7rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.pf-thumb-remove:hover { background: var(--accent); }
+
+/* ── Project list row ── */
+.project-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.project-row:last-child { border-bottom: 0; }
+.project-row:hover { background: rgba(220,216,210,0.04); }
+.project-row-thumb { width: 52px; height: 52px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--surface-2); }
+.project-row-body { flex: 1; min-width: 0; }
+.project-row-title { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.project-row-meta { font-size: 0.76rem; color: var(--muted-2); margin-top: 0.2rem; }
+.project-row-meta .tag {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(148,50,38,0.15);
+  color: var(--accent-2);
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-right: 0.5rem;
+}
+.project-row-actions { display: flex; gap: 0.5rem; flex-shrink: 0; align-items: center; }
+
 /* ── Analytics map ── */
 #an-map { height: 340px; background: var(--surface-2); border-radius: 0 0 8px 8px; }
 .leaflet-container { background: #0d1117 !important; font-family: var(--f-body) !important; }
@@ -691,6 +773,7 @@ tbody td {
     <div class="admin-tabs">
       <button class="admin-tab is-active" data-panel="leads">Leads</button>
       <button class="admin-tab" data-panel="reviews">Reviews</button>
+      <button class="admin-tab" data-panel="projects">Projects</button>
       <button class="admin-tab" data-panel="analytics">Analytics</button>
     </div>
 
@@ -846,6 +929,80 @@ CREATE POLICY "Admins only" ON leads
         </div>
       </div>
     </div><!-- /panel-reviews -->
+
+    <!-- ── PROJECTS PANEL ── -->
+    <div id="panel-projects" style="display:none">
+      <div class="leads-panel">
+        <div class="leads-toolbar">
+          <h3>Completed projects</h3>
+          <button class="filter-btn" id="btn-add-project" style="color:#7dcba0;border-color:rgba(74,159,111,0.4)">+ Add project</button>
+        </div>
+
+        <!-- Add / Edit form (hidden by default) -->
+        <div id="project-form-wrap" style="display:none;padding:1.5rem;border-bottom:1px solid var(--border)">
+          <h4 style="font-size:0.9rem;font-weight:600;margin-bottom:1rem" id="project-form-title">New project</h4>
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div>
+              <label class="pf-label">Title</label>
+              <input id="pf-title" class="pf-input" placeholder="Solceller på villatak"/>
+            </div>
+            <div>
+              <label class="pf-label">Category</label>
+              <select id="pf-category" class="pf-input">
+                <option value="solar">Solar</option>
+                <option value="battery">Battery</option>
+                <option value="ev">EV</option>
+                <option value="window">Windows</option>
+                <option value="roof">Roofing</option>
+                <option value="paint">Painting</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div>
+              <label class="pf-label">Location</label>
+              <input id="pf-location" class="pf-input" placeholder="Sandviken"/>
+            </div>
+            <div>
+              <label class="pf-label">Year</label>
+              <input id="pf-year" class="pf-input" placeholder="2026"/>
+            </div>
+          </div>
+          <div style="margin-bottom:1rem">
+            <label class="pf-label">Description</label>
+            <textarea id="pf-description" rows="3" class="pf-input" style="resize:vertical;font-family:inherit" placeholder="What was done, for whom, and what made it a good job..."></textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+            <div>
+              <label class="pf-label">Cover photo</label>
+              <div class="pf-photo-drop" id="pf-cover-drop">
+                <img id="pf-cover-preview" style="display:none"/>
+                <span id="pf-cover-placeholder">Click to upload cover photo</span>
+                <div class="spinner" id="pf-cover-spinner" style="display:none;margin:0"></div>
+              </div>
+              <input type="file" id="pf-cover-input" accept="image/*" style="display:none"/>
+              <input type="hidden" id="pf-cover-url"/>
+            </div>
+            <div>
+              <label class="pf-label">Extra photos</label>
+              <div class="pf-thumbs" id="pf-extra-thumbs"></div>
+              <button type="button" class="rv-btn" id="pf-extra-add" style="margin-top:0.5rem">+ Add photos</button>
+              <input type="file" id="pf-extra-input" accept="image/*" multiple style="display:none"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:center">
+            <button id="pf-save" style="padding:0.6rem 1.2rem;background:var(--accent);color:#fff;border:0;border-radius:6px;font-size:0.88rem;font-weight:600;cursor:pointer">Save</button>
+            <button id="pf-cancel" style="padding:0.6rem 1rem;border:1px solid var(--border-2);border-radius:6px;font-size:0.88rem;color:var(--muted-2);cursor:pointer">Cancel</button>
+            <input type="hidden" id="pf-id"/>
+          </div>
+        </div>
+
+        <!-- Projects list -->
+        <div id="projects-list" style="padding:0.5rem 0">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div><!-- /panel-projects -->
 
     <!-- ── ANALYTICS PANEL ── -->
     <div id="panel-analytics" style="display:none">
@@ -1391,8 +1548,10 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
     const panel = tab.dataset.panel;
     document.getElementById('panel-leads').style.display     = panel === 'leads'     ? '' : 'none';
     document.getElementById('panel-reviews').style.display   = panel === 'reviews'   ? '' : 'none';
+    document.getElementById('panel-projects').style.display  = panel === 'projects'  ? '' : 'none';
     document.getElementById('panel-analytics').style.display = panel === 'analytics' ? '' : 'none';
     if (panel === 'reviews')   renderReviewsList();
+    if (panel === 'projects')  renderProjectsList();
     if (panel === 'analytics') {
       loadAnalytics();
       loadLive();
@@ -1500,6 +1659,207 @@ document.getElementById('rf-save').addEventListener('click', async () => {
   saveBtn.disabled = false;
   reviewFormWrap.style.display = 'none';
   renderReviewsList();
+});
+
+/* ─────────────────────────────────────────
+   PROJECTS CRUD (completed projects tab)
+────────────────────────────────────────── */
+const projectsListEl   = document.getElementById('projects-list');
+const projectFormWrap  = document.getElementById('project-form-wrap');
+const pfTitle       = document.getElementById('pf-title');
+const pfCategory    = document.getElementById('pf-category');
+const pfLocation    = document.getElementById('pf-location');
+const pfYear        = document.getElementById('pf-year');
+const pfDescription = document.getElementById('pf-description');
+const pfId          = document.getElementById('pf-id');
+const pfCoverDrop        = document.getElementById('pf-cover-drop');
+const pfCoverInput       = document.getElementById('pf-cover-input');
+const pfCoverPreview     = document.getElementById('pf-cover-preview');
+const pfCoverPlaceholder = document.getElementById('pf-cover-placeholder');
+const pfCoverSpinner     = document.getElementById('pf-cover-spinner');
+const pfCoverUrl         = document.getElementById('pf-cover-url');
+const pfExtraThumbs = document.getElementById('pf-extra-thumbs');
+const pfExtraInput  = document.getElementById('pf-extra-input');
+
+let projectsCache = [];
+let pfExtraImages = [];
+
+// Upload a single file into the public project-photos bucket, return its public URL.
+async function uploadProjectPhoto(file) {
+  const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await sb.storage.from('project-photos').upload(path, file, { cacheControl: '3600', upsert: false });
+  if (error) throw error;
+  return sb.storage.from('project-photos').getPublicUrl(path).data.publicUrl;
+}
+
+function storagePathFromUrl(url) {
+  const marker = '/object/public/project-photos/';
+  const i = String(url || '').indexOf(marker);
+  return i === -1 ? null : url.slice(i + marker.length);
+}
+
+// Best-effort cleanup — never blocks the DB delete if storage removal fails.
+async function deleteProjectPhotos(urls) {
+  const paths = urls.filter(Boolean).map(storagePathFromUrl).filter(Boolean);
+  if (!paths.length) return;
+  try { await sb.storage.from('project-photos').remove(paths); } catch (e) {}
+}
+
+function renderExtraThumbs() {
+  pfExtraThumbs.innerHTML = pfExtraImages.map((url, i) => `
+    <div class="pf-thumb">
+      <img src="${esc(url)}"/>
+      <div class="pf-thumb-remove" data-i="${i}">×</div>
+    </div>
+  `).join('');
+  pfExtraThumbs.querySelectorAll('.pf-thumb-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pfExtraImages.splice(Number(btn.dataset.i), 1);
+      renderExtraThumbs();
+    });
+  });
+}
+
+pfCoverDrop.addEventListener('click', () => pfCoverInput.click());
+pfCoverInput.addEventListener('change', async () => {
+  const file = pfCoverInput.files[0];
+  if (!file || !sb) return;
+  pfCoverPlaceholder.style.display = 'none';
+  pfCoverSpinner.style.display = '';
+  try {
+    const url = await uploadProjectPhoto(file);
+    pfCoverUrl.value = url;
+    pfCoverPreview.src = url;
+    pfCoverPreview.style.display = '';
+  } catch (e) {
+    alert('Photo upload failed.');
+    pfCoverPlaceholder.style.display = '';
+  }
+  pfCoverSpinner.style.display = 'none';
+  pfCoverInput.value = '';
+});
+
+document.getElementById('pf-extra-add').addEventListener('click', () => pfExtraInput.click());
+pfExtraInput.addEventListener('change', async () => {
+  const files = [...pfExtraInput.files];
+  if (!files.length || !sb) return;
+  for (const file of files) {
+    try { pfExtraImages.push(await uploadProjectPhoto(file)); }
+    catch (e) { /* skip this file, keep uploading the rest */ }
+  }
+  renderExtraThumbs();
+  pfExtraInput.value = '';
+});
+
+async function renderProjectsList() {
+  projectsListEl.innerHTML = '<div class="spinner"></div>';
+  if (!sb) {
+    projectsListEl.innerHTML = '<div class="empty-state"><p>Supabase not connected.</p></div>';
+    return;
+  }
+  const { data, error } = await sb.from('projects').select('*').order('created_at');
+  if (error) {
+    projectsListEl.innerHTML = '<div class="empty-state"><p>Error loading projects.</p></div>';
+    return;
+  }
+  projectsCache = data || [];
+  if (!projectsCache.length) {
+    projectsListEl.innerHTML = '<div class="empty-state"><p>No projects yet. Click “+ Add project” to create one.</p></div>';
+    return;
+  }
+  projectsListEl.innerHTML = projectsCache.map(p => `
+    <div class="project-row">
+      <img class="project-row-thumb" src="${esc(p.cover_image)}" alt=""/>
+      <button class="rv-toggle ${p.visible ? 'is-on' : ''}" data-action="toggle" data-id="${p.id}" title="${p.visible ? 'Visible on site' : 'Hidden'}"></button>
+      <div class="project-row-body">
+        <div class="project-row-title">${esc(p.title)}</div>
+        <div class="project-row-meta"><span class="tag">${esc(p.category)}</span>${esc([p.location, p.year].filter(Boolean).join(' · '))}</div>
+      </div>
+      <div class="project-row-actions">
+        <button class="rv-btn" data-action="edit" data-id="${p.id}">Edit</button>
+        <button class="rv-btn rv-btn-del" data-action="delete" data-id="${p.id}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  projectsListEl.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const project = projectsCache.find(p => p.id === id);
+      if (!project) return;
+      if (btn.dataset.action === 'toggle') {
+        await sb.from('projects').update({ visible: !project.visible }).eq('id', id);
+        renderProjectsList();
+      } else if (btn.dataset.action === 'edit') {
+        openProjectForm(project);
+      } else if (btn.dataset.action === 'delete') {
+        if (confirm('Delete this project? Its photos will also be removed from storage.')) {
+          await sb.from('projects').delete().eq('id', id);
+          await deleteProjectPhotos([project.cover_image, ...(Array.isArray(project.images) ? project.images : [])]);
+          renderProjectsList();
+        }
+      }
+    });
+  });
+}
+
+function openProjectForm(project) {
+  document.getElementById('project-form-title').textContent = project ? 'Edit project' : 'New project';
+  pfTitle.value       = project ? project.title : '';
+  pfCategory.value    = project ? project.category : 'solar';
+  pfLocation.value    = project ? (project.location || '') : '';
+  pfYear.value        = project ? (project.year || '') : '';
+  pfDescription.value = project ? (project.description || '') : '';
+  pfId.value          = project ? project.id : '';
+  pfCoverUrl.value    = project ? (project.cover_image || '') : '';
+  if (pfCoverUrl.value) {
+    pfCoverPreview.src = pfCoverUrl.value;
+    pfCoverPreview.style.display = '';
+    pfCoverPlaceholder.style.display = 'none';
+  } else {
+    pfCoverPreview.style.display = 'none';
+    pfCoverPlaceholder.style.display = '';
+  }
+  pfExtraImages = project && Array.isArray(project.images) ? [...project.images] : [];
+  renderExtraThumbs();
+  projectFormWrap.style.display = 'block';
+  pfTitle.focus();
+}
+
+document.getElementById('btn-add-project').addEventListener('click', () => openProjectForm(null));
+
+document.getElementById('pf-cancel').addEventListener('click', () => {
+  projectFormWrap.style.display = 'none';
+});
+
+document.getElementById('pf-save').addEventListener('click', async () => {
+  const title = pfTitle.value.trim();
+  const cover = pfCoverUrl.value;
+  if (!title) { alert('Title is required.'); return; }
+  if (!cover) { alert('A cover photo is required.'); return; }
+  if (!sb) { alert('Supabase not connected.'); return; }
+  const payload = {
+    title,
+    category: pfCategory.value,
+    location: pfLocation.value.trim(),
+    year: pfYear.value.trim(),
+    description: pfDescription.value.trim(),
+    cover_image: cover,
+    images: pfExtraImages
+  };
+  const id = pfId.value;
+  const saveBtn = document.getElementById('pf-save');
+  saveBtn.disabled = true;
+  if (id) {
+    await sb.from('projects').update(payload).eq('id', id);
+  } else {
+    await sb.from('projects').insert({ ...payload, visible: true });
+  }
+  saveBtn.disabled = false;
+  projectFormWrap.style.display = 'none';
+  renderProjectsList();
 });
 
 /* ─────────────────────────────────────────

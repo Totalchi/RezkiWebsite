@@ -1330,9 +1330,100 @@ footer {
   color: var(--navy-1);
   display: grid; place-items: center;
   font-size: 1.3rem;
+  z-index: 2;
   transition: background 0.2s;
 }
 .lightbox-close:hover { background: var(--gold-2); color: #fff; }
+
+/* ---------- Lightbox: project detail card ---------- */
+.lightbox-card {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  max-width: 1100px;
+  max-height: 88vh;
+  width: 100%;
+  background: var(--navy-2);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.lightbox-media {
+  flex: 1.4;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--navy-0);
+}
+.lightbox-media img {
+  width: 100%; height: 100%;
+  max-height: none; max-width: none;
+  flex: 1;
+  min-height: 0;
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: none;
+}
+.lightbox-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.lightbox-thumbs:empty { display: none; }
+.lightbox-thumbs img {
+  width: 56px; height: 56px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.55;
+  border: 1px solid var(--line-2);
+  transition: opacity 0.2s;
+}
+.lightbox-thumbs img:hover,
+.lightbox-thumbs img.is-active { opacity: 1; border-color: var(--gold-2); }
+.lightbox-info {
+  flex: 1;
+  min-width: 260px;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.lightbox-info:empty { display: none; }
+.lightbox-tag {
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+.lightbox-info h3 {
+  font-family: var(--f-display);
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--ice);
+  margin: 0.6rem 0 0.4rem;
+}
+.lightbox-meta {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  color: var(--steel-2);
+  margin-bottom: 1rem;
+}
+.lightbox-desc {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--steel-2);
+}
+@media (max-width: 860px) {
+  .lightbox-card { flex-direction: column; overflow-y: auto; }
+  .lightbox-media img { max-height: 46vh; }
+  .lightbox-info { min-width: 0; }
+}
 
 /* ---------- Auth modal ---------- */
 .auth-modal {

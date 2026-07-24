@@ -3,6 +3,150 @@
    Nav scroll, reveal-on-scroll, hero video, layered stack, counters, etc.
    ========================================================== */
 
+/* ---------- Layered Stack ----------
+   Exposed as window.initLayeredStack() so it can be re-run after
+   interactions.js swaps in project cards loaded from Supabase. */
+(function () {
+  let lsWrapper, lsFilter, grid;
+  let items = [], ROTS = [], isSpread = false, bound = false;
+
+  function visibleItems() { return items.filter(i => !i.classList.contains('ls-hidden')); }
+
+  function stackItems() {
+    isSpread = false;
+    lsWrapper.classList.remove('is-spread');
+    const cw = grid.offsetWidth;
+    const ch = grid.offsetHeight;
+    items.forEach((item, i) => {
+      if (item.classList.contains('ls-hidden')) {
+        item.style.transform = 'translate(-9999px, 0)';
+        item.style.zIndex = '';
+        return;
+      }
+      const dx = cw / 2 - (item.offsetLeft + item.offsetWidth  / 2);
+      const dy = ch / 2 - (item.offsetTop  + item.offsetHeight / 2);
+      item.style.transitionDelay = '0ms';
+      item.style.transform = `translate(${dx}px,${dy}px) rotate(${ROTS[i]}deg)`;
+      item.style.zIndex = i;
+    });
+  }
+
+  function spreadItems() {
+    isSpread = true;
+    lsWrapper.classList.add('is-spread');
+    const vis = visibleItems();
+    vis.forEach((item, i) => {
+      item.style.transitionDelay = `${i * 45}ms`;
+      item.style.transform = 'translate(0,0) rotate(0deg)';
+      item.style.zIndex = '';
+    });
+    setTimeout(() => vis.forEach(el => el.style.transitionDelay = ''), 800);
+  }
+
+  // Populate + open the shared #lightbox as a project detail card
+  // (title, location, year, description, extra photos as thumbnails).
+  function openProjectLightbox(item) {
+    const lb    = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    if (!lb || !lbImg) return;
+
+    const cover = item.querySelector('img').src;
+    let extra = [];
+    try { extra = JSON.parse(item.dataset.images || '[]'); } catch (e) { /* ignore malformed data */ }
+    const gallery = [cover, ...extra.filter(Boolean)];
+    lbImg.src = cover;
+
+    const tagEl    = document.getElementById('lightbox-tag');
+    const titleEl  = document.getElementById('lightbox-title');
+    const metaEl   = document.getElementById('lightbox-meta');
+    const descEl   = document.getElementById('lightbox-desc');
+    const thumbsEl = document.getElementById('lightbox-thumbs');
+
+    const catBtn = lsFilter && item.dataset.cat
+      ? lsFilter.querySelector(`[data-ls-filter="${item.dataset.cat}"]`)
+      : null;
+    if (tagEl)   tagEl.textContent   = catBtn ? catBtn.textContent : (item.dataset.cat || '');
+    if (titleEl) titleEl.textContent = item.dataset.title || '';
+    if (metaEl)  metaEl.textContent  = [item.dataset.location, item.dataset.year].filter(Boolean).join(' · ');
+    if (descEl)  descEl.textContent  = item.dataset.desc || '';
+
+    if (thumbsEl) {
+      thumbsEl.innerHTML = gallery.length > 1
+        ? gallery.map((src, i) => `<img src="${src}" class="${i === 0 ? 'is-active' : ''}"/>`).join('')
+        : '';
+      thumbsEl.querySelectorAll('img').forEach(t => {
+        t.addEventListener('click', () => {
+          thumbsEl.querySelectorAll('img').forEach(x => x.classList.remove('is-active'));
+          t.classList.add('is-active');
+          lbImg.src = t.src;
+        });
+      });
+    }
+
+    lb.classList.add('is-open');
+  }
+
+  function bindItemEvents() {
+    items.forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        if (!isSpread) { spreadItems(); return; }
+        if (item.classList.contains('ls-hidden')) return;
+        openProjectLightbox(item);
+      });
+    });
+  }
+
+  function initLayeredStack() {
+    lsWrapper = document.getElementById('layered-stack');
+    lsFilter  = document.getElementById('ls-filter');
+    if (!lsWrapper) return;
+
+    // Re-query every call: interactions.js may have just replaced the
+    // grid's innerHTML with fresh project cards from Supabase.
+    grid  = lsWrapper.querySelector('.ls-grid');
+    items = [...lsWrapper.querySelectorAll('.ls-item')];
+    ROTS  = items.map(() => (Math.random() * 22 - 11).toFixed(2));
+    isSpread = false;
+    bindItemEvents();
+
+    requestAnimationFrame(() => requestAnimationFrame(stackItems));
+
+    // Wrapper/filter-level listeners stay bound to the outer `items`/`grid`
+    // variables above, so they only need to be attached once — later calls
+    // to initLayeredStack() just refresh what those variables point to.
+    if (!bound) {
+      bound = true;
+      lsWrapper.addEventListener('mouseenter', () => { if (!isSpread) spreadItems(); });
+      lsWrapper.addEventListener('mouseleave', () => { if (isSpread)  stackItems();  });
+
+      lsWrapper.addEventListener('click', e => {
+        if (e.target === lsWrapper || e.target === grid) {
+          isSpread ? stackItems() : spreadItems();
+        }
+      });
+
+      if (lsFilter) {
+        lsFilter.querySelectorAll('[data-ls-filter]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            lsFilter.querySelectorAll('[data-ls-filter]').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            const cat = btn.dataset.lsFilter;
+            items.forEach(item => {
+              if (cat === 'all' || item.dataset.cat === cat) item.classList.remove('ls-hidden');
+              else item.classList.add('ls-hidden');
+            });
+            stackItems(); // re-stack with new visible set
+          });
+        });
+      }
+    }
+  }
+
+  window.initLayeredStack = initLayeredStack;
+  document.addEventListener('DOMContentLoaded', initLayeredStack);
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   // ---------- Nav scroll ----------
   const nav = document.querySelector('.nav');
@@ -59,93 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.addEventListener('scroll', updateProgress, { passive: true });
   updateProgress();
-
-  // ---------- Layered Stack ----------
-  const lsWrapper = document.getElementById('layered-stack');
-  const lsFilter  = document.getElementById('ls-filter');
-  if (lsWrapper) {
-    const grid  = lsWrapper.querySelector('.ls-grid');
-    const items = [...lsWrapper.querySelectorAll('.ls-item')];
-    const ROTS  = items.map(() => (Math.random() * 22 - 11).toFixed(2));
-    let isSpread = false;
-
-    function visibleItems() { return items.filter(i => !i.classList.contains('ls-hidden')); }
-
-    function stackItems() {
-      isSpread = false;
-      lsWrapper.classList.remove('is-spread');
-      const cw = grid.offsetWidth;
-      const ch = grid.offsetHeight;
-      items.forEach((item, i) => {
-        if (item.classList.contains('ls-hidden')) {
-          item.style.transform = 'translate(-9999px, 0)';
-          item.style.zIndex = '';
-          return;
-        }
-        const dx = cw / 2 - (item.offsetLeft + item.offsetWidth  / 2);
-        const dy = ch / 2 - (item.offsetTop  + item.offsetHeight / 2);
-        item.style.transitionDelay = '0ms';
-        item.style.transform = `translate(${dx}px,${dy}px) rotate(${ROTS[i]}deg)`;
-        item.style.zIndex = i;
-      });
-    }
-
-    function spreadItems() {
-      isSpread = true;
-      lsWrapper.classList.add('is-spread');
-      const vis = visibleItems();
-      vis.forEach((item, i) => {
-        item.style.transitionDelay = `${i * 45}ms`;
-        item.style.transform = 'translate(0,0) rotate(0deg)';
-        item.style.zIndex = '';
-      });
-      setTimeout(() => vis.forEach(el => el.style.transitionDelay = ''), 800);
-    }
-
-    // Init after layout is ready
-    requestAnimationFrame(() => requestAnimationFrame(stackItems));
-
-    lsWrapper.addEventListener('mouseenter', () => { if (!isSpread) spreadItems(); });
-    lsWrapper.addEventListener('mouseleave', () => { if (isSpread)  stackItems();  });
-
-    // Touch: tap wrapper background to toggle
-    lsWrapper.addEventListener('click', e => {
-      if (e.target === lsWrapper || e.target === grid) {
-        isSpread ? stackItems() : spreadItems();
-      }
-    });
-
-    // Lightbox on item click (when spread)
-    items.forEach(item => {
-      item.addEventListener('click', e => {
-        e.stopPropagation();
-        if (!isSpread) { spreadItems(); return; }
-        if (item.classList.contains('ls-hidden')) return;
-        const lb    = document.getElementById('lightbox');
-        const lbImg = document.getElementById('lightbox-img');
-        if (lb && lbImg) {
-          lbImg.src = item.querySelector('img').src;
-          lb.classList.add('is-open');
-        }
-      });
-    });
-
-    // Filter buttons
-    if (lsFilter) {
-      lsFilter.querySelectorAll('[data-ls-filter]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          lsFilter.querySelectorAll('[data-ls-filter]').forEach(b => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-          const cat = btn.dataset.lsFilter;
-          items.forEach(item => {
-            if (cat === 'all' || item.dataset.cat === cat) item.classList.remove('ls-hidden');
-            else item.classList.add('ls-hidden');
-          });
-          stackItems(); // re-stack with new visible set
-        });
-      });
-    }
-  }
 
   // ---------- Back-to-top ----------
   const backTop = document.getElementById('back-top');

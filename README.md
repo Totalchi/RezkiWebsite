@@ -1,8 +1,8 @@
 # RM Bygg & Montage AB — website
 
 Static website (HTML + CSS + vanilla JS, no build step) with a Supabase backend for
-leads, reviews and anonymous analytics. Bilingual (Swedish default, English toggle via a
-client-side switch on the same URL). Deployed to GitHub Pages.
+leads, reviews, completed projects and anonymous analytics. Bilingual (Swedish default,
+English toggle via a client-side switch on the same URL). Deployed to Vercel.
 
 ## Project structure
 
@@ -24,18 +24,21 @@ RezkiWebsite/
 │   │   ├── app.js                # core: i18n (language switch) + booking calendar +
 │   │   │                         #   contact form + admin login modal
 │   │   ├── ui.js                 # UI & scroll effects: nav scroll, reveal, hero video,
-│   │   │                         #   layered stack, back-to-top, active section, counters, spotlight
+│   │   │                         #   layered stack (window.initLayeredStack, re-run after
+│   │   │                         #   interactions.js swaps in Supabase project cards),
+│   │   │                         #   back-to-top, active section, counters, spotlight
 │   │   ├── interactions.js       # tabs, service chips, gallery filter + lightbox,
-│   │   │                         #   mobile nav drawer, reviews marquee
+│   │   │                         #   mobile nav drawer, reviews marquee, completed-projects fetch
 │   │   └── consent.js            # GDPR cookie bar, promo popup, anonymous analytics
 │   │
-│   └── images/                   # logo, gallery photos, QR codes
+│   └── images/                   # logo, gallery photos, QR codes (also the static fallback
+│                                  #   cover images seeded into the `projects` table)
 │
 ├── supabase/                     # Supabase Edge Functions (submit-lead = captcha-
 │                                 #   verified lead intake, send-lead-email)
 ├── supabase_reviews_migration.sql
 ├── supabase_leads_captcha_migration.sql  # revokes anon INSERT on leads (anti-spam)
-├── .github/workflows/deploy.yml  # deploys the repo root to the gh-pages branch
+├── supabase_projects_migration.sql  # `projects` table + `project-photos` storage bucket
 └── README.md                     # this file
 ```
 
@@ -65,8 +68,27 @@ language switch writes `rm-lang` to localStorage, which analytics then reads.
 `window.RM_AUTH_CONFIG` (Supabase URL + anon key) is defined inline in `index.html`
 before the scripts load.
 
+## Completed projects ("Gerealiseerde projecten")
+
+The "Recent work" section (`#projects` / the layered-stack card gallery) ships with a
+static fallback set of 8 cards in `index.html`, but is normally driven by the `projects`
+table in Supabase (see `supabase_projects_migration.sql`) so RM Bygg can add real photos
+and write-ups from the admin dashboard without a code change:
+
+- **Public site:** `interactions.js` fetches visible rows from `projects`, replaces the
+  `.ls-grid` markup, then calls `window.initLayeredStack()` (defined in `ui.js`) to rebind
+  the stack/spread/filter/lightbox interaction on the fresh cards. If Supabase has no rows
+  or isn't reachable, the static fallback cards already in the HTML are left untouched and
+  still work (they carry the same `data-title/-location/-year/-desc/-images` attributes).
+  Clicking a spread card opens `#lightbox` as a detail view with the cover photo, any extra
+  photos as thumbnails, category tag, location · year, and the description.
+- **Admin dashboard:** the *Projects* tab (`admin.html`) is full CRUD, modelled on the
+  Reviews tab — title, category, location, year, description, a visibility toggle, plus
+  cover + extra photo upload straight to the public `project-photos` Supabase Storage
+  bucket (authenticated-only write, public read; see the migration file for the bucket
+  policies). Deleting a project best-effort removes its uploaded photos from storage too.
+
 ## Deploying
 
-Hosted on **GitHub Pages**. Pushing to `master` triggers
-`.github/workflows/deploy.yml`, which publishes the repo root to the `gh-pages` branch.
-So a normal commit + push to `master` deploys the site — no separate deploy command.
+Hosted on **Vercel** (Git-integration). Pushing to `master` auto-deploys to
+https://rmbygg.nu — no CLI or separate deploy command needed.

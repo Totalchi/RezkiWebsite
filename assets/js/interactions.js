@@ -1,9 +1,13 @@
 /* ==========================================================
    RM Bygg & Montage AB — content interactions
-   Tabs, service chips, gallery filter + lightbox, mobile nav, reviews marquee.
+   Tabs, service chips, gallery filter + lightbox, mobile nav, reviews marquee, projects.
    ========================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  const esc = s => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
   // ---------- Tabs ----------
   const tabs = document.querySelectorAll('.tab-btn');
   const panes = document.querySelectorAll('.tab-pane');
@@ -45,9 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderReviews(reviews) {
     const track = document.getElementById('review-track');
     if (!track) return;
-    const esc = s => String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     const visible = reviews.filter(r => r.visible !== false);
     if (!visible.length) return;
     const card = r => {
@@ -66,12 +67,37 @@ document.addEventListener('DOMContentLoaded', () => {
     track.innerHTML = html + html;
   }
 
+  // ---------- Completed projects (layered stack) ----------
+  // Replaces the static fallback cards in #layered-stack .ls-grid with rows
+  // from Supabase, then re-runs the stack/spread/filter/lightbox wiring in
+  // ui.js. If Supabase has no visible rows (or isn't reachable), the static
+  // fallback markup already shipped in index.html stays untouched.
+  function renderProjects(rows) {
+    const grid = document.querySelector('#layered-stack .ls-grid');
+    if (!grid) return;
+    const visible = rows.filter(p => p.visible !== false);
+    if (!visible.length) return;
+    grid.innerHTML = visible.map(p => {
+      const images = Array.isArray(p.images) ? p.images : [];
+      const caption = [p.location, p.year].filter(Boolean).join(' · ') || p.category || '';
+      return `<div class="ls-item" data-cat="${esc(p.category)}" data-title="${esc(p.title)}" data-location="${esc(p.location || '')}" data-year="${esc(p.year || '')}" data-desc="${esc(p.description || '')}" data-images='${esc(JSON.stringify(images))}'>
+        <img src="${esc(p.cover_image)}" alt="${esc(p.title)}" loading="lazy"/>
+        <span>${esc(caption)}</span>
+      </div>`;
+    }).join('');
+    if (window.initLayeredStack) window.initLayeredStack();
+  }
+
   (async () => {
     const _cfg = window.RM_AUTH_CONFIG || {};
     if (_cfg.supabaseUrl && _cfg.supabaseAnonKey && window.supabase) {
       const _sb = window.supabase.createClient(_cfg.supabaseUrl, _cfg.supabaseAnonKey);
-      const { data, error } = await _sb.from('reviews').select('*').order('created_at');
-      if (!error && data && data.length) { renderReviews(data); return; }
+      const [{ data: reviews, error: reviewsErr }, { data: projects, error: projectsErr }] = await Promise.all([
+        _sb.from('reviews').select('*').order('created_at'),
+        _sb.from('projects').select('*').order('created_at')
+      ]);
+      if (!reviewsErr && reviews && reviews.length) renderReviews(reviews);
+      if (!projectsErr && projects && projects.length) renderProjects(projects);
     }
   })();
 

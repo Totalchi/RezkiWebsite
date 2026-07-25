@@ -75,8 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderProjects(rows) {
     const grid = document.querySelector('#layered-stack .ls-grid');
     if (!grid) return;
+    const emptyEl = document.getElementById('pp-empty');
     const visible = rows.filter(p => p.visible !== false);
-    if (!visible.length) return;
+    if (!visible.length) {
+      if (emptyEl) emptyEl.style.display = '';
+      return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
     grid.innerHTML = visible.map(p => {
       const images = Array.isArray(p.images) ? p.images : [];
       const caption = [p.location, p.year].filter(Boolean).join(' · ') || p.category || '';
@@ -92,12 +97,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const _cfg = window.RM_AUTH_CONFIG || {};
     if (_cfg.supabaseUrl && _cfg.supabaseAnonKey && window.supabase) {
       const _sb = window.supabase.createClient(_cfg.supabaseUrl, _cfg.supabaseAnonKey);
+      // The homepage teaser caps to the newest N via #layered-stack[data-limit];
+      // projects.html leaves data-limit unset and gets every visible project.
+      const limitAttr = document.querySelector('#layered-stack')?.dataset.limit;
+      const limit = limitAttr ? parseInt(limitAttr, 10) : null;
+      let projectsQuery = _sb.from('projects').select('*').order('created_at', { ascending: false });
+      if (limit) projectsQuery = projectsQuery.limit(limit);
       const [{ data: reviews, error: reviewsErr }, { data: projects, error: projectsErr }] = await Promise.all([
         _sb.from('reviews').select('*').order('created_at'),
-        _sb.from('projects').select('*').order('created_at')
+        projectsQuery
       ]);
       if (!reviewsErr && reviews && reviews.length) renderReviews(reviews);
-      if (!projectsErr && projects && projects.length) renderProjects(projects);
+      if (!projectsErr && projects) renderProjects(projects);
     }
   })();
 

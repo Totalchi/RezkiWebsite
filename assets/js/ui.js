@@ -3,42 +3,24 @@
    Nav scroll, reveal-on-scroll, hero video, layered stack, counters, etc.
    ========================================================== */
 
-/* ---------- Layered Stack ----------
+/* ---------- Project grid (formerly a hover-to-reveal "layered stack") ----------
    Exposed as window.initLayeredStack() so it can be re-run after
-   interactions.js swaps in project cards loaded from Supabase. */
+   interactions.js swaps in project cards loaded from Supabase.
+   Cards used to sit collapsed in a pile until hovered/tapped — on mobile
+   that pile left a huge empty gap above it and made the section look empty
+   at a glance, so cards now render in place immediately; only the reveal
+   stagger and per-card hover/click behaviour remain. */
 (function () {
   let lsWrapper, lsFilter, grid;
-  let items = [], ROTS = [], isSpread = false, bound = false;
+  let items = [], bound = false;
 
   function visibleItems() { return items.filter(i => !i.classList.contains('ls-hidden')); }
 
-  function stackItems() {
-    isSpread = false;
-    lsWrapper.classList.remove('is-spread');
-    const cw = grid.offsetWidth;
-    const ch = grid.offsetHeight;
-    items.forEach((item, i) => {
-      if (item.classList.contains('ls-hidden')) {
-        item.style.transform = 'translate(-9999px, 0)';
-        item.style.zIndex = '';
-        return;
-      }
-      const dx = cw / 2 - (item.offsetLeft + item.offsetWidth  / 2);
-      const dy = ch / 2 - (item.offsetTop  + item.offsetHeight / 2);
-      item.style.transitionDelay = '0ms';
-      item.style.transform = `translate(${dx}px,${dy}px) rotate(${ROTS[i]}deg)`;
-      item.style.zIndex = i;
-    });
-  }
-
-  function spreadItems() {
-    isSpread = true;
-    lsWrapper.classList.add('is-spread');
+  function layoutItems() {
     const vis = visibleItems();
     vis.forEach((item, i) => {
       item.style.transitionDelay = `${i * 45}ms`;
       item.style.transform = 'translate(0,0) rotate(0deg)';
-      item.style.zIndex = '';
     });
     setTimeout(() => vis.forEach(el => el.style.transitionDelay = ''), 800);
   }
@@ -88,9 +70,7 @@
 
   function bindItemEvents() {
     items.forEach(item => {
-      item.addEventListener('click', e => {
-        e.stopPropagation();
-        if (!isSpread) { spreadItems(); return; }
+      item.addEventListener('click', () => {
         if (item.classList.contains('ls-hidden')) return;
         openProjectLightbox(item);
       });
@@ -106,26 +86,16 @@
     // grid's innerHTML with fresh project cards from Supabase.
     grid  = lsWrapper.querySelector('.ls-grid');
     items = [...lsWrapper.querySelectorAll('.ls-item')];
-    ROTS  = items.map(() => (Math.random() * 22 - 11).toFixed(2));
-    isSpread = false;
     bindItemEvents();
 
-    requestAnimationFrame(() => requestAnimationFrame(stackItems));
+    lsWrapper.classList.add('is-spread'); // keeps the existing hover/caption CSS active
+    requestAnimationFrame(() => requestAnimationFrame(layoutItems));
 
-    // Wrapper/filter-level listeners stay bound to the outer `items`/`grid`
-    // variables above, so they only need to be attached once — later calls
-    // to initLayeredStack() just refresh what those variables point to.
+    // Filter listener stays bound to the outer `items` variable above, so it
+    // only needs to be attached once — later calls to initLayeredStack() just
+    // refresh what that variable points to.
     if (!bound) {
       bound = true;
-      lsWrapper.addEventListener('mouseenter', () => { if (!isSpread) spreadItems(); });
-      lsWrapper.addEventListener('mouseleave', () => { if (isSpread)  stackItems();  });
-
-      lsWrapper.addEventListener('click', e => {
-        if (e.target === lsWrapper || e.target === grid) {
-          isSpread ? stackItems() : spreadItems();
-        }
-      });
-
       if (lsFilter) {
         lsFilter.querySelectorAll('[data-ls-filter]').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -136,7 +106,7 @@
               if (cat === 'all' || item.dataset.cat === cat) item.classList.remove('ls-hidden');
               else item.classList.add('ls-hidden');
             });
-            stackItems(); // re-stack with new visible set
+            layoutItems();
           });
         });
       }

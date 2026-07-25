@@ -808,11 +808,11 @@
 }
 
 .ls-wrapper {
-  cursor: pointer;
   user-select: none;
 }
 
-/* The grid defines natural positions — JS reads these then stacks/spreads */
+/* The grid defines natural positions; each card sits there immediately
+   (no more hover-to-reveal pile — see ui.js) */
 .ls-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -826,12 +826,13 @@
   aspect-ratio: 250 / 320;
   border-radius: 6px;
   overflow: hidden;
+  cursor: pointer;
   will-change: transform;
   transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.35s ease;
   box-shadow: 0 4px 20px rgba(0,0,0,0.55);
 }
-.ls-wrapper.is-spread .ls-item:hover {
+.ls-item:hover {
   box-shadow: 0 20px 48px rgba(0,0,0,0.7);
 }
 .ls-item img {
@@ -849,7 +850,7 @@
   opacity: 0;
   transition: opacity 0.2s;
 }
-.ls-wrapper.is-spread .ls-item:hover span { opacity: 1; }
+.ls-item:hover span { opacity: 1; }
 
 @media (max-width: 768px) {
   .ls-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; padding: 1rem; }

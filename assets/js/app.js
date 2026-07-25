@@ -141,6 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
         'gf.ev':     'EV',
         'gf.window': 'Windows',
         'gf.paint':  'Painting',
+        's.gallery.viewAll': 'See all projects',
+        // Projects page (projects.html)
+        'pp.eyebrow': 'Our work',
+        'pp.h2':      'Every project we’ve <em>put our name behind</em>',
+        'pp.desc':    'The full list — filter by service, click any project for photos and details.',
+        'pp.back':    '← Back to home',
+        'pp.empty':   'No projects to show yet.',
         // Gallery items
         'gi.01.h6': 'Villa Särö · 9.6 kWp rooftop',
         'gi.01.sp': 'Solar · 2025',
@@ -420,6 +427,13 @@ document.addEventListener('DOMContentLoaded', () => {
         'gf.ev':     'Laddning',
         'gf.window': 'Fönster',
         'gf.paint':  'Målning',
+        's.gallery.viewAll': 'Se alla projekt',
+        // Projects page (projects.html)
+        'pp.eyebrow': 'Vårt arbete',
+        'pp.h2':      'Varje projekt vi <em>satt vårt namn bakom</em>',
+        'pp.desc':    'Hela listan — filtrera på tjänst, klicka på ett projekt för foton och detaljer.',
+        'pp.back':    '← Tillbaka till startsidan',
+        'pp.empty':   'Inga projekt att visa än.',
         // Gallery items
         'gi.01.h6': 'Villa Särö · 9,6 kWp tak',
         'gi.01.sp': 'Solceller · 2025',
@@ -575,7 +589,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const L = LANGS[l];
     if (!L) return;
     currentLang = l;
-    if (L.doc_title) document.title = L.doc_title;
+    // Pages other than the homepage set document.body.dataset.page and get
+    // their own title pair here instead of the homepage's L.doc_title.
+    const pageTitles = {
+      projects: { en: 'All Projects — RM Bygg & Montage AB', sv: 'Alla projekt — RM Bygg & Montage AB' }
+    };
+    const pageKey = document.body.dataset.page;
+    if (pageKey && pageTitles[pageKey]) {
+      document.title = pageTitles[pageKey][l] || pageTitles[pageKey].sv;
+    } else if (L.doc_title) {
+      document.title = L.doc_title;
+    }
     document.documentElement.lang = l;
 
     // --- Legacy hero direct-ID targets ---

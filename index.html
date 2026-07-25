@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/css/variables.css"/>
 <link rel="stylesheet" href="assets/css/base.css?v=2"/>
-<link rel="stylesheet" href="assets/css/components.css?v=2"/>
+<link rel="stylesheet" href="assets/css/components.css?v=3"/>
 <link rel="stylesheet" href="assets/css/utilities.css"/>
 <link rel="icon" href="assets/images/logo.png?v=2"/>
 </head>
@@ -418,7 +418,7 @@
       <button data-ls-filter="paint" data-i18n="gf.paint">Painting</button>
     </div>
 
-    <div class="ls-wrapper reveal" id="layered-stack">
+    <div class="ls-wrapper reveal" id="layered-stack" data-limit="8">
       <div class="ls-grid" id="ls-grid-default">
         <div class="ls-item" data-cat="solar" data-title="Solceller på villatak" data-location="Sandviken" data-year="2025" data-desc="Takanläggning på 9,6 kWp på en villa i Sandviken. Söderorienterat tak, optimerat för maximal årsproduktion. Från platsbesök till nätanslutning på tre veckor."><img src="assets/images/solar-villa.jpg" alt="Solar villa" loading="lazy"/><span>Solar · Villa</span></div>
         <div class="ls-item" data-cat="ev" data-title="Laddbox 22 kW" data-location="Gävle" data-year="2025" data-desc="Installation av 22 kW laddbox för privatbostad, med lastbalansering mot husets huvudsäkring."><img src="assets/images/ev-charger.webp" alt="EV charger" loading="lazy"/><span>EV · 22 kW</span></div>
@@ -429,6 +429,13 @@
         <div class="ls-item" data-cat="window" data-title="Fönsterbyte" data-location="Gävle" data-year="2024" data-desc="Byte av samtliga fönster i en BRF-fastighet, treglas, med tätning och plåtarbete runt varje karm."><img src="assets/images/window-replacement.jpg" alt="Windows" loading="lazy"/><span>Windows</span></div>
         <div class="ls-item" data-cat="solar" data-title="Växelriktarbyte" data-location="Sandviken" data-year="2025" data-desc="Uppgradering till ny växelriktare för en befintlig solcellsanläggning, med full driftsättning och kontroll av produktionsdata."><img src="assets/images/inverter.jpg" alt="Solis inverter" loading="lazy" style="object-position:center top"/><span>Solar · Inverter</span></div>
       </div>
+    </div>
+
+    <div class="reveal" style="text-align:center;margin-top:2.5rem">
+      <a href="projects.html" class="btn btn-ghost">
+        <span data-i18n="s.gallery.viewAll">See all projects</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
   </div>
 </section>
@@ -964,9 +971,9 @@
 </script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/app.js?v=2"></script>
-<script src="assets/js/ui.js?v=2"></script>
-<script src="assets/js/interactions.js?v=2"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script src="assets/js/ui.js?v=3"></script>
+<script src="assets/js/interactions.js?v=3"></script>
 <script src="assets/js/consent.js"></script>
 </body>
 </html>
